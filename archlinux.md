@@ -173,7 +173,34 @@ Failed to connect, CredSSP required by server (check if server has disabled old 
 2. 将内容移动到扩展屏，可i3上操作类似，$mod+shift+方向键
 3. 在使用时发现，可以这么理解，就**是将那块workspace工作区 给移动到扩展屏来了~**
 4. `xrandr --output HDMI-1-3 --primary`   意思是，将扩展屏作为主屏幕，当每次新建ws时，都会在扩展屏上创建
-5. 
+
+---
+
+1. 在使用中，发现，可以先在你计划使用的ws中放置一个terminal,比如放在扩展屏中，这样就比较容易分配了～
+
+## 蓝牙无线使用
+
+1. bluetoothctl 进行调试，
+
+- `remove 5C:C6:E9:40:AC:1D`  
+- `scan on `   重新扫描
+- `pair 5C:C6:E9:40:AC:1D`   
+- `connect 5C:C6:E9:40:AC:1D`   会有successful 成功显示
+
+2. 参考，[官方wiki](https://wiki.archlinux.org/index.php/Bluetooth)，  
+
+
+
+## TLP电池管理
+
+1. `systemctl status tlp.service`   
+
+- `vim /etc/tlp.conf `  ,添加  SATA_LINKPWR_ON_BAT="max_performance"
+- `yay -S powertop`   安装powertop,查看所有设备的点亮消耗情况～
+
+2. Linux的电池消耗可以等于（或超过）Windows，这完全取决于您的用法和管理方法。
+
+2. 参考，[官方wiki](https://wiki.archlinux.org/index.php/TLP_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87))，  
 
 
 
