@@ -76,6 +76,8 @@ keyserver hkp://ipv4.pool.sks-keyservers.net:11371
 - `yay -Ss rofi`   查询AUR内软件包
 - `yay -S rofi`  
 - `yay -Q rofi`   查询本地软件包
+  - `yay -Ql vsftpd`   查看vsftpd服务的相关文件 
+  - yay -Q后，按TAB键位，可以查看到相关参数
 - `yay -Syy`     同步数据库的包  `yay -Syu`   升级所有安装的包
 - `yay -Rns rofi`   删除包
 - `yay -Scc`     清理缓存
@@ -178,9 +180,30 @@ Failed to connect, CredSSP required by server (check if server has disabled old 
 
 1. 在使用中，发现，可以先在你计划使用的ws中放置一个terminal,比如放在扩展屏中，这样就比较容易分配了～
 
+## i3lock 像素化锁屏
+
+1. `vim ~/.zshrc`   添加函数，lockscr
+
+```shell
+function lockscr(){
+    /usr/bin/flameshot full -p ~/pics/backg/
+    sleep 2
+    convert ~/pics/backg/2020-*.png  -scale 10% -scale 1000% ~/pics/backg/2020-lock.png
+    i3lock -i ~/pics/backg/2020-lock.png
+    rm -f ~/pics/backg/2020-*.png
+}
+```
+
+- 接着，st（终端） 里调用下，注意，解锁密码就是你用户的密码，直接输入然后 Enter
+- 确定无误后，在i3配置文件中添加命令
+    - `bindsym $mod+l exec "source ~/.zshrc && lockscr"`  
+
 ## 蓝牙无线使用
 
 1. bluetoothctl 进行调试，
+
+- `yay -Ql pulseaudio-bluetooth`   
+- `systemctl status bluetooth`   
 
 - `remove 5C:C6:E9:40:AC:1D`  
 - `scan on `   重新扫描
@@ -236,6 +259,16 @@ Failed to connect, CredSSP required by server (check if server has disabled old 
 - 前往参考，[systemd.mount中文手册](http://www.jinbuguo.com/systemd/systemd.mount.html)，[samba服务实现linux与windows相互共享资源](https://www.jianshu.com/p/830f1bd5b5e0)  ，
 
   [configuring fstab based samba share mounts](https://discourse.osmc.tv/t/configuring-fstab-based-samba-share-mounts/38167/9),  
+
+
+
+#### 还有一个小问题！！！
+
+- 在挂载的windos文件夹内创建git,但是现在如果要进入目录，有很大概率，只能使用root身份才能进入目录了！:children_crossing:  
+
+---
+
+
 
 ### :thinking::thinking: 
 

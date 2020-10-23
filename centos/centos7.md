@@ -54,14 +54,14 @@ scrape_configs:
   - job_name: 'prometheus'
   - job_name: '西藏项目_Linux'
     static_configs:
-    - targets: ['192.168.10.167:9100','221.236.26.68:9100']
+    - targets: ['192.168.10.167:9100','221.236.26.xx:9100']
   - job_name: '进程监控_linux'
     static_configs:
-    - targets: ['192.168.10.167:9256','221.236.26.68:9256']
+    - targets: ['192.168.10.167:9256','221.236.26.xx:9256']
 
   - job_name: '西藏项目_WinServer'
     static_configs:
-    - targets: ['221.236.26.70:9182']
+    - targets: ['221.236.26.xx:9182']
 ```
 
 
@@ -75,6 +75,15 @@ scrape_configs:
 - 当然，很可能是 /etc/hosts 文件，对ip的对应没有配好！！！
 
 
+
+# 技巧技巧 :medal_sports:  
+
+## PC和手机快速文件传输
+
+1. 使用python3的模块，`python3 -m http.server`   
+
+2. 如果希望换个端口，`python3 -m http.server 1234 --bind 127.0.0.1`   绑定后就不能用本机ip访问
+3. 可以不使用weixin等第三方工具，随时随地传
 
 # FAQ
 
