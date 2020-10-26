@@ -265,6 +265,8 @@ function lockscr(){
 #### 还有一个小问题！！！
 
 - 在挂载的windos文件夹内创建git,但是现在如果要进入目录，有很大概率，只能使用root身份才能进入目录了！:children_crossing:  
+  - 不过，在将用户加入到root组内后，就可以
+- 
 
 ---
 
