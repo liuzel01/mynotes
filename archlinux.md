@@ -1,3 +1,5 @@
+# archlinux
+
 ## command :coffee: 
 
 
@@ -327,11 +329,20 @@ function lockscr(){
 
 - 亲测有效。请确保目标包不被其他重要的包所依赖，可以去官网查看是否有冲突
 
-## AAAX
+## 在挂载windows文件时，不稳定
 
+1. 固态硬盘，nvme0n1 可能会出现不稳定的情况，
 
+- 有时候会出现，开机的时候，报错，[failed] failed to mount /boot/efi  ,
+- 不过手动重启后，就能重新进去了  :confused::confused:  
 
+2. 发现也并不是扩展屏的问题，估计是 /etc/fstab  文件里的挂载配置有点问题！
 
+3. **目前是，将配置注释掉，笔记本启动成功后，再次手动挂载** 
+
+- 要解决，还是再看下配置！！！
+
+## :thinking:  
 
 
 
