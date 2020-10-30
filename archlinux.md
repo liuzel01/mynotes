@@ -198,7 +198,7 @@ function lockscr(){
 
 - 接着，st（终端） 里调用下，注意，解锁密码就是你用户的密码，直接输入然后 Enter
 - 确定无误后，在i3配置文件中添加命令
-    - `bindsym $mod+l exec "source ~/.zshrc && lockscr"`  
+    - `bindsym $mod+Shift+l exec "source ~/.zshrc && lockscr"`  
 
 ## 蓝牙无线使用
 
@@ -228,6 +228,28 @@ function lockscr(){
 2. 参考，[官方wiki](https://wiki.archlinux.org/index.php/TLP_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87))，  
 
 
+
+## st(simple terminal)！！！！！
+
+1. `wget https://dl.suckless.org/st/st-0.8.4.tar.gz`  下载官方包
+2. 使用到的补丁，可以参考网上其他人的
+
+```shell
+-rw-r--r-- 1 liuzel01 root 4.7K Mar  5  2019 st-alpha-0.8.2.diff
+-rw-r--r-- 1 liuzel01 root 3.0K Feb  4  2019 st-copyurl-20190202-0.8.1.diff
+-rw-r--r-- 1 liuzel01 root 2.5K Jun  6 19:42 st-hidecursor-0.8.3.diff
+-rw-r--r-- 1 liuzel01 root 8.7K Apr 26  2020 st-scrollback-20200419-72e3f6c.diff
+```
+
+3. `patch < patch/st-scrollback-xxxx.diff`   打补丁
+
+- 参考，[patch给文件打补丁](https://www.codesocang.com/jquerymobile/linux/3/18.html)，  
+
+4. 实际上，st是可以实现终端到外部的复制的。
+
+- 鼠标选中终端上内容就是复制，粘贴的实现方式是通过鼠标中键。所以说是可以在配置中解决的。
+
+- 
 
 ## 其他记录 :triangular_ruler: 
 
@@ -263,12 +285,6 @@ function lockscr(){
   [configuring fstab based samba share mounts](https://discourse.osmc.tv/t/configuring-fstab-based-samba-share-mounts/38167/9),  
 
 
-
-#### 还有一个小问题！！！
-
-- 在挂载的windos文件夹内创建git,但是现在如果要进入目录，有很大概率，只能使用root身份才能进入目录了！:children_crossing:  
-  - 不过，在将用户加入到root组内后，就可以
-- 
 
 ---
 
@@ -321,7 +337,7 @@ function lockscr(){
 
 ### 解决方法：
 
-1. 使用命令覆盖这个包，`sudo yay -Syu --overwrite /usr/lib/python3.8/xxx/ 
+1. 使用命令覆盖这个包，`sudo yay -Syu --overwrite /usr/lib/python3.8/xxx/ `  
 
 - 貌似只写最外层的目录即可，
 
@@ -336,15 +352,30 @@ function lockscr(){
 - 有时候会出现，开机的时候，报错，[failed] failed to mount /boot/efi  ,
 - 不过手动重启后，就能重新进去了  :confused::confused:  
 
-2. 发现也并不是扩展屏的问题，估计是 /etc/fstab  文件里的挂载配置有点问题！
+2. ~~发现也并不是扩展屏的问题，估计是 /etc/fstab  文件里的挂载配置有点问题！~~
 
-3. **目前是，将配置注释掉，笔记本启动成功后，再次手动挂载** 
+- 应该是用户liuzel01 对于目录 /etc/samba 的权限权限
 
-- 要解决，还是再看下配置！！！
+---
+
+
+
+1. **目前做法是，将/etc/fstab 的有关配置注释掉，笔记本启动成功后，再次手动挂载** 
+
+- 后面，又好使了。。。
+
+- ~~要解决，还是再看下配置~~  
 
 ## :thinking:  
 
+## 有时候进不了目录
 
+- 在挂载的windos文件夹内创建git,但是现在如果要进入目录，有很大概率，只能使用root身份才能进入目录了！:children_crossing:  
+  - 不过，在将用户加入到root组内后，就可以
+
+1. 解决了！！！！这是因为使用的终端st的问题，从官网下载最新的，就行了
+
+- 然后，因为是c语言，有些配置的细节方面需要改改！！！！！
 
 
 

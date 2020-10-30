@@ -17,13 +17,8 @@
   - `  -g, --gid GROUP               force use GROUP as new primary group`  
   - `  -G, --groups GROUPS           new list of supplementary GROUPS`  新的补充清单 
 
-2. 查看容器的运行时日志，`docker logs --tail=100 -f process_exporter`   从第100行开始
+2. 查看容器的运行时日志，`docker logs --tail=100 -f process_exporter`   表示从第100行开始
 3. 啊啊
-
-## PrmQL探索
-
-1. 参考，[彻底理解Prometheus查询语法](https://blog.csdn.net/zhouwenjun0820/article/details/105823389) ， [github大神的prometheus-book](https://github.com/yunlzheng/prometheus-book),  
-2. 
 
 
 
@@ -32,11 +27,14 @@
 ## docker 部署
 
 1. `docker run -d -p 9090:9090 -v /opt/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml  -v /opt/prometheus/rules/node_alerts.yml:/etc/prometheus/rules/node_alerts.yml  --name prometheus -v /etc/localtime:/etc/localtime:ro --hostname prometheus prom/prometheus`   注意宿主机和容器内的时区
+
+- 还可以指定本地数据存储的路径
+
 2. `docker run -d -p 9100:9100 -v "/proc:/host/proc:ro" -v "/sys:/host/sys:ro" -v "/:/rootfs:ro" --net="host" --name node_exporter prom/node-exporter`   
 
 - `curl 127.0.0.1:9100/metrics`   访问获取的指标
 
-3. `docker run -d --rm -p 9256:9256 --privileged -v /proc:/host/proc -v /opt/prometheus/process_exporter:/config -config.path /config/config.yml --name process_exporter ncabatoff/process-exporter --procfs /host/proc`   
+3. `docker run -d -p 9256:9256 --privileged -v /proc:/host/proc -v /opt/prometheus/process_exporter:/config --name process_exporter ncabatoff/process-exporter -config.path /config/config.yml  --procfs /host/proc  `   
 
 - 有啥问题，直接[官网走起](https://github.com/ncabatoff/process-exporter)  
 
@@ -85,11 +83,41 @@ scrape_configs:
 
 - 当然，很可能是 /etc/hosts 文件中的，主机名ip的对应没有配好！！！
 
+2. 
+
+## prometheus的联邦集群支持
+
+1. 
+
+
+
+## PrmQL探索
+
+1. ###### 参考，[彻底理解Prometheus查询语法](https://blog.csdn.net/zhouwenjun0820/article/details/105823389) ， [大神的prometheus-book](https://yunlzheng.gitbook.io/prometheus-book/parti-prometheus-ji-chu/quickstart/why-monitor),  
+
+
+
+## 四个黄金指标
+
+Four Golden Signals 是google针对大量分布式监控的经验总结。可以在服务级别帮助衡量终端用户体验/服务中断/业务影响等层面的问题。参考上面的[prometheus-book](https://yunlzheng.gitbook.io/prometheus-book/parti-prometheus-ji-chu/promql/prometheus-promql-best-praticase),  
+
+1. 延迟：服务器请求所需时间
+2. 通讯量：监控当前系统的流量，用于衡量服务的容量需求
+3. 错误：监控当前系统所有发生的错误请求，衡量当前系统错误发生的速率
+4. 饱和度：衡量当前服务的饱和度
+
+---
+
+1. 参考，[10个常用监控k8s性能的prometheus oprtator指标](https://mp.weixin.qq.com/s/idQgb0GC2yhaVYwgGj5gcA)，  
+
+
+
 ## FAQ
 
-1. 有个问题：
+1. ~~有个问题：~~  
 
-- docker部署的process_exporter，可以获取到指标数据，但是 在使用grafana 相应的仪表盘监控时，发现不到本机的process！！！！！
+- ~~docker部署的process_exporter，可以获取到指标数据，但是 在使用grafana 相应的仪表盘监控时，发现不到本机的process~~  
+- 解决了！因为容器内的配置文件，并未生效。参考上面运行process_exporter的命令，以及github上README
 
 2. 
 
@@ -103,6 +131,10 @@ scrape_configs:
   - system processes metrics, id 8378
 
 2. 
+
+### 优势-与常见监控的比较
+
+1. 参考，上面的[prometheus-books](https://yunlzheng.gitbook.io/prometheus-book/parti-prometheus-ji-chu/promql/prometheus-promql-best-praticase),  
 
 # 技巧技巧 :medal_sports:  
 
