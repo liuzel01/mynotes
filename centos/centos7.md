@@ -18,9 +18,14 @@
   - `  -G, --groups GROUPS           new list of supplementary GROUPS`  新的补充清单 
 
 2. 查看容器的运行时日志，`docker logs --tail=100 -f process_exporter`   表示从第100行开始
-3. 啊啊
 
+## 本地用数据库
 
+1. DBeaver community 数据库连接工具，数据库地址172.17.0.1:3306 
+
+- 其实也就是映射到本地了的
+
+2. 
 
 # prometheus--监控系统
 
@@ -136,7 +141,133 @@ Four Golden Signals 是google针对大量分布式监控的经验总结。可以
 
 1. 参考，上面的[prometheus-books](https://yunlzheng.gitbook.io/prometheus-book/parti-prometheus-ji-chu/promql/prometheus-promql-best-praticase),  
 
-# 技巧技巧 :medal_sports:  
+
+
+# ansible 笔记
+
+1. `ansible centos_server -m ping `  在尝试连接过程中，会提示，**Permission denied (publickey,gssapi-keyex,gssapi-with-mic)** ，
+
+- 修改 sshd_config 配置，增加，`PasswordAuthentication yes`   
+
+## ansible配置优化
+
+##### 开启SSH长连接，
+
+- `vim  /etc/ansible/ansible.cfg `   `ssh -V`   查看主机上ssh的版本，高于5.6则可以直接添加如下
+
+```
+[ssh_connection]
+ssh_args = -o ControlMaster=auto -o ControlPersist=5d
+```
+
+- 表示设置整个长连接的保持时间，这里设置的是5天。
+- 通过 `netstat | grep container`   能看到会有一个ESTABLISHED状态的连接一直与远端设备进行TCP连接
+
+<img src="../images/centos7_docker_ansible_ssh.png"/>
+
+2. 如果要达到ssh长连接的目的，也可修改主机（控端/中控机）的sshd_config  配置，（没尝试）
+
+```
+ServerAliveInterval 30
+ServerAliveCountMax 3
+ControlMaster auto
+ControlPath ~/.ssh/sockets/%r@%h-%p
+ControlPersist 5d
+```
+
+---
+
+##### 开启pipelining
+
+- pipelining 也是openssh的一个特性，
+
+1. ansible执行流程是这样的，	`▶ ansible centoslzl -m ping  -vvv`  结合命令来看更好看
+
+- 基于调用的模块生成一个python脚本
+- 将python复制到主机上
+- 最后，在远端服务器上执行此python脚本
+
+2. 同样是在 ansible.cfg  文件中，
+
+```
+[ssh_connection]	同样是此节点下
+pipelining = True
+```
+
+3. 再次执行命令，能观察到打印出来的更少了，
+
+- 少了一个PUT脚本和SFTP脚本去远端server的流程
+
+##### 开启accelerate模式
+
+- 和SSH Multiplexing功能类似，accelerate 是使用python在远端server 运行一个守护进程，然后ansible通过这个守护进程监听的端口进行通信
+- redhat官方目前不赞成使用accelerate模式，后面的版本中可能要被删除。:seedling:  
+
+1. 需要中控机和远端server都安装 python-keyczar软件包
+
+- `▶ ansible centoslzl -a 'yum install -y python-pyasn1 python python-crypto`  
+- `  rpm -ivh ftp://ftp.ntua.gr/pub/linux/centos/7.8.2003/cloud/x86_64/openstack-queens/Packages/p/python-keyczar-0.71c-2.el7.noarch.rpm`  注意，这是centos7 的，如果是其他版本，需要自己识别
+- 完成安装后，对 ansible.cfg 进行配置，
+
+```
+[accelerate]
+accelerate_port = 5099
+accelerate_timeout= 30
+accelerate_connect_timeout= 5.0
+```
+
+##### 修改ansible执行策略
+
+- 有个参数，默认值如下，修改修改成free  
+
+```
+# Ansible will use the 'linear' strategy but you may want to try another one.
+#strategy = linear
+strategy = free,	# 修改成free,
+```
+
+1. 默认值是linear,即按批次并行处理；  free 表示的是ansible会尽可能快的切入到下一个主机。所以在执行结果的task 显示顺序就不一样，也就可以理解了
+2. playbook中的设置，
+
+```
+---
+- hosts: all
+   strategy: free
+tasks:
+...
+```
+
+##### 任务执行优化
+
+- 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# 技巧技巧 :medal_sports:  :spon
 
 ## PC和手机快速文件传输
 

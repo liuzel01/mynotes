@@ -227,7 +227,16 @@ function lockscr(){
 
 2. 参考，[官方wiki](https://wiki.archlinux.org/index.php/TLP_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87))，  
 
+## 连接数据库图形化
 
+1. 使用 DBeaver Community,来连接
+
+- `yay -S dbeaver`  
+
+2. 本地运行docker内数据库，做测试
+
+- `docker run -d -p 3306:3306 --name mysql  -v /opt/mysql/mysql-data/:/var/lib/mysql -e MYSQL_DATABASE=myblog -e MYSQL_ROOT_PASSWORD=123456 mysql:5.7`  
+- 
 
 ## st(simple terminal)！！！！！
 
@@ -249,7 +258,7 @@ function lockscr(){
 
 - 鼠标选中终端上内容就是复制，粘贴的实现方式是通过鼠标中键。所以说是可以在配置中解决的。
 
-- 
+- **不过这个。还是需要改下配置！！！！！**  
 
 ## 其他记录 :triangular_ruler: 
 
