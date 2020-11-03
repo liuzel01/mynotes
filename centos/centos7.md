@@ -198,7 +198,7 @@ pipelining = True
 
 - 少了一个PUT脚本和SFTP脚本去远端server的流程
 
-##### 开启accelerate模式
+##### ~~开启accelerate模式~~  
 
 - 和SSH Multiplexing功能类似，accelerate 是使用python在远端server 运行一个守护进程，然后ansible通过这个守护进程监听的端口进行通信
 - redhat官方目前不赞成使用accelerate模式，后面的版本中可能要被删除。:seedling:  
@@ -239,7 +239,60 @@ tasks:
 
 ##### 任务执行优化
 
-- 
+- async，代表这个任务执行时间的上限值，即任务执行时间如果超出这个时间，则认为任务失败。
+- 参数async未设置，则为同步执行。可以为执行时间非常长（有可能遭遇超时）的操作使用异步模式
+- 为异步启动一个任务，可指定其最大超时时间以及轮询其状态的频率，如若没有为poll指定值，默认轮询频率10s
+
+```
+---
+  - hosts: all
+   remote_user: root
+   tasks:
+      - name: simulate long running op (15 sec), wait for up to 45 sec, poll every 5 sec
+      command: /bin/sleep 15
+      async: 45
+      poll: 5
+```
+
+1. 有以下场景需要使用ansible的异步模式
+
+- 某个tash需要运行很长时间，可能会达到ssh连接的timeout
+- 没有任务是需要等待它才能完成的，即没有任务依赖此任务是否完成的状态
+- 需要尽快返回当前shell的
+
+2. 一些不适合使用异步模式的
+
+- 这个任务需要运行完后，才能继续另外任务的
+- **申请排他锁的任务（如yum）**  
+
+
+
+##### 设置facts 缓存
+
+- 在使用ansible-playbook 时，默认第一个task都是 GATHERING FACTS，表示 收集每台主机的facts信息，方便在playbook中直接引用facts里的信息。如若不需要facts的信息，可以在playbook 设置 
+
+  `gather_facts: false`   提高playbook 效率
+
+```
+---
+- hosts: 10.0.108.2
+gather_facts: no
+tasks:
+...
+```
+
+- 也可以在 ansible.cfg  文件中添加如下配置，禁用facts采集
+
+```
+[defaults]
+gathering = explicit
+```
+
+###### json文件缓存facts信息
+
+###### redis缓存facts信息 
+
+###### memcache缓存facts信息
 
 
 
@@ -265,7 +318,27 @@ tasks:
 
 
 
+# jenkins
 
+## FAQ
+
+##### active(exited)
+
+1. `systemctl restart jenkins `   启动后不报错，看日志也未打印出，
+
+- `systemctl status jenkins `   查询状态，同时刷新网页，一会就变成 active(exited)  了
+
+---
+
+
+
+1. 解决办法：
+
+- 给用户jenkins授权，
+  - `chown -R jenkins: /var/lib/jenkins`  
+  - `chown -R jenkins: /var/cache/jenkins`  
+  - `chown -R jenkins: /var/log/jenkins `
+- 重启，并刷新网页  
 
 # 技巧技巧 :medal_sports:  :spon
 
