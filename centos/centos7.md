@@ -23,7 +23,7 @@
 
 1. DBeaver community 数据库连接工具，数据库地址172.17.0.1:3306 
 
-- 其实也就是映射到本地了的
+- 其实也就是映射到本地端口的
 
 2. 
 
@@ -141,7 +141,11 @@ Four Golden Signals 是google针对大量分布式监控的经验总结。可以
 
 1. 参考，上面的[prometheus-books](https://yunlzheng.gitbook.io/prometheus-book/parti-prometheus-ji-chu/promql/prometheus-promql-best-praticase),  
 
+## 使用go编写exporter！！！！！
 
+- 参考，[使用Go开发prometheus exporter](https://mp.weixin.qq.com/s/s1nSaC-8ejvM342v5KPdxA)，  
+
+1. 丿
 
 # ansible 笔记
 
@@ -294,17 +298,96 @@ gathering = explicit
 
 ###### memcache缓存facts信息
 
+- **未实践！！！**  
+
+## ansible的日常维护使用
+
+##### 利用ssh-agent提升ansible管控的安全性
+
+- 可参考，[使用ssh和ssh-agent实现无密码登陆远程server](http://yysfire.github.io/linux/using-ssh-agent-with-ssh.html)，  
 
 
 
+##### 配置ansible 变量环境
 
+1. 编辑 /etc/profiles ，新增一行，`export ANSIBLE_CONFIG=/etc/ansible/ansible.cfg `  
 
+2. 编辑 /etc/ansible/ansible.cfg  文件
 
+```
+[defaults]							# 此处只列出了defaults下的配置
+inventory = /etc/ansible/hosts    	#主机列表配置文件
+library = /usr/share/ansible/    	#库文件存放目录
+remote_tmp = $HOME/.ansible/tmp   	#临时py命令文件存放在远程主机目录
+local_tmp = $HOME/.ansible/tmp    	#本机的临时命令执行目录
+forks = 50     						#默认并发数
+sudo_user = root    				#设置默认执行命令的用户，root,可在playbook中重新指定该参数
+# ask_sudo_pass = True    			#每次执行ansible命令是否询问ssh密码
+# ask_pass = True
+remote_port = 22    
+# module_lang = C						#设置模块的语言
+private_key_file = /root/.ssh/id_rsa	#设置中控机连接客户端的私有ssh-key文件位置
+host_key_checking = False   		#检查对应服务器的host_key，建议取消注释，否则就得先一个一个主机连一次
+timeout = 60						#设置ssh连接超时时间，单位s
+log_path = /var/log/ansible.log   	#日志文件，也是建议取消注释
+```
 
+- 可参考，[ansible自动化运维体系在生产环境下实践](https://mp.weixin.qq.com/s?__biz=MjM5NTk0MTM1Mw==&mid=2650634947&idx=2&sn=6e7e72a60fba85ca7f044cd0a258c406&chksm=bef90445898e8d532b95b511810c19a116bf849b644b0fa0d4fa148fa8502e0cc81941225caf&scene=21#wechat_redirect)，  [语雀上ansible](https://www.yuque.com/liuzelin01/linux/linux-ansible#tMKYg)，  
 
+---
 
+##### 配置ansible客户端主机环境
 
+1. 编辑  /etc/ansible/hosts 文件，按照如下格式添加控端
 
+```
+[业务系统名称代码_x86]
+ip x.x.x.x
+[业务系统名称代码_aix]
+ip x.x.x.x
+```
+
+2. 这样可以区分不同业务系统，不同操作系统类别，
+
+- `ansible 业务系统名称代码* -m module_name -a module_args`  
+- `ansible 业务系统名称代码*_x86 -m module_name -a module_args `  
+
+- `ansible *x86 -m module_name -a module_args `
+
+##### 配置ansible ssh 通信
+
+1. `ssh-keygen`  ,生成ssh public 和 private key
+2. `for i in $ `cat /tmp/ansible_docker.txt`;do ssh-copy-id root@$i;done`  ，也可以写进脚本执行
+
+- 这个时候需要输入密码，来建立互信过程。。
+- **应该可以在脚本中，自动写密码的！！！！**  
+
+##### 常用模块
+
+1. 建议命令，`ansible-doc file`  这里面的都是-a 中可以跟的相关选项，
+
+- 创建文件符号链接，`ansible centoslzl -m file -a 'src=/etc/resolv.conf dest=/tmp/resolv.conf state=link'`  
+
+2. copy：复制文件到远程主机，
+
+- 将本地文件复制到客户端，`ansible centoslzl -m copy -a 'src=/etc/ansible/ansible.cfg dest=/tmp/ansible.cfg owner=root group=root mode=0644'`  
+
+3. command：在远程主机执行命令，因为默认就是command,所以`ansible centoslzl -a 'date' `  
+4. shell：参数与上相同，不过可以用管道
+5. service,cron,yum,synchronize,user,group
+6. `ansible all -a 'hostname' `  
+
+---
+
+##### ansible tower（企业级的ansible）
+
+1. ansible,简单学习一下yaml语法，jinja2语法，能懂得python代码用于分析问题就行。
+
+- 熟练掌握python的话，都不是问题，ansible的一切都可以通过python来解释。
+
+## 演练
+
+1. **开始吧，展示！！！**  
 
 
 
@@ -340,14 +423,41 @@ gathering = explicit
   - `chown -R jenkins: /var/log/jenkins `
 - 重启，并刷新网页  
 
-# 技巧技巧 :medal_sports:  :spon
+
+
+# golang
+
+## 国内go get无法下载的问题，
+
+- `go get github.com/joho/godotenv`  下载总是超时  i/o timeout,
+
+1. 解决方法：
+
+- 使用国内七牛云或是阿里云的镜像仓库，
+- `go env -w GO111MODULE=on`  `go env -w GOPROXY=https://goproxy.cn,direct`  
+- 再次使用go get就可以了
+
+2. 参考，[golang 1.13解决go get无法下载](https://www.sunzhongwei.com/problem-of-domestic-go-get-unable-to-download?from=sidebar_new)，  https://github.com/goproxy/goproxy.cn
+
+---
+
+
+
+
+
+# 技巧技巧 :medal_sports:  
 
 ## PC和手机快速文件传输
 
 1. 使用python3的模块，`python3 -m http.server`   
-
 2. 如果希望换个端口，`python3 -m http.server 1234 --bind 127.0.0.1`   绑定后就不能用本机ip访问
 3. 可以不使用weixin等第三方工具，随时随地传
+
+## 其他
+
+1. `yay -S vnstat`   安装vnstat,监控网络流量
+
+- 
 
 # FAQ
 
