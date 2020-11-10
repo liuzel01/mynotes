@@ -133,6 +133,59 @@ Server = https://mirrors.ustc.edu.cn/blackarch/$repo/os/$arch
 6. 使用了flame-shot 来截图，~/.config/i3/config 中添加配置，实现$mod+p快捷键操作截屏
 7. 
 
+
+
+## 关于把笔记本带回家就不能启动这
+
+- 在公司，使用的方式为：笔记本+外接公司的显示屏。在周五将笔记本带回家后，尝试将笔记本+外接 mini hdmi显示屏，但是就一直停留在 “Start version  ***” 启动界面
+
+1. 后面，去了官网bbs，有大佬帮助了解答，参考，[官网bbs](https://bbs.archlinuxcn.org/viewtopic.php?id=11014)，  
+   1. 还有，[nvidia的wiki](https://wiki.archlinux.org/index.php/NVIDIA_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87))，  
+   2. 所以说，启动盘一定保存好。那里面分区都搞好了，无需重新弄，直接挂载
+
+2. 这就算是可以在家正常启动笔记本了~
+3. **不过外接那块小显示屏，还是没搞好！！！！！**  
+
+- **补充：**  
+
+1. 在启动界面上，按e  去掉quiet 参数，ctrl+x 启动。发现一直停留在[ OK ] Finished TLP system startup/shutdown *** 字样处
+2. 在这个界面，使用ctrl+f3，能够进入tty模式，root用户登录，再安装一下其他的软件包...  
+
+---
+
+- 后续是，我将笔记本带回到公司，准备外接 公司的显示屏。
+
+1. 发现1：笔记本不外接显示屏时，不能正常启动进系统。。。估计还是nvidia的驱动的问题，于是乎，安装了一下nvidia相关的软件包，
+
+```bash
+pacman -S nvidia-lts
+pacman -S xf86-video-intel
+pacman -S xf86-video-vesa
+# pacman -S extra/nvidia
+pacman -S xf86-video-nouveau
+pacman -S nvidia-beta
+```
+
+2. 可以用笔记本正常进入系统了。
+
+---
+
+- **但是！！！！！**  
+
+1. 我在用HDMI 线外接公司显示屏时，发现可以连上，不过显示屏的颜色异常了，是那种黑白的，彩色显示异常 :seedling: :seedling: :seedling:  
+2. **估摸着还是nvidia驱动的问题，**  
+   1. 或者还是说，我之前并没有使用nvidia显卡？？？ :dizzy_face:  
+   2. 安装官方推荐的驱动，`yay -S nvidia-3400xx-lts`  
+
+3. 时间线往前捯，，，，
+   1. 笔记本的arch系统，是在公司安装的，当时就一个笔记本（未使用外接）。可能后面有安装什么也说不定。
+
+---
+
+- 总有爱折腾的大神，参考[可能是arch分支最正确的显卡驱动方案](https://www.bwsl.wang/arch/67.html)，  
+
+
+
 ## 与windows远程 :desktop_computer: 
 
 
@@ -160,7 +213,7 @@ Failed to connect, CredSSP required by server (check if server has disabled old 
 - 参考，[rdesktop  from archlinux](https://wiki.archlinux.org/index.php/Rdesktop),  
   - 可以搞一个脚本，或者alias 别名来实现快速操作远程主机
 
-## 指纹识别
+## 指纹识别！！！！！
 
 1. 笔记本重装archlinux， 计划使用上自带的指纹开关，
 2. 参考，[fprint](https://wiki.archlinux.org/index.php/fprint),  

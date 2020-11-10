@@ -27,6 +27,81 @@
 
 2. 
 
+## 使用harbor 搭建私仓
+
+### 常用命令
+
+- harbor的生命周期管理，可以使用docker-compose 来管理，需要在harbor目录中执行
+- docker-compose，可以轻松、高效的管理容器，它是一个用于定义和运行多容器docker的应用程序工具。我说怎么有点熟悉。
+  - docker compose  是单机管理docker的。k8s是多节点管理docker。虽然还有docker swarm也是多节点，不过基本已弃用
+
+1. 启动：`docker-compose start`   
+   1. `docker-compose up -d`  Create and start containers
+2. 停止：`docker-compose stop`  
+3. 移除：`docker-compose rm `  会保留相关镜像文件
+   1. `rm -r /data/database `  `rm -r /data/registry`  删除数据
+4. `docker-compose ps`  查看容器状态
+5. `docker-compose down`  会删除容器，Stop and remove containers, networks, images, and volumes
+   1. 删除后，`docker-compose ps `  你就看不到任何容器了。重新  `./install.sh`  重新安，
+
+
+
+### 搭建
+
+- 步骤，:chestnut:  
+
+```bash
+##################### 创建CA私钥
+openssl genrsa -out ca.key 2048
+##################### 制作CA公钥
+openssl req -new -x509 -days 36500 -key ca.key -out ca.crt -subj "/C=CN/ST=BJ/L=BeiJing/O=BTC/OU=MOST/CN=liuzel01/emailAddress=ca@sipingsoft.com"
+##################### 创建私钥
+openssl genrsa -out httpd.key 1024
+##################### 生成签发请求 
+openssl req -new -key httpd.key -out httpd.csr -subj "/C=CN/ST=BJ/L=BeiJing/O=BTC/OU=OPS/CN=liuzel01/emailAddress=liuzel01@sipingsoft.com"
+##################### 使用CA证书进行签发
+openssl x509 -req -sha256 -in httpd.csr -CA ca.crt -CAkey ca.key -CAcreateserial -days 36500 -out httpd.crt
+##################### 验证签发证书是否有效
+openssl verify -CAfile ca.crt httpd.crt
+##################### 最后，会显示： httpd.crt: OK
+```
+
+1. 
+
+###### 安装docker-ce
+
+1. 
+
+```bash
+[root@master harbor]# docker --version
+Docker version 19.03.13, build 4484c46d9d
+```
+
+
+
+###### 安装docker-compose
+
+1. 
+
+```bash
+[root@master harbor]# docker-compose --version
+docker-compose version 1.18.0, build 8dd22a9
+```
+
+
+
+###### 安装harbor私仓
+
+1. 下载地址，[官网](https://github.com/goharbor/harbor/releases/download/v2.0.4-rc1/harbor-offline-installer-v2.0.4-rc1.tgz)，  
+
+
+
+
+
+- 参考，[harbor介绍与企业级私有docker镜像仓库搭建](https://cloud.tencent.com/developer/article/1718372)，  
+
+- 参考，[使用harbor搭建docker私仓](https://www.jianshu.com/p/e896a2c7b975)，  [docker compose详解](https://www.jianshu.com/p/658911a8cff3)，  
+
 # prometheus--监控系统
 
 ## docker 部署
