@@ -19,7 +19,7 @@
 
 2. 查看容器的运行时日志，`docker logs --tail=100 -f process_exporter`   表示从第100行开始
 
-## 本地用数据库
+## 本地用数据库！！！！！命令
 
 1. DBeaver community 数据库连接工具，数据库地址172.17.0.1:3306 
 
@@ -44,11 +44,17 @@
 5. `docker-compose down`  会删除容器，Stop and remove containers, networks, images, and volumes
    1. 删除后，`docker-compose ps `  你就看不到任何容器了。重新  `./install.sh`  重新安，
 
+---
 
+#### 排查
+
+1. 查看日志，`docker-compose logs log`  ，`docker-compose logs -f log`  
+2. 授权，`chown -R root: /data`  `chown -R root: /var/log/harbor`  具体的路径在docker-compose.yml  文件中有
+3. 
 
 ### 搭建
 
-- 步骤，:chestnut:  
+- SSL证书创建步骤，:chestnut:  
 
 ```bash
 ##################### 创建CA私钥
@@ -66,7 +72,7 @@ openssl verify -CAfile ca.crt httpd.crt
 ##################### 最后，会显示： httpd.crt: OK
 ```
 
-1. 
+- 
 
 ###### 安装docker-ce
 
@@ -92,17 +98,310 @@ docker-compose version 1.18.0, build 8dd22a9
 
 ###### 安装harbor私仓
 
-1. 下载地址，[官网](https://github.com/goharbor/harbor/releases/download/v2.0.4-rc1/harbor-offline-installer-v2.0.4-rc1.tgz)，  
+1. 下载地址，[官网](https://github.com/goharbor/harbor/releases/download/v2.0.4-rc1/harbor-offline-installer-v2.0.4-rc1.tgz)， 
+
+---
+
+- 浏览器访问，https://192.168.226.134/harbor， 进入到页面内，账户密码在harbor.yml 中有的，harbor_admin_password
+
+1. 在之前，还要配置一下daemon.json  内容如下：
+
+```json
+{
+  "registry-mirrors":["https://3oxbtpll.mirror.aliyuncs.com"],
+  "insecure-registries":[
+    "192.168.226.134:5000","192.168.226.134"
+  ],
+  "live-restore":true
+}
+```
+
+- 将harbor加入到systemd 服务中去，/usr/lib/systemd/system/docker_harbor.service
+
+```bash
+[Unit]
+Description=Harbor
+After=docker.service systemd-networkd.service systemd-resolved.service
+Requires=docker.service
+Documentation=http://github.com/vmware/harbor
+
+[Service]
+Type=simple
+Restart=on-failure
+RestartSec=5
+ExecStart=/usr/bin/docker-compose -f /opt/harbor/docker-compose.yml up
+ExecStop=/usr/bin/docker-compose -f opt/harbor/docker-compose.yml down
+
+[Install]
+WantedBy=multi-user.target
+```
 
 
+
+<img src="C:\siping\mynotes\images\centos7_docker_harbor.png" alt="docker_harbor_首页" style="zoom: 67%;" />
+
+- 在docker push 之前，先登录上你的私仓，`docker login 192.168.226.134`  ip就是你私仓的地址
+  - 用户名/密码，需联系管理员在harbor 网页端后台进行创建，并将人员添加进对应的项目中去
+
+- 而对于镜像仓库，不需创建，直接命令中tag 就好
+
+<img src="C:\siping\mynotes\images\centos7_docker_harbor_regis.png" alt="docker_harbor_images" style="zoom:80%;" />
+
+1. 上传本地镜像到私仓，方法其实在harbor 端也有注解，
+   1. `docker tag liuzel01/lzl_c7sshd:latest 192.168.226.134/ops/lzl_c7sshd:lzl_21`  
+   2. `docker push 192.168.226.134/ops/lzl_c7sshd:lzl_21`  
+      1. docker tag myblog 192.168.226.134/ops/lzl_django:lzl_django
+      2. docker push 192.168.226.134/ops/lzl_django:lzl_django
+
+- 注意harbor的架构。可以看到，好的tag能让你的镜像一目了然
+
+<img src="C:\siping\mynotes\images\centos7_docker_harbor_regists.png" alt="docker_harbor_images" style="zoom:80%;" />
+
+ 
+
+- 从私仓push镜像，演示
+
+1. `docker pull 192.168.226.134/ops/lzl_c7sshd:hostname-centos7`  或是 `docker pull 192.168.226.134/ops/lzl_c7sshd:V0.2`  
+2. `docker pull 192.168.226.134/ops/lzl_c7sshd@sha256:4048334c3f3a455d746179aaf9f67c27e48bad642876d7456a191a69955595bd`  当然可以从harbor 复制命令过来执行
+   1. lzl_c7sshd  是镜像仓库，hostname-centos7 是标签，这时候再回去看当时上传的操作，就很清晰了
+3. 需要注意的是。当你将本地镜像push到私仓，而私仓已经有过了只是镜像的tag 不同，在harbor  页面就会给原有镜像添加你的tag
+   1. 在你push的时候，会提示  `4cd45d454a89: Layer already exists`    就应该意识到这点
+
+---
+
+- 对于创建多个仓库，演示
+
+<img src="C:\siping\mynotes\images\centos7_docker_harbor_php.png" alt="docker_harbor_images" style="zoom:80%;" />
+
+<img src="C:\siping\mynotes\images\centos7_docker_harbor_yanshi.png" alt="docker_harbor_images" style="zoom:80%;" />
 
 
 
 - 参考，[harbor介绍与企业级私有docker镜像仓库搭建](https://cloud.tencent.com/developer/article/1718372)，  
-
 - 参考，[使用harbor搭建docker私仓](https://www.jianshu.com/p/e896a2c7b975)，  [docker compose详解](https://www.jianshu.com/p/658911a8cff3)，  
 
+1. [vmware harbor：基于docker distribution的企业级registry](https://segmentfault.com/a/1190000007705296)，  
+
+---
+
+### FAQ
+
+- 在停止后，`docker-compose stop`，  就很难启动起来，总会报错。。。。
+  - 目前，是删除所有harbor相关镜像，再重新`./install.sh`  安装
+
+1. 不过，在使用  `systemctl start docker_harbor`  可以解决
+
+## django应用容器化实践
+
+- `vim Dockerfile`  
+
+```
+FROM centos:centos7.5.1804
+LABEL maintainer="inspur_lyx@hotmail.com"
+ENV LANG en_US.UTF-8
+ENV LC_ALL en_US.UTF-8
+# RUN 执行以下命令
+RUN curl -so /etc/yum.repos.d/Centos-7.repo http://mirrors.aliyun.com/repo/Centos-7.repo
+RUN yum install -y  python36 python3-devel gcc pcre-devel zlib-devel make net-tools
+COPY nginx-1.13.7.tar.gz  /opt
+#安装nginx
+RUN tar -zxf /opt/nginx-1.13.7.tar.gz -C /opt  && cd /opt/nginx-1.13.7 && ./configure --prefix=/usr/local/nginx && make && make install && ln -s /usr/local/nginx/sbin/nginx /usr/bin/nginx
+```
+
+- `git clone https://gitee.com/agagin/python-demo.git`  
+
+1. `mv python-demo myblog`  
+
+2. `wget http://nginx.org/download/nginx-1.13.7.tar.gz`  
+
+3. 基本材料就是这些
+
+- `docker build . -t myblog -f Dockerfile`  
+- `docker tag myblog 192.168.226.134/ops/lzl_django:lzl_django`  
+- `docker push 192.168.226.134/ops/lzl_django:lzl_django`  
+
+4. 然后，根据上传到私仓的 lzl_django 里的镜像来进行下一步
+
+- `vim Dockerfile_optimized`  
+
+```
+FROM 192.168.226.134/ops/lzl_django@sha256:547b84f6b26af61004657c43c9045917a87a963ed7927476b315db4aff2db941
+LABEL maintainer="liuzel01@hotmail.com"
+#工作目录
+WORKDIR /opt/myblog
+#拷贝文件至工作目录
+COPY ./myblog .
+RUN cp myblog.conf /usr/local/nginx/conf/myblog.conf
+COPY ./myblog/run.sh .
+#安装依赖的插件
+RUN pip3 install -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com -r requirements.txt
+RUN chmod +x run.sh && rm -rf ~/.cache/pip
+#EXPOSE 映射端口
+EXPOSE 8002
+#容器启动时执行命令
+CMD ["./run.sh"]
+```
+
+5. 创建数据库
+
+- `docker run -d -p 3306:3306 --name mysql  -v /opt/mysql/mysql-data/:/var/lib/mysql -e MYSQL_DATABASE=myblog -e MYSQL_ROOT_PASSWORD=123456 mysql:5.7`  
+- 进入容器，登录数据库查看是否有 myblog
+
+6. ！！！！！更改数据库字符集，因为最后发现发布文章会有问题，所以提前在这里记录下。
+   1. 其实在前面Dockerfilexxxx 也能改。。。
+
+- `vim mysql/my.cnf`  
+
+```
+[mysqld]
+user=root
+character-set-server=utf8
+lower_case_table_names=1
+
+[client]
+default-character-set=utf8
+[mysql]
+default-character-set=utf8
+
+!includedir /etc/mysql/conf.d/
+!includedir /etc/mysql/mysql.conf.d/
+```
+
+- `vim mysql/Dockerfile`  
+
+```
+FROM mysql:5.7
+COPY my.cnf /etc/mysql/my.cnf
+```
+
+- `docker build . -t mysql:5.7-utf8`  根据dockerfile 生成新镜像
+- `docker tag mysql:5.7-utf8 192.168.226.134/ops/mysql:liuzel01_5.7-utf8`  
+- `docker push 192.168.226.134/ops/mysql:liuzel01_5.7-utf8`  上传镜像到私仓
+- `docker run -d -p 3306:3306 --name mysql -v /opt/mysql/mysql-data/:/var/lib/mysql -e MYSQL_DATABASE=myblog -e MYSQL_ROOT_PASSWORD=123456 192.168.226.134/mysql:5.7-utf8`  运行数据库
+
+---
+
+1. 启动 django
+
+- `docker run -d -p 8002:8002 --name myblog_lzl -e MYSQL_HOST=172.17.0.4 -e MYSQL_USER=root -e MYSQL_PASSWD=123456  myblog:latest`  
+- 如若不成功，注意你的运行docker环境的运存，不能太小
+
+```
+## migrate 迁移
+$ docker exec -ti myblog bash
+#/ python3 manage.py makemigrations
+#/ python3 manage.py migrate
+#/ python3 manage.py createsuperuser
+## 创建超级用户
+$ docker exec -ti myblog python3 manage.py createsuperuser
+## 收集静态文件
+## $ docker exec -ti myblog python3 manage.py collectstatic
+```
+
+2. 浏览器访问， 192.168.226.134:8002/admin   
+
+
+
+
+
+
+
+
+
 # prometheus--监控系统
+
+## 几个systemd 服务，:chestnut:  
+
+- `cat /usr/lib/systemd/system/prometheus.service`  
+
+```bash
+[Unit]
+Description=Prometheus
+Documentation=https://prometheus.io/
+After=network.target
+[Service]
+Type=simple
+User=prometheus
+ExecStart=/opt/prometheus/prometheus 					\
+			--config.file=/opt/prometheus/prometheus.yml 	\
+			--web.enable-lifecycle 				\
+			--storage.tsdb.path=/opt/prometheus/data 	\
+			--storage.tsdb.retention=60d
+Restart=on-failure
+[Install]
+WantedBy=multi-user.target
+```
+
+- `cat /usr/lib/systemd/system/grafana-server.service`  
+
+```bash
+[Unit]
+Description=Grafana instance
+Documentation=http://docs.grafana.org
+Wants=network-online.target
+After=network-online.target
+After=postgresql.service mariadb.service mysqld.service
+
+[Service]
+EnvironmentFile=/etc/sysconfig/grafana-server
+User=grafana
+Group=grafana
+Type=notify
+Restart=on-failure
+WorkingDirectory=/usr/share/grafana
+RuntimeDirectory=grafana
+RuntimeDirectoryMode=0750
+ExecStart=/usr/sbin/grafana-server                                                  \
+                            --config=${CONF_FILE}                                   \
+                            --pidfile=${PID_FILE_DIR}/grafana-server.pid            \
+                            --packaging=rpm                                         \
+                            cfg:default.paths.logs=${LOG_DIR}                       \
+                            cfg:default.paths.data=${DATA_DIR}                      \
+                            cfg:default.paths.plugins=${PLUGINS_DIR}                \
+                            cfg:default.paths.provisioning=${PROVISIONING_CFG_DIR}  
+
+LimitNOFILE=10000
+TimeoutStopSec=20
+
+[Install]
+WantedBy=multi-user.target
+```
+
+- `cat /usr/lib/systemd/system/node_exporter.service`  
+
+```bash
+[Unit]
+Description=node_exporter
+After=network.target
+[Service]
+Type=simple
+User=prometheus
+ExecStart=/usr/local/node_exporter/node_exporter
+Restart=on-failure
+[Install]
+WantedBy=multi-user.target
+```
+
+- `cat /usr/lib/systemd/system/process_exporter.service`  
+
+```bash
+[Unit]
+Description=process_exporter
+After=network.target
+[Service]
+Type=simple
+User=prometheus
+ExecStart=/usr/local/process_exporter/process-exporter -config.path /usr/local/process_exporter/config.yml
+Restart=on-failure
+[Install]
+WantedBy=multi-user.target
+```
+
+- 查看 系统上所有已加载的服务，
+
+1. `systemctl --type=service`  --state=active
+
+
 
 ## docker 部署
 
@@ -165,7 +464,7 @@ scrape_configs:
 
 2. 
 
-## prometheus的联邦集群支持
+## prometheus的联邦集群支持！！！！！
 
 1. 
 
