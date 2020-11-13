@@ -233,7 +233,40 @@ Failed to connect, CredSSP required by server (check if server has disabled old 
 
 ---
 
-1. 在使用中，发现，可以先在你计划使用的ws中放置一个terminal,比如放在扩展屏中，这样就比较容易分配了～
+1. 在使用中，发现，可以先在你计划使用的workspace中放置一个terminal,比如放在扩展屏中，这样就比较容易分配了～
+
+---
+
+##### 外接显示屏，色彩异常
+
+- 在把家里的archlinux系统的笔记本带到公司，很不幸地发现，外接显示屏上的色彩，显示异常了！！！！！
+
+![外接屏异常](./images/arch_xrandr_yic.jpeg)
+
+- 然后在笔记本用hdmi线外接显示屏的情况下，使用flameshot截图，出现显示正常的情况。
+
+![外接屏异常](./images/arch_xrandr_zc.jpeg)
+
+1. 后面就不断地在wiki上找驱动，安装nvidia驱动，然后就安装了 [optimus-manager](https://wiki.archlinux.org/index.php/NVIDIA_Optimus)  ，就可以切换nvidia独显了。:herb:  [wiki](https://wiki.archlinux.org/index.php/NVIDIA)上第一句就是。。。。
+
+- 切换操作，
+
+1. `optimus-manager --switch nvidia`  切换nvidia独显，外接显示屏也就点亮了。
+   1. `optimus-manager --switch intel`  
+   2. xrandr 查看，此时会发现connected 的设备名称都和之前不一样了。我的 ~/.xprofile  文件内容如下：
+
+```bash
+fcitx5 &
+# i3wm 增加扩展屏
+xrandr --output eDP-1-1 --primary
+xrandr --output HDMI-0 --auto --left-of eDP-1-1
+```
+
+2. 综合上面几点，估计原因是，独显nvidia 没有**正常**启动起来，导致的问题
+
+
+
+
 
 ## i3lock 像素化锁屏
 
