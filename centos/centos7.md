@@ -138,14 +138,14 @@ WantedBy=multi-user.target
 
 
 
-<img src="C:\siping\mynotes\images\centos7_docker_harbor.png" alt="docker_harbor_首页" style="zoom: 67%;" />
+<img src="../images/centos7_docker_harbor.png" alt="docker_harbor_首页" style="zoom: 67%;" />
 
 - 在docker push 之前，先登录上你的私仓，`docker login 192.168.226.134`  ip就是你私仓的地址
   - 用户名/密码，需联系管理员在harbor 网页端后台进行创建，并将人员添加进对应的项目中去
 
 - 而对于镜像仓库，不需创建，直接命令中tag 就好
 
-<img src="C:\siping\mynotes\images\centos7_docker_harbor_regis.png" alt="docker_harbor_images" style="zoom:80%;" />
+<img src="../images/centos7_docker_harbor_regis.png" alt="docker_harbor_images" style="zoom:80%;" />
 
 1. 上传本地镜像到私仓，方法其实在harbor 端也有注解，
    1. `docker tag liuzel01/lzl_c7sshd:latest 192.168.226.134/ops/lzl_c7sshd:lzl_21`  
@@ -155,7 +155,7 @@ WantedBy=multi-user.target
 
 - 注意harbor的架构。可以看到，好的tag能让你的镜像一目了然
 
-<img src="C:\siping\mynotes\images\centos7_docker_harbor_regists.png" alt="docker_harbor_images" style="zoom:80%;" />
+<img src="../images/centos7_docker_harbor_regists.png" alt="docker_harbor_images" style="zoom:80%;" />
 
  
 
@@ -171,9 +171,9 @@ WantedBy=multi-user.target
 
 - 对于创建多个仓库，演示
 
-<img src="C:\siping\mynotes\images\centos7_docker_harbor_php.png" alt="docker_harbor_images" style="zoom:80%;" />
+<img src="../images/centos7_docker_harbor_php.png" alt="docker_harbor_images" style="zoom:80%;" />
 
-<img src="C:\siping\mynotes\images\centos7_docker_harbor_yanshi.png" alt="docker_harbor_images" style="zoom:80%;" />
+<img src="../images/centos7_docker_harbor_yanshi.png" alt="docker_harbor_images" style="zoom:80%;" />
 
 
 
