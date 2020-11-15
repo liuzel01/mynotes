@@ -2,7 +2,7 @@
 
 # docker
 
-1. 普通用户在使用时，添加进docker组即可，不需每次都输入密码，才能`docker images`   `docker ps -a `   
+1. 普通用户在使用时，添加进docker组即可，不需每次都输入密码，才能正常用docker命令
 
 - `sudo usermod -G docker -a xiaobai`   `id xiaobai`   能看到用户小白的主组，以及附加组
 
@@ -54,6 +54,8 @@
 
 ### 搭建
 
+###### SSL证书创建
+
 - SSL证书创建步骤，:chestnut:  
 
 ```bash
@@ -83,18 +85,24 @@ openssl verify -CAfile ca.crt httpd.crt
 Docker version 19.03.13, build 4484c46d9d
 ```
 
-
-
 ###### 安装docker-compose
 
-1. 
+1. `wget https://github.com/docker/compose/releases/download/1.27.4/docker-compose-Linux-x86_64`  
+2. `mv docker-compose-Linux-x86_64 /usr/bin/docker-compose`   
+3. `chmod +x /usr/bin/docker-compose`  授权，
+4. `docker-compose version`  查看打印出来的信息，能看到版本就ok的
+
+- 或是直接，`yay -S docker-compose`  `which docker-compose`  
+
+1. 能看到docker-compose是在 /usr/bin 目录下的，不要照搬网上的资料。所以猜测，上面直接下载软件包的方式其路径应该也是这里
 
 ```bash
-[root@master harbor]# docker-compose --version
-docker-compose version 1.18.0, build 8dd22a9
+[root@myarch liuzel01]# docker-compose version
+docker-compose version 1.27.4, build unknown
+docker-py version: 4.3.1
+CPython version: 3.8.6
+OpenSSL version: OpenSSL 1.1.1h  22 Sep 2020
 ```
-
-
 
 ###### 安装harbor私仓
 
@@ -104,7 +112,8 @@ docker-compose version 1.18.0, build 8dd22a9
 
 - 浏览器访问，https://192.168.226.134/harbor， 进入到页面内，账户密码在harbor.yml 中有的，harbor_admin_password
 
-1. 在之前，还要配置一下daemon.json  内容如下：
+1. 在之前，还要配置一下daemon.json  内容如下，添加上ip:5000 harbor地址。
+   1. 这是在客户端添加的，客户端http设置，通过此配置来取消docker默认不允许非https方式推送镜像 的限制。
 
 ```json
 {
@@ -136,11 +145,13 @@ ExecStop=/usr/bin/docker-compose -f opt/harbor/docker-compose.yml down
 WantedBy=multi-user.target
 ```
 
+###### harbor使用
+
 
 
 <img src="../images/centos7_docker_harbor.png" alt="docker_harbor_首页" style="zoom: 67%;" />
 
-- 在docker push 之前，先登录上你的私仓，`docker login 192.168.226.134`  ip就是你私仓的地址
+- 在docker push 之前，先登录上harbor，`docker login 192.168.226.134`  ip就是你私仓的地址
   - 用户名/密码，需联系管理员在harbor 网页端后台进行创建，并将人员添加进对应的项目中去
 
 - 而对于镜像仓库，不需创建，直接命令中tag 就好
@@ -184,12 +195,52 @@ WantedBy=multi-user.target
 
 ---
 
+### 高可用
+
+- 市面上，所面临的问题
+
+1. 中心化单实例，没有高可用
+2. harbor数据存储在mysql容器中，无法保证其可靠性
+3. 业务镜像数据存储在单机硬盘中，存在数据丢失的风险
+4. 如若生产环境，在不同的城市区域有多个业务机房，存在跨机房，拉取镜像的请求
+
+---
+
+- 在提高系统高可用（High Availability），一般从这几个方面来设计：
+
+1. **计算高可用**  
+2. **存储高可用**  
+3. 网络高可用
+4. 其他方面
+
+- 但是这个貌似要用到k8s,
+- 方案1：独立的3个harbor实例+mysql Galera集群+镜像共享存储
+
+> 3 个独立的 Harbor 实例，通过一个 Load Balancer 来做流量转发。同时采用了共享会话方式，把会话的信息保存在MySQL数据库中，这样无论哪个实例响应用户的请求，都不会丢失会话；
+>
+> 3 个 Harbor 的 Docker Registry 共享一个存放镜像数据的存储，例如阿里云 OSS、GlusterFS、NFS 等，可参考Harbor或Docker Distribution的文档配置；MySQL 由于不能共享存储，采用了 Galera 集群，这是一个多主的 MySQL 集群，每个节点均可读可写，同时支持同步复制数据，保证了高可用
+
+- 方案2：独立的harbor子模块+mysql Galera集群+镜像共享存储
+
+> 独立的 Harbor 子模块之间，通过负载均衡来通信，MySQL Galera 集群和镜像共享存储和方案 1 基本一样。
+>
+> 这个方案的优点是各个子模块相互独立，每个子模块都有 2 个备份，通过负载均衡实现高可用.
+>
+> 这里使用 Kubernetes Service 非常容易实现 LB，~~下面的章节会展开来说。~~  
+
+---
+
+- 参考，[解密360容器云平台的harbor高可用方案](https://xie.infoq.cn/article/e800dab85104da9ab7a223d7f)，[用harbor和k8s构建高可用企业级镜像仓库](https://mp.weixin.qq.com/s?__biz=MzkzMzE2ODg1MQ==&mid=2247489421&idx=1&sn=fe7c126dccaeda6a9c42d73e7e372722&source=41#wechat_redirect)，  
+
 ### FAQ
 
 - 在停止后，`docker-compose stop`，  就很难启动起来，总会报错。。。。
   - 目前，是删除所有harbor相关镜像，再重新`./install.sh`  安装
+  - 需要注意的是，在更改 harbor.yml后，建议是停止harbor，`docker-compose down`  启动使用，`./install.sh`  
 
 1. 不过，在使用  `systemctl start docker_harbor`  可以解决
+
+---
 
 ## django应用容器化实践
 
@@ -214,7 +265,7 @@ RUN tar -zxf /opt/nginx-1.13.7.tar.gz -C /opt  && cd /opt/nginx-1.13.7 && ./conf
 
 2. `wget http://nginx.org/download/nginx-1.13.7.tar.gz`  
 
-3. 基本材料就是这些
+3. 基本准备工作就是这些
 
 - `docker build . -t myblog -f Dockerfile`  
 - `docker tag myblog 192.168.226.134/ops/lzl_django:lzl_django`  
@@ -464,13 +515,13 @@ scrape_configs:
 
 2. 
 
-## prometheus的联邦集群支持！！！！！
+## prometheus的联邦集群支持！！！！！（这表示还有待补充）
 
 1. 
 
 
 
-## PrmQL探索
+## PrmQL探索！！！！！
 
 1. ###### 参考，[彻底理解Prometheus查询语法](https://blog.csdn.net/zhouwenjun0820/article/details/105823389) ， [大神的prometheus-book](https://yunlzheng.gitbook.io/prometheus-book/parti-prometheus-ji-chu/quickstart/why-monitor),  
 
@@ -519,9 +570,9 @@ Four Golden Signals 是google针对大量分布式监控的经验总结。可以
 
 - 参考，[使用Go开发prometheus exporter](https://mp.weixin.qq.com/s/s1nSaC-8ejvM342v5KPdxA)，  
 
-1. 丿
+1. 
 
-# ansible 笔记
+# ansible 记录
 
 1. `ansible centos_server -m ping `  在尝试连接过程中，会提示，**Permission denied (publickey,gssapi-keyex,gssapi-with-mic)** ，
 
@@ -785,17 +836,17 @@ ip x.x.x.x
 
 - `systemctl status jenkins `   查询状态，同时刷新网页，一会就变成 active(exited)  了
 
----
+- 解决办法：
+
+1. 给用户jenkins授权，
+
+- `chown -R jenkins: /var/lib/jenkins`  
+- `chown -R jenkins: /var/cache/jenkins`  
+- `chown -R jenkins: /var/log/jenkins `
+
+2. 重启，并刷新网页  
 
 
-
-1. 解决办法：
-
-- 给用户jenkins授权，
-  - `chown -R jenkins: /var/lib/jenkins`  
-  - `chown -R jenkins: /var/cache/jenkins`  
-  - `chown -R jenkins: /var/log/jenkins `
-- 重启，并刷新网页  
 
 
 
