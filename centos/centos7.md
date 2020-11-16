@@ -40,7 +40,7 @@
 2. `blkparse -i sda -d blkparse.out`  将分析结果输出到屏幕，并且将分析结果的二进制数据输出到blkparse.out文件
 3. `btt -i blkparse.out`  btt查看IO的整体情况，-i指定文件名
 
-- 可参考，[鲲鹏性能优化](https://support.huaweicloud.com/tuningtip-kunpenggrf/kunpengtuning_12_0036.html)  
+- 可参考，[华为的鲲鹏性能优化](https://support.huaweicloud.com/tuningtip-kunpenggrf/kunpengtuning_12_0036.html)  
 
 <img src="../images/centos7_ops_linuxtools_blktrace.png" alt="chusergroup" style="zoom: 67%;"/>
 
