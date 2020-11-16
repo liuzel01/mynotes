@@ -4,9 +4,64 @@
 
 - 技能图，
 
-<img src="../images/centos7_ops_linuxtools.png" alt="chusergroup" style="zoom: 67%;"/>
+<img src="../images/centos7_ops_linuxtools.png" alt="chusergroup" style="zoom: 50%;"/>
 
 1. 图片来源，[这里](http://www.brendangregg.com/linuxperf.html)，  
+
+## 命令解释
+
+##### htop
+
+- 界面是这样婶儿滴，
+
+<img src="../images/centos7_ops_linuxtools_htop.png" alt="chusergroup" style="zoom: 67%;"/>
+
+1. 按h 查看帮助信息
+2. 按F2， 可以配置界面中的显示信息
+
+<img src="../images/centos7_ops_linuxtools_hostname.png" alt="chusergroup" style="zoom: 67%;"/>
+
+3. 按F5查看进程树，
+4. 按F6 进行按需排序
+5. 按u 显示指定用户的进程
+6. F7调大优先级，F8调小优先级（增大nice值），这就涉及到了linux进程优先级
+   1. 越大的nice值意味着优先级越低。相比于那些高nice值（低优先级）的进程来说，低nice值（高优先级）的进程可以获得更多的处理器时间
+   2. 总结就是，会叫的孩子有奶吃，越是不nice的进程越有CPU优先使用权，也就是优先级高咯
+
+6. 空格键，用于标记选中的进程，实现对多个进程同时操作
+
+##### strace
+
+##### blktrace
+
+- blktrace是一个用户态的工具，提供I/O子系统上时间如何消耗的详细信息，从中可分析是IO调度慢还是硬件响应慢等。
+
+1. `blktrace -w 120 -d /dev/sda`  
+2. `blkparse -i sda -d blkparse.out`  将分析结果输出到屏幕，并且将分析结果的二进制数据输出到blkparse.out文件
+3. `btt -i blkparse.out`  btt查看IO的整体情况，-i指定文件名
+
+- 可参考，[鲲鹏性能优化](https://support.huaweicloud.com/tuningtip-kunpenggrf/kunpengtuning_12_0036.html)  
+
+<img src="../images/centos7_ops_linuxtools_blktrace.png" alt="chusergroup" style="zoom: 67%;"/>
+
+##### bcc
+
+- 使用 `/usr/share/bcc/tools/execsnoop`  来追踪你的代码。
+
+1. 打开另一个端口运行命令，在 /usr/share/bcc/tools/execsnoop  下面就会有相应的输出。
+2. 通过exec() 系统调用来工作，exec()通常用于在新进程中加载不同的程序代码
+
+
+
+
+
+
+
+
+
+
+
+
 
 # docker
 
