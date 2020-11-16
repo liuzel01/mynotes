@@ -286,7 +286,7 @@ function lockscr(){
 - 确定无误后，在i3配置文件中添加命令
     - `bindsym $mod+Shift+l exec "source ~/.zshrc && lockscr"`  
 
-## 蓝牙无线使用
+## 蓝牙使用
 
 1. bluetoothctl 进行调试，
 

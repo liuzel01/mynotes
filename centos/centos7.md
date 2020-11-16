@@ -1,5 +1,13 @@
 # centos7
 
+# ops_运维
+
+- 技能图，
+
+<img src="../images/centos7_ops_linuxtools.png" alt="chusergroup" style="zoom: 67%;"/>
+
+1. 图片来源，[这里](http://www.brendangregg.com/linuxperf.html)，  
+
 # docker
 
 1. 普通用户在使用时，添加进docker组即可，不需每次都输入密码，才能正常用docker命令
@@ -9,15 +17,23 @@
 <img src="../images/centos7_docker_chusergroup.png" alt="chusergroup" />
 
 - 更改后，需要切换或退出当前用户再重新登入，  `su - xiaobai`  ，才能成功
-- `docker images`   进行测试
+
+1. `docker images`   进行测试
+
+2. 其中，usermod  命令，help中明确说明了，-g 以及-G的含义
+   1. `  -g, --gid GROUP               force use GROUP as new primary group`  
+   2. `  -G, --groups GROUPS           new list of supplementary GROUPS`  新的补充清单 
+
+3. 查看容器的运行时日志，`docker logs --tail=100 -f process_exporter`   表示从第100行开始
 
 ---
 
-- 其中，usermod  命令，help中明确说明了，-g 以及-G的含义
-  - `  -g, --gid GROUP               force use GROUP as new primary group`  
-  - `  -G, --groups GROUPS           new list of supplementary GROUPS`  新的补充清单 
+- 在容器内使用systemctl，启动后台服务
 
-2. 查看容器的运行时日志，`docker logs --tail=100 -f process_exporter`   表示从第100行开始
+1. docker 设计理念是在容器内不运行后台服务，容器本身就是宿主机上的一个独立的主进程，也可理解为是容器里运行服务的应用进程
+   1. 因此，容器设计原则为，一个容器里运行一个前台服务
+   2. 然后，其实可以通过不以root运行、不以特权模式运行来达到某些需求，实现更高容器安全
+2. `docker run -itd --name lzl_c7 --privileged=true  -v /sys/fs/cgroup:/sys/fs/cgroup:ro 192.168.226.134/ops/lzl_c7sshd /sbin/init`  无需挂载cgroup 也是可以的
 
 ## 本地用数据库！！！！！命令
 
@@ -515,7 +531,7 @@ scrape_configs:
 
 2. 
 
-## prometheus的联邦集群支持！！！！！（这表示还有待补充）
+## prometheus的联邦集群支持！！！！！（表示还有待补充）
 
 1. 
 
@@ -565,6 +581,7 @@ Four Golden Signals 是google针对大量分布式监控的经验总结。可以
 ### 优势-与常见监控的比较
 
 1. 参考，上面的[prometheus-books](https://yunlzheng.gitbook.io/prometheus-book/parti-prometheus-ji-chu/promql/prometheus-promql-best-praticase),  
+2. [prometheus替代IBM Monitoring（ITM）可行性分析](https://www.talkwithtrend.com/Article/246769)，  
 
 ## 使用go编写exporter！！！！！
 
