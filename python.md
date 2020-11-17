@@ -7,8 +7,9 @@
 - `python -m pip install --upgrade pip`  
 
 1. `python -m pip install jupyter`  使用pip安装jupyter notebook
+   1. 加上  -i https://pypi.tuna.tsinghua.edu.cn/simple/ 来使用国内源
 
-- 安装成功后，终端会提示success 字样。然后在你想要打开的路径（因为jupyter运行后是浏览器开一个网页）新建一个bat文件，内容:chestnut:  
+- （win10）安装成功后，终端会提示success 字样。然后在你想要打开的路径（因为jupyter运行后是浏览器开一个网页）新建一个bat文件，内容:chestnut:  
 
 ```
 rem -- start_jupyter_notebook.bat ---
@@ -108,7 +109,21 @@ tup = ((1, 2, 3), (4, 5, 6)) # 元组的每一个元素也是一元组
 
 - 循环
 
-1. a
+---
+
+- for和while，两者的区别：
+
+1. 通常的，如若只是遍历一个已知的集合，找出满足条件的元素，并进行相应的操作，那么for循环更简洁；
+2. 在需要满足某个条件前，不停地重复某些操作，并且没有特定的集合需要去遍历，那么一般使用while循环
+
+---
+
+- 总结一下：
+
+1. 条件语句中，if可以单独使用，但是elif和 else 必须和if同时搭配使用；而if条件语句的判断，除了boolean类型外，其他的最好显示出来
+2. 在for循环中，如若需要同时访问索引和元素，可使用enumerate()函数来简化代码
+3. 写条件与循环时，合理利用continue 或者break 来避免复杂的嵌套，是十分重要的
+4. 要注意条件与循环的复用，简单功能往往可以用一行代码完成，极大提高代码质量与效率
 
 
 
