@@ -4,7 +4,7 @@
 
 - 技能图，
 
-<img src="../images/centos7_ops_linuxtools.png" alt="chusergroup" style="zoom: 50%;"/>
+<img src="./images/centos7_ops_linuxtools.png" alt="chusergroup" style="zoom: 50%;"/>
 
 1. 图片来源，[这里](http://www.brendangregg.com/linuxperf.html)，  
 
@@ -14,12 +14,12 @@
 
 - 界面是这样婶儿滴，
 
-<img src="../images/centos7_ops_linuxtools_htop.png" alt="chusergroup" style="zoom: 67%;"/>
+<img src="./images/centos7_ops_linuxtools_htop.png" alt="chusergroup" style="zoom: 67%;"/>
 
 1. 按h 查看帮助信息
 2. 按F2， 可以配置界面中的显示信息
 
-<img src="../images/centos7_ops_linuxtools_hostname.png" alt="chusergroup" style="zoom: 67%;"/>
+<img src="./images/centos7_ops_linuxtools_hostname.png" alt="chusergroup" style="zoom: 67%;"/>
 
 3. 按F5查看进程树，
 4. 按F6 进行按需排序
@@ -42,7 +42,7 @@
 
 - 可参考，[华为的鲲鹏性能优化](https://support.huaweicloud.com/tuningtip-kunpenggrf/kunpengtuning_12_0036.html)  
 
-<img src="../images/centos7_ops_linuxtools_blktrace.png" alt="chusergroup" style="zoom: 67%;"/>
+<img src="./images/centos7_ops_linuxtools_blktrace.png" alt="chusergroup" style="zoom: 67%;"/>
 
 ##### bcc
 
@@ -67,7 +67,7 @@
 
 - `sudo usermod -G docker -a xiaobai`   `id xiaobai`   能看到用户小白的主组，以及附加组
 
-<img src="../images/centos7_docker_chusergroup.png" alt="chusergroup" />
+<img src="./images/centos7_docker_chusergroup.png" alt="chusergroup" />
 
 - 更改后，需要切换或退出当前用户再重新登入，  `su - xiaobai`  ，才能成功
 
@@ -218,14 +218,14 @@ WantedBy=multi-user.target
 
 
 
-<img src="../images/centos7_docker_harbor.png" alt="docker_harbor_首页" style="zoom: 67%;" />
+<img src="./images/centos7_docker_harbor.png" alt="docker_harbor_首页" style="zoom: 67%;" />
 
 - 在docker push 之前，先登录上harbor，`docker login 192.168.226.134`  ip就是你私仓的地址
   - 用户名/密码，需联系管理员在harbor 网页端后台进行创建，并将人员添加进对应的项目中去
 
 - 而对于镜像仓库，不需创建，直接命令中tag 就好
 
-<img src="../images/centos7_docker_harbor_regis.png" alt="docker_harbor_images" style="zoom:80%;" />
+<img src="./images/centos7_docker_harbor_regis.png" alt="docker_harbor_images" style="zoom:80%;" />
 
 1. 上传本地镜像到私仓，方法其实在harbor 端也有注解，
    1. `docker tag liuzel01/lzl_c7sshd:latest 192.168.226.134/ops/lzl_c7sshd:lzl_21`  
@@ -235,7 +235,7 @@ WantedBy=multi-user.target
 
 - 注意harbor的架构。可以看到，好的tag能让你的镜像一目了然
 
-<img src="../images/centos7_docker_harbor_regists.png" alt="docker_harbor_images" style="zoom:80%;" />
+<img src="./images/centos7_docker_harbor_regists.png" alt="docker_harbor_images" style="zoom:80%;" />
 
  
 
@@ -251,9 +251,9 @@ WantedBy=multi-user.target
 
 - 对于创建多个仓库，演示
 
-<img src="../images/centos7_docker_harbor_php.png" alt="docker_harbor_images" style="zoom:80%;" />
+<img src="./images/centos7_docker_harbor_php.png" alt="docker_harbor_images" style="zoom:80%;" />
 
-<img src="../images/centos7_docker_harbor_yanshi.png" alt="docker_harbor_images" style="zoom:80%;" />
+<img src="./images/centos7_docker_harbor_yanshi.png" alt="docker_harbor_images" style="zoom:80%;" />
 
 
 
