@@ -77,7 +77,7 @@ keyserver hkp://ipv4.pool.sks-keyservers.net:11371
 
 - `yay -Ss rofi`   查询AUR内软件包
 - `yay -S rofi`  
-- `yay -Q rofi`   查询本地软件包
+- `yay -Q rofi`   查询本地软件包  -Qi查看详细信息
   - `yay -Ql vsftpd`   查看vsftpd服务的相关文件 
   - yay -Q后，按TAB键位，可以查看到相关参数
 - `yay -Syy`     同步数据库的包  `yay -Syu`   升级所有安装的包
@@ -144,7 +144,6 @@ Server = https://mirrors.ustc.edu.cn/blackarch/$repo/os/$arch
    2. 所以说，启动盘一定保存好。那里面分区都搞好了，无需重新弄，直接挂载
 
 2. 这就算是可以在家正常启动笔记本了~
-3. **不过外接那块小显示屏，还是没搞好！！！！！**  
 
 - **补充：**  
 
@@ -183,6 +182,7 @@ pacman -S nvidia-beta
 ---
 
 - 总有爱折腾的大神，参考[可能是arch分支最正确的显卡驱动方案](https://www.bwsl.wang/arch/67.html)，  
+- 最后的最后，我特么还是用的  `optimus-manager --switch nvidia`  给切换了的，苯人只能用懒方法了
 
 
 
@@ -213,12 +213,6 @@ Failed to connect, CredSSP required by server (check if server has disabled old 
 - 参考，[rdesktop  from archlinux](https://wiki.archlinux.org/index.php/Rdesktop),  
   - 可以搞一个脚本，或者alias 别名来实现快速操作远程主机
 
-## 指纹识别！！！！！
-
-1. 笔记本重装archlinux， 计划使用上自带的指纹开关，
-2. 参考，[fprint](https://wiki.archlinux.org/index.php/fprint),  
-3. 
-
 ---
 
 ## i3wm xrandr扩展屏
@@ -233,9 +227,7 @@ Failed to connect, CredSSP required by server (check if server has disabled old 
 
 ---
 
-1. 在使用中，发现，可以先在你计划使用的workspace中放置一个terminal,比如放在扩展屏中，这样就比较容易分配了～
-
----
+1. 在使用中，发现，可以先在你计划使用的workspace中放置一个terminal,比如放在扩展屏中，这样就比较容易识别了～
 
 ##### 外接显示屏，色彩异常
 
@@ -263,6 +255,7 @@ xrandr --output HDMI-0 --auto --left-of eDP-1-1
 ```
 
 2. 综合上面几点，估计原因是，独显nvidia 没有**正常**启动起来，导致的问题
+3. 最后，这个其实可以和上面的“关于把笔记本带回家就不能启动这”  放在一起的。
 
 
 
@@ -343,12 +336,62 @@ function lockscr(){
 4. 实际上，st是可以实现终端到外部的复制的。
 
 - 鼠标选中终端上内容就是复制，粘贴的实现方式是通过鼠标中键。所以说是可以在配置中解决的。
+- **不过这个。还是需要改下配置！**  
 
-- **不过这个。还是需要改下配置！！！！！**  
+
+
+## 指纹识别！！！！！
+
+1. 笔记本重装archlinux， 计划使用上自带的指纹开关，
+2. 参考，[fprint](https://wiki.archlinux.org/index.php/fprint),  
+
+
+
+
+
+## 关于使用deepin-wine-wechat！！！！！
+
+- 在一次更新后，使用rofi启动wechat后，会出现提示框：wine cannot find wine-mono, 然鹅我明明是安装了的。。提示框中有Install 选项，但是点击后，可能因为在国外，所以进度条特！别！慢！！
+
+1. 所以我就去bbs 求助了。[wine wechat问题](https://bbs.archlinuxcn.org/viewtopic.php?id=11034)，  
+
+- 首先，我的wechat相关的版本如下，
+
+```
+deepin-wine-wechat 3.0.0.57-1
+wine-mono 5.1.0-1
+mono 6.10.0.104-1
+wine 5.21-1
+# 或者是  wine-valve 5.12-3 # 安了valve的这个包就有那两个二进制文件了，否则在安装wine-gecko 过程中会提示sed cannot find xxx.so（大佬说是有奇怪的钩子zaised别的包文件）
+```
+
+- 网络上搜索到[四叶草的解决方案](https://www.fkxxyz.com/learn/wine-mono/#%E5%90%8E%E7%BB%AD%E5%AE%8C%E7%BE%8E%E8%A7%A3%E5%86%B3)，  大佬自己打了个包 :joy: ​
+
+1. 不幸的是，我在对应目录下未找到二进制文件，appwiz.cpl.so
+2. 后来在大神帮助下，`pacman -F appwiz.cpl.so`  能看到有哪些软件包中有这些文件，就安装了 `pacman -S wine-valve`  
+
+- 然后再 `rm -rf   ~/.deepinwine/Deepin-WeChat`  删除后，重新安装，提示框是没有了，但是tmd启动wechat后没反应  :confused: 
+
+1. 或许是我的启动姿势不太对？？？
+2. 或者应该去他日志处去看看。可我确实没找到
+
+---
+
+- 期间又去bbs寻找相关问题，看到一位老哥的，[wine cannot find wine-mono](https://bbs.archlinux.org/viewtopic.php?pid=1935106/),  说是 wine-mono 软件包过时了
+
+1. 我直接无语
+2. 我想，可能要降级安装旧版本的wine-mono 包，然后这就又转到四叶草的那篇文章了（他已提过类似的方法），
+3. 所以我刚刚给他发过邮件了，期待他的 aur/wine-mono-gecko-version-fix  包能更新下
+
+
+
+
+
+
+
+
 
 ## 其他记录 :triangular_ruler: 
-
-
 
 1. `grep -i paste.*$ ~/st/config.h`   以任意字符结尾，
 
@@ -449,7 +492,7 @@ function lockscr(){
 
 2. ~~发现也并不是扩展屏的问题，估计是 /etc/fstab  文件里的挂载配置有点问题！~~
 
-- 应该是用户liuzel01 对于目录 /etc/samba 的权限权限
+- 应该是用户liuzel01 对于目录 /etc/samba 的权限
 
 ---
 
@@ -468,7 +511,7 @@ function lockscr(){
 
 1. 解决了！！！！这是因为使用的终端st的问题，从官网下载最新的，就行了
 
-- 然后，因为是c语言，有些配置的细节方面需要改改！！！！！
+- 然后，因为是c语言，有些配置的细节方面需要改成自定义的
 
 
 
