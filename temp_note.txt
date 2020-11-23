@@ -1,0 +1,89 @@
+temp note
+角色 IP
+k8s-master  192.168.31.61（原）   10.0.2.4    master
+k8s-node1   192.168.31.62（原）   10.0.2.x    mode1
+k8s-node2   192.168.31.63（原）   10.0.2.x    node2
+
+kubeadm init \
+--apiserver-advertise-address=10.0.2.4 \
+--image-repository registry.aliyuncs.com/google_containers \
+--kubernetes-version v1.19.3 \
+--service-cidr=10.96.0.0/12 \
+--pod-network-cidr=10.244.0.0/16
+
+kubectl get nodes
+https://github.com/coreos/flannel/blob/v0.12.0/Documentation/kube-flannel.yml
+
+docker run -d -p 8000:8000 \
+--name php-web \
+-v /home/liuzel01/legacy:/data php:5.6-fpm
+
+topk(5,(rate(namedprocess_namegroup_cpu_seconds_total{groupname="docker",instance=~"192.168.10.137"}[$interval])+
+rate(namedprocess_namegroup_thread_cpu_seconds_total{groupname="docker",instance=~"192.168.10.137"}[$interval])
+)
+)
+
+topk(5,(rate(namedprocess_namegroup_cpu_seconds_total{groupname="docker",instance=~"192.168.10.137:9256"}[5m])+
+rate(namedprocess_namegroup_thread_cpu_seconds_total{groupname="docker",instance=~"192.168.10.137:9256"}[5m])
+)
+)
+
+topk(5,(irate(namedprocess_namegroup_cpu_seconds_total{groupname=~"$processes",instance=~"$host"}[$__interval])+ 
+rate(namedprocess_namegroup_thread_cpu_seconds_total{groupname=~"$processes",instance=~"$host"}[$__interval])
+))
+# #
+
+---
+mysql: 
+select user,host,password from mysql.user;
+CREATE USER 'sks_sone'@'localhost' IDENTIFIED BY 'sksHykf8gw6l8bfs3ef';
+grant all privileges on *.* to 'sks_sone'@'%' identified by 'sksHykf8gw6l8bfs3ef' with grant option;
+grant all privileges on smartone_common.* to 'sks_sone'@'%' identified by 'sksHykf8gw6l8bfs3ef' with grant option;
+
+flush privileges;
+
+CREATE USER 'sks_sone'@'192.168.10.108' IDENTIFIED BY 'sksHykf8gw6l8bfs3ef';
+
+set password for sks_sone@'localhost'=password('sksHykf8gw6l8bfs3ef');
+set password for sks_sone@'192.168.10.108'=password('sksHykf8gw6l8bfs3ef');
+CREATE USER 'sks_sone'@'192.168.10.108' IDENTIFIED BY 'sksHykf8gw6l8bfs3ef';
+
+
+/bin/sh /application/apache-tomcat-8.5.20/bin/startup.sh && tail -f /application/apache-tomcat-8.5.20/logs/catalina.out
+docker run -d --restart always --privileged -v /home/lscgdj-xin_sp:/application/apache-tomcat-8.5.20/webapps -p 51223:8080 --name lscgdj-xin_sp chenlulu/tomcat:v2 /bin/sh /application/apache-tomcat-8.5.20/bin/startup.sh && tail -f /application/apache-tomcat-8.5.20/logs/catalina.out
+
+
+firewall-cmd --zone=public --add-port=3306/tcp --add-port=4444/tcp --add-port=4567/tcp --add-port=4568/tcp --permanent
+/usr/local/mysql/bin/mysqldump -uroot -psks.slave  sksdb_crm --skip-lock-tables         > sksdb_crm_bakup.sql
+grant all privileges on *.* to root@"%" identified by "sks123.com";
+
+./soffice -headless -accept="socket,host=127.0.0.1,port=8100:urp;" -nofirststartwizard & 
+
+firewall-cmd --zone=public --add-port=8012/tcp --add-port=8100/tcp --add-port=9000/tcp --permanent
+
+
+change master to master_host='192.168.10.108',master_user='root',master_password='sks123.com',master_log_file='mysql-bin.000004',master_log_pos=986;
+grant replication slave,replication client on *.* to root@'192.168.10.107' identified by 'sks123.com';
+
+
+firewall-cmd --permanent --zone=public address="192.168.10.107" port protocol="tcp" port="111"
+
+
+grant all privileges on *.* to sone1@"%" identified by "sks123.com";
+
+create database smartone_common CHARACTER SET utf8mb4 COLLATE utf8mb4_bin;
+
+firewall-cmd --zone=public --add-port=9999/tcp --add-port=8848/tcp --add-port=3000/tcp --add-port=8012/tcp --add-port=4000/tcp --add-port=9000/tcp --add-port=4000-5000/tcp --permanent
+
+/usr/local/mysql/bin/mysqldump -u$user -p$passwd  information_schema --skip-lock-tables         > "$backup_dir/"information_schema_"$time.sql"
+
+create database smartone_nacos CHARACTER SET utf8mb4 COLLATE utf8mb4_bin;
+create database smartone_license CHARACTER SET utf8mb4 COLLATE utf8mb4_bin;
+grant all privileges on smartone_nacos.* to 'sks_sone'@'%' identified by 'sksHykf8gw6l8bfs3ef' with grant option;
+grant all privileges on smartone_license.* to 'sks_sone'@'%' identified by 'sksHykf8gw6l8bfs3ef' with grant option;
+
+# 查看用户的权限
+show grants for sks_sone;
+
+
+

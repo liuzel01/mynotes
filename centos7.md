@@ -432,6 +432,7 @@ $ docker exec -ti myblog python3 manage.py createsuperuser
 
 ## 几个systemd 服务，:chestnut:  
 
+- 如若你是部署服务的话，下面还是有必要参考的
 - `cat /usr/lib/systemd/system/prometheus.service`  
 
 ```bash
