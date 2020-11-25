@@ -619,7 +619,7 @@ scrape_configs:
 
 
 
-## PrmQL探索！！！！！
+## PrmSQL探索！！！！！
 
 1. ###### 参考，[彻底理解Prometheus查询语法](https://blog.csdn.net/zhouwenjun0820/article/details/105823389) ， [大神的prometheus-book](https://yunlzheng.gitbook.io/prometheus-book/parti-prometheus-ji-chu/quickstart/why-monitor),  
 
