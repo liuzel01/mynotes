@@ -113,6 +113,12 @@
 5. `docker-compose down`  会删除容器，Stop and remove containers, networks, images, and volumes
    1. 删除后，`docker-compose ps `  你就看不到任何容器了。重新  `./install.sh`  重新安，
 
+6. 如若说你pull下来的镜像，标签为none，那你可以在pull那条命令里看到，该容器的ID信息，
+   1. 并且，`docker rmi 192.168.226.5/ops/centos7@sha256:c2f1d5a9c0a81350fa0ad7e1eee99e379d75fe53823d44b5469eb2eb6092c941`  
+
+7. 给pull下来的镜像打标签，
+   1. `docker tag 192.168.226.5/ops/lzl_c7sshd@sha256:c2f1d5a9c0a81350fa0ad7e1eee99e379d75fe53823d44b5469eb2eb6092c941  xxxlzl_c7sshd:lzlzlzlzl`  
+
 ---
 
 #### 排查
@@ -143,7 +149,8 @@ openssl verify -CAfile ca.crt httpd.crt
 ##################### 最后，会显示： httpd.crt: OK
 ```
 
-- 
+- 自签名证书不被浏览器信任，适合内部或者测试使用
+- 将httpd.key httpd.crt 放到 /etc/harbor/cert 目录下，
 
 ###### 安装docker-ce
 
@@ -220,7 +227,7 @@ WantedBy=multi-user.target
 
 <img src="./images/centos7_docker_harbor.png" alt="docker_harbor_首页" style="zoom: 67%;" />
 
-- 在docker push 之前，先登录上harbor，`docker login 192.168.226.134`  ip就是你私仓的地址
+- 在docker push 之前，先登录上harbor，`docker login 192.168.226.134:5000 -uadmin`  ip就是你私仓的地址
   - 用户名/密码，需联系管理员在harbor 网页端后台进行创建，并将人员添加进对应的项目中去
 
 - 而对于镜像仓库，不需创建，直接命令中tag 就好
@@ -232,6 +239,8 @@ WantedBy=multi-user.target
    2. `docker push 192.168.226.134/ops/lzl_c7sshd:lzl_21`  
       1. docker tag myblog 192.168.226.134/ops/lzl_django:lzl_django
       2. docker push 192.168.226.134/ops/lzl_django:lzl_django
+   3. `docker tag SOURCE_IMAGE[:TAG] 192.168.226.5/ops/REPOSITORY[:TAG]`  网页端貌似没说加端口
+      1. 因为上面已添加过，insecure-registrie，所以可行
 
 - 注意harbor的架构。可以看到，好的tag能让你的镜像一目了然
 
@@ -420,7 +429,26 @@ $ docker exec -ti myblog python3 manage.py createsuperuser
 
 2. 浏览器访问， 192.168.226.134:8002/admin   
 
+---
 
+- `docker run --rm -it -p 81:80 --name=phptest --hostname phptest -v /home/liuzel01/dockerfiles/lzhrsip/test:/var/www/html -w /var/www/html phptest:latest php test.php`  
+
+- 有两种方式，
+
+1. 第一种，在本地直接以命令行启动测试用项目。这种是便于自己在本地调试，容器即删即用，下面来举个例子。
+
+2. 第二种，写dockerfile,docker build成自定义的镜像，然后启动运行即可；还可以传给别人，方便别人运行项目。这种是方便将环境打包，把比如demo类的传输给别人，并直接运行
+
+​    2.1 定制一个自己用的自定义镜像，比方说添加上某些功能
+
+- FAQ：
+
+1. 某些容器启动不了项目，优先检查dockerfile,dcoker logs container_name,确保无错误后；就要思考是不是镜像选用错了。
+
+​    1.1 毕竟，单单php镜像就有 php-cli,php-fpm,php-apache 等好多
+
+2. 容器的端口一定要全部开放
+3. 只要你选对image 后，一切都是那么丝滑
 
 
 
