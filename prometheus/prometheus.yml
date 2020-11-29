@@ -1,0 +1,99 @@
+# my global config
+# cat prometheus/prometheus.yml
+global:
+  scrape_interval:  15s # Set the scrape interval to every 15 seconds. Default is every 1 minute.
+  evaluation_interval: 15s # Evaluate rules every 15 seconds. The default is every 1 minute.
+  # scrape_timeout is set to the global default (10s).
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+  - static_configs:
+ - targets: ["alertmanager:9093"]
+# Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
+rule_files:
+  - "rules/*.yml"
+# A scrape configuration containing exactly one endpoint to scrape:
+# Here it's Prometheus itself.
+scrape_configs:
+  # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
+  - job_name: 'prometheus'
+ static_configs:
+ - targets: ['localhost:9090']
+  
+  - job_name: 'alertmanager'
+ static_configs:
+- targets: ['alertmanager:9093']
+  - job_name: 'node_real_lan'
+ file_sd_configs:
+- files: 
+ - ./sd_files/real_lan.yml
+  refresh_interval: 30s
+  
+  - job_name: 'node_virtual_lan'
+ file_sd_configs:
+- files:
+ - ./sd_files/virtual_lan.yml
+  refresh_interval: 30s
+  
+  - job_name: 'node_real_wan'
+ file_sd_configs:
+- files:
+ - ./sd_files/real_wan.yml
+  refresh_interval: 30s
+  
+  - job_name: 'node_virtual_wan'
+ file_sd_configs:
+- files:
+ - ./sd_files/virtual_wan.yml
+  refresh_interval: 30s
+  
+  - job_name: 'docker_host'
+ file_sd_configs:
+- files:
+ - ./sd_files/docker_host.yml
+  refresh_interval: 30s
+  - job_name: 'tcp'
+ metrics_path: /probe
+ params:
+module: [tcp_connect]
+ file_sd_configs:
+- files:
+ - ./sd_files/tcp.yml
+  refresh_interval: 30s
+ relabel_configs:
+- source_labels: [__address__]
+  target_label: __param_target
+- source_labels: [__param_target]
+  target_label: instance
+- target_label: __address__
+  replacement: blackbox:9115 
+  - job_name: 'http'
+ metrics_path: /probe
+ params:
+module: [http_2xx]
+ file_sd_configs:
+- files:
+ - ./sd_files/http.yml
+  refresh_interval: 30s
+ relabel_configs:
+- source_labels: [__address__]
+  target_label: __param_target
+- source_labels: [__param_target]
+  target_label: instance
+- target_label: __address__
+  replacement: blackbox:9115 
+  - job_name: 'icmp'
+ metrics_path: /probe
+ params:
+module: [icmp]
+ file_sd_configs:
+- files:
+ - ./sd_files/icmp.yml
+  refresh_interval: 30s
+ relabel_configs:
+- source_labels: [__address__]
+  target_label: __param_target
+- source_labels: [__param_target]
+  target_label: instance
+- target_label: __address__
+  replacement: blackbox:9115 

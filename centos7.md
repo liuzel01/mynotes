@@ -12,7 +12,7 @@
 
 ##### htop
 
-- 界面是这样婶儿滴，
+- 界面是酱婶儿滴，
 
 <img src="./images/centos7_ops_linuxtools_htop.png" alt="chusergroup" style="zoom: 67%;"/>
 
@@ -88,19 +88,20 @@
    2. 然后，其实可以通过不以root运行、不以特权模式运行来达到某些需求，实现更高容器安全
 2. `docker run -itd --name lzl_c7 --privileged=true  -v /sys/fs/cgroup:/sys/fs/cgroup:ro 192.168.226.134/ops/lzl_c7sshd /sbin/init`  无需挂载cgroup 也是可以的
 
-## 本地用数据库！！！！！命令
+## 本地用数据库
 
 1. DBeaver community 数据库连接工具，数据库地址172.17.0.1:3306 
 
 - 其实也就是映射到本地端口的
 
-2. 
+2. `docker run -d -p 4406:3306 --name mysql -v /opt/mysql/mysql-data/:/var/lib/mysql -e MYSQL_DATABASE=tiny_wish -e MYSQL_ROOT_PASSWORD=123456 mysql:5.7-utf8`  
 
 ## 使用harbor 搭建私仓
 
 ### 常用命令
 
 - harbor的生命周期管理，可以使用docker-compose 来管理，需要在harbor目录中执行
+  - 当然，可以写成systemd服务来管理控制
 - docker-compose，可以轻松、高效的管理容器，它是一个用于定义和运行多容器docker的应用程序工具。我说怎么有点熟悉。
   - docker compose  是单机管理docker的。k8s是多节点管理docker。虽然还有docker swarm也是多节点，不过基本已弃用
 
@@ -125,7 +126,8 @@
 
 1. 查看日志，`docker-compose logs log`  ，`docker-compose logs -f log`  
 2. 授权，`chown -R root: /data`  `chown -R root: /var/log/harbor`  具体的路径在docker-compose.yml  文件中有
-3. 
+
+
 
 ### 搭建
 
@@ -222,8 +224,6 @@ WantedBy=multi-user.target
 ```
 
 ###### harbor使用
-
-
 
 <img src="./images/centos7_docker_harbor.png" alt="docker_harbor_首页" style="zoom: 67%;" />
 
@@ -458,7 +458,7 @@ $ docker exec -ti myblog python3 manage.py createsuperuser
 
 # prometheus--监控系统
 
-## 几个systemd 服务，:chestnut:  
+## 几个unit file，:chestnut:  
 
 - 如若你是部署服务的话，下面还是有必要参考的
 - `cat /usr/lib/systemd/system/prometheus.service`  
@@ -589,6 +589,12 @@ rule_files:
 scrape_configs:
   # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
   - job_name: 'prometheus'
+  	static_configs:  # 静态指定，targets中的 host:port/metrics 将会作为metrics抓取对象
+  	file_sd_configs:  # 基于文件的服务发现，文件中（yml 和json 格式）定义的host:port/metrics将会成为抓取对象
+  	- files:
+  		- ./sd_files/docker_host.yml
+	refresh_interval: 30s
+
   - job_name: '西藏项目_Linux'
     static_configs:
     - targets: ['192.168.10.167:9100','221.236.26.xx:9100']
@@ -619,9 +625,24 @@ scrape_configs:
 
 
 
-## PrmSQL探索！！！！！
+## PromQL探索！！！！！
 
-1. ###### 参考，[彻底理解Prometheus查询语法](https://blog.csdn.net/zhouwenjun0820/article/details/105823389) ， [大神的prometheus-book](https://yunlzheng.gitbook.io/prometheus-book/parti-prometheus-ji-chu/quickstart/why-monitor),  
+- 参考，[彻底理解Prometheus查询语法](https://blog.csdn.net/zhouwenjun0820/article/details/105823389) ， [大神的prometheus-book](https://yunlzheng.gitbook.io/prometheus-book/parti-prometheus-ji-chu/quickstart/why-monitor),  
+
+- 使用到promQL的组件：
+
+1. prometheus server
+   client libraries for instrumenting application c7ode
+   push gateway
+   exporters
+   alertmanager
+
+### metric 介绍
+
+- 类型
+- label
+
+### promQL表达式
 
 
 

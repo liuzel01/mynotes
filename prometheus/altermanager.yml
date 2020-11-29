@@ -1,0 +1,54 @@
+# altermanager,注意db目录授权限，w或是777
+# cat alertmanager/alertmanager.yml
+global:
+resolve_timeout: 5m
+smtp_smarthost: 'smtphz.qiye.163.com:25'
+smtp_from: 'XXX@fosafer.com'
+smtp_auth_username: 'XXX@fosafer.com'
+smtp_auth_password: 'XXX'
+smtp_hello: 'qiye.163.com'
+smtp_require_tls: true
+route:
+group_by: ['instance']
+group_wait: 30s
+receiver: default
+routes:
+ - group_interval: 3m
+repeat_interval: 10m
+match:
+severiry: warning
+receiver: 'default'
+ - group_interval: 3m
+repeat_interval: 30m
+match:
+severiry: critical
+receiver: 'default'
+
+ - group_interval: 5m
+repeat_interval: 24h
+match:
+severiry: longtime
+receiver: 'default'
+templates:
+- ./templates/*.tmpl
+receivers:
+- name: 'default'
+ email_configs:
+- to: 'xiangkaihua@fosafer.com'
+send_resolved: true
+ 
+ wechat_configs:
+- send_resolved: true
+corp_id: 'XXX'
+api_secret: 'XXX'
+agent_id: 1000002
+to_user: XXX
+to_party: 2
+message: '{{ template "wechat.html" . }}'
+ 
+- name: 'critical'
+ email_configs:
+- to: '342382676@qq.com'
+send_resolved: true
+- to: 'xiangkaihua@fosafer.com'
+send_resolved: true

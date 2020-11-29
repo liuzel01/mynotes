@@ -1,0 +1,68 @@
+global:
+  scrape_interval:  15s   #每过15秒抓取一次指标数据
+  evaluation_interval: 15s#每过15秒执行一次报警规则，也就是说15秒执行一次报警
+alerting:
+  alertmanagers:
+  - static_configs:
+ - targets: ["localhost:9093"]# 设置报警信息推送地址 ， 一般而言设置的是alertManager的地址
+rule_files:
+  - "test_rules.yml"  # 指定配置告警规则的文件路径
+scrape_configs: 
+  - job_name: 'node'#自己定义的监控的job_name
+ static_configs:  # 配置静态规则，直接指定抓取的ip:port
+- targets: ['localhost:9100']
+  - job_name: 'CDG-MS'
+ honor_labels: true
+ metrics_path: '/prometheus'
+ static_configs:
+- targets: ['localhost:8089']
+ relabel_configs:
+- target_label: env
+  replacement: dev
+  - job_name: 'eureka'
+ file_sd_configs:   # 基于文件的服务发现
+- files:
+ - "/app/enmonster/basic/prometheus/prometheus-2.2.1.linux-amd64/eureka.json" # 支持json 和yml 两种格式
+refresh_interval: 30s  # 30s钟自行刷新配置，读取文件，修改之后无需手动reload
+ relabel_configs:
+- source_labels: [__job_name__]
+  regex: (.*)
+  target_label: job
+  replacement: ${1}
+- target_label: env
+  replacement: dev
+------------------------------------------------------------------------------------------------------------------------------------
+## 配置，抓取node_exporter 指标，相当于是对抓取指标进行自定义。
+### 还可通过脚本形式将指标抓取后写入文件，由node_exporter 对外提供给prometheus抓取，省掉pushgateway
+  scrape_configs:
+# The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
+- job_name: 'prometheus'
+ # metrics_path defaults to '/metrics'
+ # scheme defaults to 'http'.
+ static_configs:
+ - targets: ['localhost:9090']
+- job_name: 'nodes'
+ static_configs:
+ - targets: ['localhost:9100']
+ - targets: ['172.20.94.1:9100']
+
+ - job_name: 'node_real_lan'
+file_sd_configs:
+ - files:
+- ./sd_files/real_lan.yml
+refresh_interval: 30s
+params:   # 可选
+collect[]:
+ - cpu
+ - meminfo
+ - diskstats
+ - netdev
+ - netstat
+ - filefd
+ - filesystem
+ - xfs
+
+## 配置，对cadvisor抓取
+- job_name: 'docker'
+static_configs:
+- targets: ['localhost:9080']

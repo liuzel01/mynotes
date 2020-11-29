@@ -1,0 +1,73 @@
+# system rules: #cpu,mem,disk,network,filesystem...
+# cat prometheus/rules/system_monitor.yml
+ groups:
+- name: "system info"
+  rules:
+ - alert: "服务器宕机"
+expr: up == 0
+for: 3m
+labels:
+  severity: critical
+annotations:
+  summary: "{{$labels.instance}}:服务器宕机"
+  description: "{{$labels.instance}}:服务器无法连接，持续时间已超过3mins"
+ - alert: "系统负载过高"
+expr: (node_load1/count without (cpu, mode) (node_cpu_seconds_total{mode="system"}))* on(instance) group_left(
+ nodename) (node_uname_info) > 1.1 
+for: 3m
+labels:
+  servirity: warning
+annotations:
+  summary: "{{$labels.instance}}:系统负载过高"
+  description: "{{$labels.instance}}:系统负载过高."
+  value: "{{$value}}"
+ - alert: "CPU 使用率超过90%"
+expr: 100-(avg(rate(node_cpu_seconds_total{mode="idle"}[5m])) by(instance)* 100) > 90
+for: 3m
+labels:
+  severity: critical
+annotations:
+  summary: "{{$labels.instance}}:CPU 使用率90%"
+  description: "{{$labels.instance}}:CPU 使用率超过90%."
+  value: "{{$value}}"
+ - alert: "内存使用率超过80%"
+expr: (100 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes * 100)* on(instance) group_left(
+ nodename) (node_uname_info) > 80
+for: 3m
+labels:
+  severity: critical
+annotations:
+  summary: "{{$labels.instance}}:内存使用率80%"
+  description: "{{$labels.instance}}:内存使用率超过80%"
+  value: "{{$value}}"
+ 
+ - alert: "IO操作耗时超过60%"
+expr: 100-(avg(irate(node_disk_io_time_seconds_total[1m])) by(instance)* 100) < 40 
+for: 3m
+labels:
+  severity: critical
+annotations:
+  summary: "{{$labels.instance}}:IO操作耗时超过60%"
+  description: "{{$labels.instance}}:IO操作耗时超过60%"
+  value: "{{$value}}"
+  
+ - alert: "磁盘分区容量超过85"
+expr: (100-(node_filesystem_free_bytes{fstype=~"ext4|xfs"}/node_filesystem_size_bytes 
+ {fstype=~"ext4|xfs"}*100) )* on(instance) group_left(nodename) (node_uname_info)> 85
+for: 3m
+labels:
+  severity: longtime
+annotations:
+  summary: "{{$labels.instance}}:磁盘分区容量超过85%"
+  description: "{{$labels.instance}}:磁盘分区容量超过85%"
+  value: "{{$value}}"
+ 
+ - alert: "磁盘将在4天后写满"
+expr: predict_linear(node_filesystem_free_bytes[2h], 4 * 24 * 3600) < 0
+for: 3m
+labels:
+  severity: longtime
+annotations:
+  summary: "{{$labels.instance}}: 预计将有磁盘分区在4天后写满，"
+  description: "{{$labels.instance}}:预计将有磁盘分区在4天后写满，"
+  value: "{{$value}}"

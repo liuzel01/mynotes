@@ -1,0 +1,11 @@
+# 基于文件的服务发现定义文件，*.yml
+# cat prometheus/sd_files/tcp.yml 
+- targets: ['10.10.11.178:8001']
+labels:
+ server_name: http_download
+- targets: ['10.10.11.178:3307']
+labels:
+ server_name: xiaojing_db
+- targets: ['10.10.11.178:3001']
+labels:
+ server_name: test_web

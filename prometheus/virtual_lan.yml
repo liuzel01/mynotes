@@ -1,0 +1,4 @@
+# 基于文件的服务发现定义文件，*.yml
+# cat prometheus/sd_files/virtual_lan.yml
+- targets: ['10.10.11.179:9100']
+- targets: ['10.10.11.178:9100']

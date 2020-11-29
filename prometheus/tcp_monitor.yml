@@ -1,0 +1,13 @@
+# rules文件
+# cat prometheus/rules/tcp_monitor.yml
+groups:
+- name: blackbox_network_stats
+rules:
+- alert: blackbox_network_stats
+ expr: probe_success == 0
+ for: 1m
+ labels:
+severity: critical
+ annotations:
+summary: "Instance {{ $labels.instance }} ,server-name: {{ $labels.server_name }} is down"
+description: "连接不通..."

@@ -1,0 +1,31 @@
+# prometheus rules编写
+# cat rules/node.yml，注意内容中有中文，so编码格式为utf8
+groups:
+- name: "system info"
+ rules:
+- alert: "服务器宕机"    # 告警名称 alertname
+expr: up == 0    # 告警表达式，当表达式条件满足，即发送告警
+for: 1m     # 等待时长，等待自动恢复的时间。
+labels:  # 此label不同于 metric中的label，发送给alertmanager之后用于管理告警项，比如匹配到那个label即触发哪种告警
+ severity: critical   # key:value 皆可完全自定义
+annotations:     # 定义发送告警的内容，注意此地的labels为metric中的label
+ summary: "{{$labels.instance}}:服务器宕机"
+ description: "{{$labels.instance}}:服务器无法连接，持续时间已超过3mins"
+- alert: "CPU 使用过高"
+expr: 100-(avg(rate(node_cpu_seconds_total{mode="idle"}[1m]))by(instance)*100) > 40
+for: 1m
+labels:
+ servirity: warning
+annotations:
+ summary: "{{$labels.instance}}:CPU 使用过高"
+ description: "{{$labels.instance}}:CPU 使用率超过 40%"
+ value: "{{$value}}"
+- alert: "CPU 使用率超过90%"
+expr: 100-(avg(rate(node_cpu_seconds_total{mode="idle"}[1m])) by(instance)* 100) > 90
+for: 1m
+labels:
+ severity: critical
+annotations:
+ summary: "{{$labels.instance}}:CPU 使用率90%"
+ description: "{{$labels.instance}}:CPU 使用率超过90%，持续时间超过5mins"
+ value: "{{$value}}"
