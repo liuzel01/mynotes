@@ -712,7 +712,7 @@ ssh_args = -o ControlMaster=auto -o ControlPersist=5d
 - 表示设置整个长连接的保持时间，这里设置的是5天。
 - 通过 `netstat | grep container`   能看到会有一个ESTABLISHED状态的连接一直与远端设备进行TCP连接
 
-<img src="../images/centos7_docker_ansible_ssh.png"/>
+<img src="./images/centos7_docker_ansible_ssh.png"/>
 
 2. 如果要达到ssh长连接的目的，也可修改主机（控端/中控机）的sshd_config  配置，（没尝试）
 
