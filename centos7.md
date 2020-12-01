@@ -59,6 +59,142 @@
 
 
 
+# git:chestnut:  
+
+##  常用操作
+
+- `git status `  用于显示，工作目录和暂存区的状态。
+
+1. 可以看到哪些修改被暂存到了，哪些没有，哪些文件没有被git tracked 到。
+2. 不显示，已经commit到项目历史中去的信息。看项目历史的信息用`git log`  
+
+- `git diff `  ，用来找当前工作目录和上次提交与本地索引间的差异（最简单快捷）
+
+1. `git diff --stat `  ，统计一下哪些文件被改动，有多少行被改动，就可以使用stat 参数。而不是看每个文件的详细差别
+2. `git diff --cached`  ，查看在下次提交时要提交的内容
+3. `git diff dev`  ，查看当前的工作目录与另外一个分支的差别
+   1. 也可以加上路径限定符，来只比较某一个文件或目录。	`git diff HEAD -- ./lib`  
+
+- `git config --global user.name "liuzel01"`  
+
+1. `git config --global user.email "liuzelin01@outlook.com"`  
+2. `git init`  
+3. `git add .`  `git add ./xxx/`  
+4. `git commit -m "xxx"`  
+5. `git remote add origin https://你的仓库地址.git`  
+6. `git push -u origin master`  `git push -u origin dev`  
+7. `git status`  `git diff`  `git reset --hard + 版本号 `  `git reflog`  
+8. `git checkout --<file>`  撤销命令
+9. `git rm`  
+10. `git branch`  `git branch <新分支名字>`  `git checkout <分支名字>`  `git merge <分支名字>`  
+11. `git merge --no-ff <分支名字>`  合并时禁用fast forward模式
+12. `git branch -d <分支名字>`  删除分支，可能失败，git会保护未被合并的分支`git branch -D <分支名字>`  强行删除，丢弃没有被合并的分支
+13. `git log --graph`  查看分支合并图
+14. `git stash`  `git stash list`  `git stash apply`  `git stash drop`  `git stash pop`  
+15. `git remote`  `git remote -v`  
+16. `git rebase`  把分叉的提交历史显示成一条直线，看上去更直观
+17. `git tag`  `git tag <标签名字>`  `git tag <标签名字> <版本号>`  
+18. `git show <标签名字>`  `git tag -a <标签名字> -m "<标签说明>"`  
+19. `git tad -d <标签名字>`  
+20. `git push origin <标签名字>`  
+21. `git push origin --tags`  
+22. `git push origin :refs/tags/<标签名字>`  
+23. `git config --global color .ui true`  
+24. `git add -f <file>`  
+25. `git check-ignore -v <file>`  
+26. 
+
+---
+
+- 本地仓库 = 工作区 + 版本区。
+
+1. 工作区，即磁盘上的文件集合；版本区（版本库），即.git 文件；
+
+2. 版本库 = 暂存区(stage) + 分支(master) + 指针(Head) 
+
+---
+
+- `git init`  在本地区域创建一个 .git 文件，版本区建立
+
+1. `git add .`  表示把工作区的所有文件全部提交到版本区的暂存区，`git add ./xxx/`  逐条添加到暂存区
+2. `git commit -m "xxx"`  把暂存区的所有文件提交到仓库区，暂存区空荡荡
+3. `git remote add origin https://你的仓库地址.git`  把本地与远程仓库连接起来，只需连接一次，怪不得不常用
+4. `git push -u origin master `  把仓库区的文件提交到远程仓库的master 里
+   1. 不熟练，建议去远程仓库上刷新，看下效果
+5. 提交后，立即查看工作区，git status 会显示类似，nothing to commit, working tree clean 
+
+---
+
+- 一般，**我都是用lazygit**, 在vscode上也能用，可视化，挺方便。~~当然，vscode上也能点点点~~  
+- 下面的，理论大于实践
+
+### 版本的回溯与前进
+
+- `git rest --hard + 版本号`  来回溯，版本号用 `git log `  来查看
+- **可以当成git 将这些版本串成一条时间线**  
+
+1. 回溯之后，我想前进到最近的版本应如何？，`git reset --hard + 版本号`  来作，太艹了:joy:  反复横跳
+2. `git reflog`  ，可以帮你找到你的版本号，防止弄丢了，然后又可以 `git reset `  来回穿梭了
+
+###### 撤销
+
+###### 删除
+
+- 如若`git add . `  一个文件到暂存区，然后在工作区又把文件删除了，git会知道你删除了文件，要把版本库里的文件删除，需要
+
+1. `git rm`  并且 `git commit -m "xxx"`  
+
+- 如若误删了工作区的文件，要用到撤销命令，`git checkout --<file>`  
+- 说明，撤销命令，其实就是用版本库里的版本替换工作区的版本，无论工作区是修改还是删除，都可以“一键还原”  
+
+### 分支
+
+- 在不使用其他分支时，每次 `git push -u origin master`  就是将时间轴往前推、
+  - 这个应该不难理解，图我就不贴了
+
+1. `git branch new01`  `git checkout new01`  创建新分支new01,切换到新分支
+   1. `git branch`  查看当前所有分支，带* 的就是当前分支
+2. 用new01提交，`git add ./xxx/`  或是 `git add -A` ，`git commit -m "xxx"`  
+   1. -A, --all, --no-ignore-removal  
+3. `git checkout master `  切换回master,
+4. `git merge new01`  合并分支，这个时候就能看到new01 刚刚commit的信息了
+5. `git branch -d new01`  删除new01 分支
+
+###### 解决合并分支问题
+
+- 
+
+###### 分支管理
+
+###### BUG分支
+
+###### 删除分支
+
+###### 多人协作
+
+- 多人协作工作模式，通常为：
+
+1. 首先，试图用 `git push origin new01`  推送自己的修改
+2. 如若推送失败，则因为远程分支，比你的本地要新，需要先 `git pull`  试图合并
+3. 如若合并有冲突，则解决冲突，并在本地提交
+4. 没有冲突，或是解决掉冲突后，再进行 `git push origin new01`  推送就能成功
+5. 如若 `git pull`  提示 `no tracking information`  ，说明本地分支，和远程分支的链接关系没创建，命令
+   1. `git branch --set-upstream-to new01 origin/new01`  
+
+
+
+
+
+###### rebase
+
+### 标签
+
+### 自定义git
+
+### FAQ
+
+- 参考链接，[git笔记](https://juejin.cn/post/6844903877138087950#heading-4)，  
+
 
 
 # docker
