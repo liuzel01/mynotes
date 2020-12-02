@@ -832,7 +832,7 @@ Four Golden Signals 是google针对大量分布式监控的经验总结。可以
 
 1. `ansible centos_server -m ping `  在尝试连接过程中，会提示，**Permission denied (publickey,gssapi-keyex,gssapi-with-mic)** ，
 
-- 修改 sshd_config 配置，增加，`PasswordAuthentication yes`   
+- 修改 sshd_config 配置，增加，`PasswordAuthentication yes`
 
 ## ansible配置优化
 
