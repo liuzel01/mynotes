@@ -196,7 +196,6 @@
 - 参考链接，[git笔记](https://juejin.cn/post/6844903877138087950#heading-4)，  
 
 
-
 # docker
 
 1. 普通用户在使用时，添加进docker组即可，不需每次都输入密码，才能正常用docker命令
@@ -210,10 +209,14 @@
 1. `docker images`   进行测试
 
 2. 其中，usermod  命令，help中明确说明了，-g 以及-G的含义
-   1. `  -g, --gid GROUP               force use GROUP as new primary group`  
-   2. `  -G, --groups GROUPS           new list of supplementary GROUPS`  新的补充清单 
+   1. `-g, --gid GROUP               force use GROUP as new primary group`
+   2. `-G, --groups GROUPS           new list of supplementary GROUPS`  新的补充清单
 
 3. 查看容器的运行时日志，`docker logs --tail=100 -f process_exporter`   表示从第100行开始
+
+4. dockerfile里用到的基础镜像，主要来自dockerhub官方人员制作维护的。如若要自己制作，可以参考，[create a base image](https://docs.docker.com/develop/develop-images/baseimages/),
+
+   1. 这样意义不大，dockerhub上的基本都能找到，alpine 大小仅5M
 
 ---
 
@@ -224,13 +227,42 @@
    2. 然后，其实可以通过不以root运行、不以特权模式运行来达到某些需求，实现更高容器安全
 2. `docker run -itd --name lzl_c7 --privileged=true  -v /sys/fs/cgroup:/sys/fs/cgroup:ro 192.168.226.134/ops/lzl_c7sshd /sbin/init`  无需挂载cgroup 也是可以的
 
+## 技巧
+
+###### 将docker镜像体积减少99%！！！！！，有待补充
+
+- 使用多阶段构建
+
+1. 多阶构建，[可参考官方](https://docs.docker.com/develop/develop-images/multistage-build/)，
+
+- 使用基础镜像
+
+1. busybox，alpine
+   1. 不过，在使用中，需要下载相对应的库，[ustc的](https://mirrors.ustc.edu.cn/alpine/v3.9/main/)，
+      1. 在dockerfile，填写类似内容，RUN echo "https://mirror.tuna.tsinghua.edu.cn/alpine/v3.8/main" > /etc/apk/repositories
+      2. 大多数linux发行版都是基于glibc的。在编译应用程序时，大部分都是针对特定libc进行编译的。如若要将他们与另一个libc一起使用，则必须重新编译他们。也就是说，基于alpine 构建的容器，可能会导致非预期的行为，因为标准C库是不一样的
+   2. 还可以，使用类似golang:alpine 的镜像
+2. 使用busybox:glibc 作为基础镜像。
+   1. 包含glibc 和各种调试工具，适合来运行使用动态链接的程序
+   2. sratch作为base image，调试起来会非常麻烦。虽然比上面两种少了那么几MB
+3. 除了alpine，谷歌还提供[distroless](https://github.com/GoogleContainerTools/distroless)，如若在生产环境中运行并且更关心安全性，那么此选择更合适
+
+---
+
+- 镜像体积问题，一般在部署阶段（生产环境），要尽量小，秉承多快好省
+
+1. 后续可以研究下
+
+- dev环境，还是要让人快速上手使用为好
+
+
 ## 本地用数据库
 
 1. DBeaver community 数据库连接工具，数据库地址172.17.0.1:3306 
 
 - 其实也就是映射到本地端口的
 
-2. `docker run -d -p 4406:3306 --name mysql -v /opt/mysql/mysql-data/:/var/lib/mysql -e MYSQL_DATABASE=tiny_wish -e MYSQL_ROOT_PASSWORD=123456 mysql:5.7-utf8`  
+2.`docker run -d -p 4406:3306 --name mysql -v /opt/mysql/mysql-data/:/var/lib/mysql -e MYSQL_DATABASE=tiny_wish -e MYSQL_ROOT_PASSWORD=123456 mysql:5.7-utf8`  
 
 ## 使用harbor 搭建私仓
 
@@ -244,8 +276,8 @@
 1. 启动：`docker-compose start`   
    1. `docker-compose up -d`  Create and start containers
 2. 停止：`docker-compose stop`  
-3. 移除：`docker-compose rm `  会保留相关镜像文件
-   1. `rm -r /data/database `  `rm -r /data/registry`  删除数据
+3. 移除：`docker-compose rm`  会保留相关镜像文件
+   1. `rm -r /data/database`  `rm -r /data/registry`  删除数据
 4. `docker-compose ps`  查看容器状态
 5. `docker-compose down`  会删除容器，Stop and remove containers, networks, images, and volumes
    1. 删除后，`docker-compose ps `  你就看不到任何容器了。重新  `./install.sh`  重新安，
