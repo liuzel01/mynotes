@@ -78,13 +78,14 @@
 - `git config --global user.name "liuzel01"`  
 
 1. `git config --global user.email "liuzelin01@outlook.com"`  
+   1. `git config -l`  
 2. `git init`  
 3. `git add .`  `git add ./xxx/`  
-4. `git commit -m "xxx"`  
-5. `git remote add origin https://你的仓库地址.git`  
-6. `git push -u origin master`  `git push -u origin dev`  
-7. `git status`  `git diff`  `git reset --hard + 版本号 `  `git reflog`  
-8. `git checkout --<file>`  撤销命令
+4. `git add -f <file>`  `git checkout --<file>`  撤销命令，这是相对的
+5. `git commit -m "xxx"`  `git reset --hard + 版本号 `  ，这是相对的
+6. `git remote add origin https://你的仓库地址.git`  
+7. `git push -u origin master`  `git push -u origin dev`  
+8. `git status`  `git diff`  `git reflog`  
 9. `git rm`  
 10. `git branch`  `git branch <新分支名字>`  `git checkout <分支名字>`  `git merge <分支名字>`  
 11. `git merge --no-ff <分支名字>`  合并时禁用fast forward模式
@@ -97,12 +98,11 @@
 18. `git show <标签名字>`  `git tag -a <标签名字> -m "<标签说明>"`  
 19. `git tad -d <标签名字>`  
 20. `git push origin <标签名字>`  
-21. `git push origin --tags`  
+21. `git push origin --tags`  <font color=orange>大橘为重</font>  
 22. `git push origin :refs/tags/<标签名字>`  
 23. `git config --global color .ui true`  
-24. `git add -f <file>`  
-25. `git check-ignore -v <file>`  
-26. 
+24. `git check-ignore -v <file>`  
+25. 
 
 ---
 
@@ -110,7 +110,7 @@
 
 1. 工作区，即磁盘上的文件集合；版本区（版本库），即.git 文件；
 
-2. 版本库 = 暂存区(stage) + 分支(master) + 指针(Head) 
+2. 版本区 = 暂存区(stage) + 分支(master) + 指针(Head) 
 
 ---
 
@@ -135,6 +135,17 @@
 
 1. 回溯之后，我想前进到最近的版本应如何？，`git reset --hard + 版本号`  来作，太艹了:joy:  反复横跳
 2. `git reflog`  ，可以帮你找到你的版本号，防止弄丢了，然后又可以 `git reset `  来回穿梭了
+
+######  版本控制
+
+- 版本控制，revision control 是一种在开发的过程中，用于管理我们对文件/目录或是工程等内容的修改历史，方便查看更改历史记录，备份以便恢复以前的版本，的软件工程技术
+- 简单说，就是用于管理，多人协同开发项目的技术
+
+###### git 与 svn
+
+- SVN是集中式版本控制系统，版本库是集中放在中央服务器的，而工作的时候，用的都是自己的电脑。所以，首先要从中央服务器获取最新的版本，然后工作。工作完成后，需要把自己做完的部分，推送到中央服务器。集中式版本控制系统，必须联网才能工作，对网络带宽要求较高
+- git是分布式版本控制系统，没有中央服务器。每个人的PC就是一个完整的版本库，工作时无需联网。协同方式：A在PC上改了文件，B在自己PC上也改了同一份文件。这时，只需要把各自的修改推送给对方，就能看到对方的修改了。git能直接看到更新了哪些代码和文件。
+- git是目前最先进的，分布式版本控制系统
 
 ###### 撤销
 
