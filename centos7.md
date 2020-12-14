@@ -51,8 +51,28 @@
 1. 打开另一个端口运行命令，在 /usr/share/bcc/tools/execsnoop  下面就会有相应的输出。
 2. 通过exec() 系统调用来工作，exec()通常用于在新进程中加载不同的程序代码
 
+## lvm扩容
 
+- 虚拟机使用lvm扩容，基本步骤如下：
 
+1. 新添加一块磁盘，大小40G，
+   1. `lsblk`,  
+2. 对新磁盘分区
+   1. `fdisk /dev/sdb`，  注意type，改成lvm
+3. pvcreate， 创建物理卷
+   1. `pvcreate /dev/sdb`  `pvs`  
+4. 将新创建的pv卷，添加到vg组内；lvcreate  创建逻辑卷
+   1. `vgextend centos /dev/sdb`  
+   2. `lvcreate -l 100%FREE -n newsdb centos`  `lvs`  
+5. 创建挂载点，挂载
+   1. `mkdir -p /newsdb`,  `mount /dev/mapper/centos-newsdb /newsdb`  
+   2. 如果挂载点为已存在的文件夹，那该文件夹内的内容就会没了，因为/dev/mapper/centos-newsdb  毕竟是空的。umount 掉即可
+6. 要扩容 / 根目录，lvextend 将空间100% 加入到root逻辑卷内
+   1. 在上面第4步骤，不要创建新卷，而是  `lvextend -l +100%FREE /dev/centos/root`，  就可以看到LV Size 成功增大了
+   2. `xfs_growfs /dev/centos/root`，  重新识别下分区大小，`df -hT`  就可以看到效果了
+   3. 成功对 / 根目录扩容~
+
+---
 
 
 

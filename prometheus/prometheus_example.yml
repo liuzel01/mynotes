@@ -1,3 +1,5 @@
+# 此文件格式不太对，需要在配置时，自行更改，
+# 或是参考另一个yml 文件
 global:
   scrape_interval:  15s   #每过15秒抓取一次指标数据
   evaluation_interval: 15s#每过15秒执行一次报警规则，也就是说15秒执行一次报警
