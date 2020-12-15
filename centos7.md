@@ -511,11 +511,11 @@ WantedBy=multi-user.target
 
 ### FAQ
 
-- 在停止后，`docker-compose stop`，  就很难启动起来，总会报错。。。。
-  - 目前，是删除所有harbor相关镜像，再重新`./install.sh`  安装
-  - 需要注意的是，在更改 harbor.yml后，建议是停止harbor，`docker-compose down`  启动使用，`./install.sh`  
+- ~~在停止后，`docker-compose stop`，  就很难启动起来，总会报错。。。。~~
+  - ~~目前，是删除所有harbor相关镜像，再重新`./install.sh`  安装~~
+  - ~~需要注意的是，在更改 harbor.yml后，建议是停止harbor,`docker-compose down`  启动使用，`./install.sh`~~
 
-1. 不过，在使用  `systemctl start docker_harbor`  可以解决
+1. 不过，在使用  `systemctl start docker_harbor`  可以解决上面问题
 
 ---
 
