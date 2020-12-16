@@ -761,11 +761,11 @@ WantedBy=multi-user.target
 
 - `curl 127.0.0.1:9100/metrics`   访问获取的指标
 
-3. `docker run -d -p 9256:9256 --privileged -v /proc:/host/proc -v /opt/prometheus/process_exporter:/config --name process_exporter ncabatoff/process-exporter -config.path /config/config.yml  --procfs /host/proc  `   
+3. `docker run -d -p 9256:9256 --privileged -v /proc:/host/proc -v /opt/prometheus/process_exporter:/config --name process_exporter ncabatoff/process-exporter -config.path /config/config.yml  --procfs /host/proc`  
 
 - 有啥问题，直接[官网走起](https://github.com/ncabatoff/process-exporter)  
 
-4. ` docker run -d -p 3000:3000 -v /opt/grafana-storage:/var/lib/grafana    --name grafana grafana/grafana`   
+4. `docker run -d -p 3000:3000 -v /opt/grafana-storage:/var/lib/grafana    --name grafana grafana/grafana`   
 
 - <u>注意本机 /opt/grafana-storage 的权限，对于组外人的权限w</u>  
 
