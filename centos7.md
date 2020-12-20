@@ -479,7 +479,7 @@ WantedBy=multi-user.target
 1. 中心化单实例，没有高可用
 2. harbor数据存储在mysql容器中，无法保证其可靠性
 3. 业务镜像数据存储在单机硬盘中，存在数据丢失的风险
-4. 如若生产环境，在不同的城市区域有多个业务机房，存在跨机房，拉取镜像的请求
+4. ~~如若生产环境，在不同的城市区域有多个业务机房，存在跨机房，拉取镜像的请求~~
 
 ---
 
@@ -496,6 +496,8 @@ WantedBy=multi-user.target
 > 3 个独立的 Harbor 实例，通过一个 Load Balancer 来做流量转发。同时采用了共享会话方式，把会话的信息保存在MySQL数据库中，这样无论哪个实例响应用户的请求，都不会丢失会话；
 >
 > 3 个 Harbor 的 Docker Registry 共享一个存放镜像数据的存储，例如阿里云 OSS、GlusterFS、NFS 等，可参考Harbor或Docker Distribution的文档配置；MySQL 由于不能共享存储，采用了 Galera 集群，这是一个多主的 MySQL 集群，每个节点均可读可写，同时支持同步复制数据，保证了高可用
+
+- mysql可搭建双主热备，向外提供虚拟IP，通过vip来访问
 
 - 方案2：独立的harbor子模块+mysql Galera集群+镜像共享存储
 
@@ -626,7 +628,7 @@ $ docker exec -ti myblog python3 manage.py createsuperuser
 ## $ docker exec -ti myblog python3 manage.py collectstatic
 ```
 
-2. 浏览器访问， 192.168.226.134:8002/admin   
+2. 浏览器访问， 192.168.226.134:8002/admin
 
 ---
 
@@ -655,241 +657,6 @@ $ docker exec -ti myblog python3 manage.py createsuperuser
 
 
 
-# prometheus--监控系统
-
-## 几个unit file，:chestnut:  
-
-- 如若你是部署服务的话，下面还是有必要参考的
-- `cat /usr/lib/systemd/system/prometheus.service`  
-
-```bash
-[Unit]
-Description=Prometheus
-Documentation=https://prometheus.io/
-After=network.target
-[Service]
-Type=simple
-User=prometheus
-ExecStart=/opt/prometheus/prometheus 					\
-			--config.file=/opt/prometheus/prometheus.yml 	\
-			--web.enable-lifecycle 				\
-			--storage.tsdb.path=/opt/prometheus/data 	\
-			--storage.tsdb.retention=60d
-Restart=on-failure
-[Install]
-WantedBy=multi-user.target
-```
-
-- `cat /usr/lib/systemd/system/grafana-server.service`  
-
-```bash
-[Unit]
-Description=Grafana instance
-Documentation=http://docs.grafana.org
-Wants=network-online.target
-After=network-online.target
-After=postgresql.service mariadb.service mysqld.service
-
-[Service]
-EnvironmentFile=/etc/sysconfig/grafana-server
-User=grafana
-Group=grafana
-Type=notify
-Restart=on-failure
-WorkingDirectory=/usr/share/grafana
-RuntimeDirectory=grafana
-RuntimeDirectoryMode=0750
-ExecStart=/usr/sbin/grafana-server                                                  \
-                            --config=${CONF_FILE}                                   \
-                            --pidfile=${PID_FILE_DIR}/grafana-server.pid            \
-                            --packaging=rpm                                         \
-                            cfg:default.paths.logs=${LOG_DIR}                       \
-                            cfg:default.paths.data=${DATA_DIR}                      \
-                            cfg:default.paths.plugins=${PLUGINS_DIR}                \
-                            cfg:default.paths.provisioning=${PROVISIONING_CFG_DIR}  
-
-LimitNOFILE=10000
-TimeoutStopSec=20
-
-[Install]
-WantedBy=multi-user.target
-```
-
-- `cat /usr/lib/systemd/system/node_exporter.service`  
-
-```bash
-[Unit]
-Description=node_exporter
-After=network.target
-[Service]
-Type=simple
-User=prometheus
-ExecStart=/usr/local/node_exporter/node_exporter
-Restart=on-failure
-[Install]
-WantedBy=multi-user.target
-```
-
-- `cat /usr/lib/systemd/system/process_exporter.service`  
-
-```bash
-[Unit]
-Description=process_exporter
-After=network.target
-[Service]
-Type=simple
-User=prometheus
-ExecStart=/usr/local/process_exporter/process-exporter -config.path /usr/local/process_exporter/config.yml
-Restart=on-failure
-[Install]
-WantedBy=multi-user.target
-```
-
-- 查看 系统上所有已加载的服务，
-
-1. `systemctl --type=service`  --state=active
-
-
-
-## docker 部署
-
-1. `docker run -d -p 9090:9090 -v /opt/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml  -v /opt/prometheus/rules/node_alerts.yml:/etc/prometheus/rules/node_alerts.yml  --name prometheus -v /etc/localtime:/etc/localtime:ro --hostname prometheus prom/prometheus`   注意宿主机和容器内的时区
-
-- 还可以指定本地数据存储的路径
-
-2. `docker run -d -p 9100:9100 -v "/proc:/host/proc:ro" -v "/sys:/host/sys:ro" -v "/:/rootfs:ro" --net="host" --name node_exporter prom/node-exporter`   
-
-- `curl 127.0.0.1:9100/metrics`   访问获取的指标
-
-3. `docker run -d -p 9256:9256 --privileged -v /proc:/host/proc -v /opt/prometheus/process_exporter:/config --name process_exporter ncabatoff/process-exporter -config.path /config/config.yml  --procfs /host/proc`  
-
-- 有啥问题，直接[官网走起](https://github.com/ncabatoff/process-exporter)  
-
-4. `docker run -d -p 3000:3000 -v /opt/grafana-storage:/var/lib/grafana    --name grafana grafana/grafana`   
-
-- <u>注意本机 /opt/grafana-storage 的权限，对于组外人的权限w</u>  
-
-```yaml
-prometheus.yml		# 注释部分都省略了
-# my global config
-global:
-  scrape_interval:     15s # Set the scrape interval to every 15 seconds. Default is every 1 minute.
-  evaluation_interval: 15s # Evaluate rules every 15 seconds. The default is every 1 minute.
-# Alertmanager configuration
-alerting:
-  alertmanagers:
-  - static_configs:
-    - targets:
-      # - alertmanager:9093
-# Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
-rule_files:
-  - "rules/node_alerts.yml"
-# Here it's Prometheus itself.
-scrape_configs:
-  # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
-  - job_name: 'prometheus'
-  	static_configs:  # 静态指定，targets中的 host:port/metrics 将会作为metrics抓取对象
-  	file_sd_configs:  # 基于文件的服务发现，文件中（yml 和json 格式）定义的host:port/metrics将会成为抓取对象
-  	- files:
-  		- ./sd_files/docker_host.yml
-	refresh_interval: 30s
-
-  - job_name: '西藏项目_Linux'
-    static_configs:
-    - targets: ['192.168.10.167:9100','221.236.26.xx:9100']
-  - job_name: '进程监控_linux'
-    static_configs:
-    - targets: ['192.168.10.167:9256','221.236.26.xx:9256']
-
-  - job_name: '西藏项目_WinServer'
-    static_configs:
-    - targets: ['221.236.26.xx:9182']
-```
-
-
-
----
-
-
-
-1. 注意的是，prometheus.yml 文件中，如果监控本机，为了**避免问题**，写本机IP,否则在 prometheus/targets 页面会跳转不到metrics指标页面 那里
-
-- 当然，很可能是 /etc/hosts 文件中的，主机名ip的对应没有配好！！！
-
-2. 
-
-## prometheus的联邦集群支持！！！！！（表示还有待补充）
-
-1. 
-
-
-
-## PromQL探索！！！！！
-
-- 参考，[彻底理解Prometheus查询语法](https://blog.csdn.net/zhouwenjun0820/article/details/105823389) ， [大神的prometheus-book](https://yunlzheng.gitbook.io/prometheus-book/parti-prometheus-ji-chu/quickstart/why-monitor),  
-
-- 使用到promQL的组件：
-
-1. prometheus server
-   client libraries for instrumenting application c7ode
-   push gateway
-   exporters
-   alertmanager
-
-### metric 介绍
-
-- 类型
-- label
-
-### promQL表达式
-
-
-
-## 四个黄金指标
-
-Four Golden Signals 是google针对大量分布式监控的经验总结。可以在服务级别帮助衡量终端用户体验/服务中断/业务影响等层面的问题。参考上面的[prometheus-book](https://yunlzheng.gitbook.io/prometheus-book/parti-prometheus-ji-chu/promql/prometheus-promql-best-praticase),  
-
-1. 延迟：服务器请求所需时间
-2. 通讯量：监控当前系统的流量，用于衡量服务的容量需求
-3. 错误：监控当前系统所有发生的错误请求，衡量当前系统错误发生的速率
-4. 饱和度：衡量当前服务的饱和度
-
----
-
-1. 参考，[10个常用监控k8s性能的prometheus oprtator指标](https://mp.weixin.qq.com/s/idQgb0GC2yhaVYwgGj5gcA)，  
-
-
-
-## FAQ
-
-1. ~~有个问题：~~  
-
-- ~~docker部署的process_exporter，可以获取到指标数据，但是 在使用grafana 相应的仪表盘监控时，发现不到本机的process~~  
-- 解决了！因为容器内的配置文件，并未生效。参考上面运行process_exporter的命令，以及github上README
-
-2. 
-
-## 杂项
-
-1. 几款比较好的dashboard,去[官网copy id即可](https://grafana.com/grafana/dashboards)，  
-
-- windows的表盘，windows_exporter for prometheus，id 10467
-
-- linux的，node_exporter for prometheus, id 8919
-  - system processes metrics, id 8378
-
-2. 
-
-### 优势-与常见监控的比较
-
-1. 参考，上面的[prometheus-books](https://yunlzheng.gitbook.io/prometheus-book/parti-prometheus-ji-chu/promql/prometheus-promql-best-praticase),  
-2. [prometheus替代IBM Monitoring（ITM）可行性分析](https://www.talkwithtrend.com/Article/246769)，  
-
-## 使用go编写exporter！！！！！
-
-- 参考，[使用Go开发prometheus exporter](https://mp.weixin.qq.com/s/s1nSaC-8ejvM342v5KPdxA)，  
-
-1. 
 
 # ansible 记录
 
@@ -1013,8 +780,6 @@ tasks:
 - 这个任务需要运行完后，才能继续另外任务的
 - **申请排他锁的任务（如yum）**  
 
-
-
 ##### 设置facts 缓存
 
 - 在使用ansible-playbook 时，默认第一个task都是 GATHERING FACTS，表示 收集每台主机的facts信息，方便在playbook中直接引用facts里的信息。如若不需要facts的信息，可以在playbook 设置 
@@ -1049,8 +814,6 @@ gathering = explicit
 ##### 利用ssh-agent提升ansible管控的安全性
 
 - 可参考，[使用ssh和ssh-agent实现无密码登陆远程server](http://yysfire.github.io/linux/using-ssh-agent-with-ssh.html)，  
-
-
 
 ##### 配置ansible 变量环境
 
