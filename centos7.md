@@ -249,6 +249,11 @@
 
    1. 这样意义不大，dockerhub上的基本都能找到，alpine 大小仅5M
 
+5. --restart=unless-stopped,在容器退出时总是重启容器，但是不考虑在Docker守护进程启动时就已经停止了的容器
+
+   1. unless-stopped 和 always 基本一样，只有一个场景 unless-stopped有点特殊：
+      1. 如果容器正常stopped，然后机器重启或docker服务重启，这种情况下容器将不会被restart
+
 ---
 
 - 在容器内使用systemctl，启动后台服务
