@@ -973,5 +973,53 @@ ip x.x.x.x
 
 # FAQ
 
-1. 
+## centos7-ABRT has detected 1 problem(s)
 
+- 问题描述：
+
+1. centos服务器装完系统后，提示一句，`ABRT has detected 1 problem(s). For more info run: abrt-cli list--since 148357723` 
+2. 截图如下。
+
+<img src="./images/centos7_faq_abrt.png" alt="chusergroup" style="zoom: 100%;"/>
+
+
+
+- 问题解决：
+
+1. 其实图中已经有说明，原因、产生问题的软件包、产生问题的用户、路径、还有最后一行的解决办法。
+2. 可选择将webkitgtk4.x86_64 相关的包卸载掉（因为是刚刚重装的系统，其他的按需）
+
+- 基本思路：
+
+1. 看提示（终端显示的错误信息，和建议执行方法）
+2. 查日志（查看系统日志 /var/log/ 目录下的日志文件。如若是相关服务，就查看服务的日志文件，比如mysql数据库的日志文件等）
+3. 上网查相关资料
+
+## centos7 升级内核！！！！！失败
+
+- 问题描述
+
+1. 升级内核
+2. 开机使用新内核时，识别不出有线网卡。
+   1. 最后，确认为网卡驱动不满足所导致。内核默认使用的是 r8169，需要装r8168的，要和网卡相匹配
+
+- 问题解决
+
+1. `uname -r` ,`cat /etc/redhat-release`
+2. `rpm -import https://www.elrepo.org/RPM-GPG-KEY-elrepo.org`
+   1. `rpm -Uvh http://www.elrepo.org/elrepo-release-7.0-2.el7.elrepo.noarch.rpm`
+
+3. `lspci -v` 查看使用的网卡驱动（内核默认使用的网卡驱动r8169，但实际网卡是r8168）
+
+   1. `ethtool -i enp3s0` 查看网卡的固件版本以及所依赖的驱动，firmware-version: rtl8168g-2_0.0.1 02/06/13
+
+   2. `lspci -nn | grep -i eth` 查看具体的网卡驱动型号，
+
+      03:00.0 Ethernet controller [0200]: Realtek Semiconductor Co., Ltd. RTL8111/8168/8411 PCI Express Gigabit Ethernet Controller [10ec:8168] (rev 0c)
+
+4. `awk -F\' '$1=="menuentry " {print $2}' /etc/grub2.cfg` 查看grub中默认的内核版本
+5. 下载好驱动后，运行  ./autorun.sh ，报错了日
+
+---
+
+1. 参考，[升级centos7/6内核版本到4.12.4的方法](https://www.cnblogs.com/sexiaoshuai/p/8399599.html)，[ubuntu最近升级到最新linux内核后，网络无法使用怎么办](https://www.cnblogs.com/dakewei/p/10902439.html)，[linux内核升级-更新网卡驱动](https://blog.csdn.net/weixin_30614109/article/details/97691924?utm_medium=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.control&depth_1-utm_source=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.control)，
