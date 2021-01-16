@@ -328,7 +328,7 @@
 
 #### 排查
 
-1. 查看日志，`docker-compose logs log`  ，`docker-compose logs -f log`  
+1. 查看日志，`docker-compose logs -f log`  
 2. 授权，`chown -R root: /data`  `chown -R root: /var/log/harbor`  具体的路径在docker-compose.yml  文件中有
 
 
@@ -1007,8 +1007,9 @@ ip x.x.x.x
 
 1. `uname -r` ,`cat /etc/redhat-release`
 2. `rpm -import https://www.elrepo.org/RPM-GPG-KEY-elrepo.org`
-   1. `rpm -Uvh http://www.elrepo.org/elrepo-release-7.0-2.el7.elrepo.noarch.rpm`
-
+   
+1. `rpm -Uvh http://www.elrepo.org/elrepo-release-7.0-2.el7.elrepo.noarch.rpm`
+   
 3. `lspci -v` 查看使用的网卡驱动（内核默认使用的网卡驱动r8169，但实际网卡是r8168）
 
    1. `ethtool -i enp3s0` 查看网卡的固件版本以及所依赖的驱动，firmware-version: rtl8168g-2_0.0.1 02/06/13
