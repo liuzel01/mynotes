@@ -909,6 +909,79 @@ ip x.x.x.x
 
 
 
+# 安装elasticsearch
+
+## 安装单机版elasticsearch7.10.1
+
+1. 因为低版本的elastic，在弄license授权的时候，不太好弄。创建密码时，总是提示证书不对，没授权。。。。
+    https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.10.1-linux-x86_64.tar.gz
+    https://artifacts.elastic.co/downloads/kibana/kibana-7.10.1-linux-x86_64.tar.gz
+    https://artifacts.elastic.co/downloads/logstash/logstash-7.10.1-linux-x86_64.tar.gz
+2. adduser es                               添加用户
+
+    1. usermod -g root es
+
+3. cd /es/elasticsearch-7.10.1/
+   
+    1. ./bin/elasticsearch &                启动后台运行
+    
+    2. ss -tlnp | grep 9200                 占用端口9200
+    
+    3. ulimit -Hn 显示131072，ulimit -Sn 显示65536
+    
+    4. vim config/jvm.options               修改配置文件
+        -Xms3g
+        -Xmx3g
+        
+    5. vim config/elasticsearch.yml
+       
+        ```yaml
+        cluster.name: es-lzl
+        node.name: "es-node1"
+        cluster.initial_master_nodes: [ "es-node1" ]
+        path.data: /es/elasticsearch-7.10.1/data
+    path.logs: /es/elasticsearch-7.10.1/logs
+        transport.tcp.port: 9300
+        transport.tcp.compress: true
+    http.port: 9200
+    discovery.zen.minimum_master_nodes: 1
+    network.host: 0.0.0.0
+       xpack.security.enabled: true
+      xpack.security.transport.ssl.enabled: true
+      action.auto_create_index: .security,.monitoring*,.watches,.triggered_watches,.watcher-history*
+      ```
+   
+4. cd /es/kibana-7.10.1/
+
+    1. ./bin/kibana -q &                    启动后台运行，或者-Q，-Q, --silent                     Prevent all logging
+
+    2. ss -tlnp | grep 5601                 占用端口5601
+
+    3. vim config/kibana.yml                修改配置文件
+       
+        ```yaml
+        server.port: 5601
+        server.host: "0.0.0.0"
+        # elasticsearch.url: "http://192.168.10.27:9200"
+        elasticsearch.hosts: [ "http://192.168.10.27:9200/" ]
+        elasticsearch.requestTimeout: 90000
+        elasticsearch.username: "kibana"
+        elasticsearch.password: "siping123456"
+        # 将kibana管理后台设置为中文显示
+        i18n.locale: "zh-CN"
+        ```
+
+    4. curl -XDELETE http://localhost:9200/.kibana* 删除elastic里的索引
+
+5. SSL证书暂未配置
+
+6. 参考，[elasticsearch6破解x-pack，设置密码并用head插件登录](https://www.cnblogs.com/xiaodai12138/p/12019213.html),
+
+
+
+
+
+
 
 
 
@@ -1006,6 +1079,7 @@ ip x.x.x.x
 - 问题解决
 
 1. `uname -r` ,`cat /etc/redhat-release`
+
 2. `rpm -import https://www.elrepo.org/RPM-GPG-KEY-elrepo.org`
    
 1. `rpm -Uvh http://www.elrepo.org/elrepo-release-7.0-2.el7.elrepo.noarch.rpm`
@@ -1018,8 +1092,43 @@ ip x.x.x.x
 
       03:00.0 Ethernet controller [0200]: Realtek Semiconductor Co., Ltd. RTL8111/8168/8411 PCI Express Gigabit Ethernet Controller [10ec:8168] (rev 0c)
 
-4. `awk -F\' '$1=="menuentry " {print $2}' /etc/grub2.cfg` 查看grub中默认的内核版本
+5. `awk -F\' '$1=="menuentry " {print $2}' /etc/grub2.cfg` 查看grub中默认的内核版本
+
 5. 下载好驱动后，运行  ./autorun.sh ，报错了日
+
+
+
+## centos7 GUI版报错jar command not found
+
+- 问题描述
+
+1. 在centos7服务器上安装elasticsearch,解压jar包时,提示 jar command not found 
+2. 解压jar包,`jar -xf x-pack-core-7.10.1.jar`
+   1. 压缩打包,`jar -cfv x-pack-core-7.10.1.jar`
+
+- 问题解决
+
+1. 因为是在装系统时,服务器自动安装上jdk环境的,所以
+
+   1. `which java` 能看到 /usr/bin/java, 但是 `which jar` 就看不到
+
+2. 接着, `ll /usr/bin/java`其实是链接文件,层层查,能找到源目标文件为
+
+   /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.275.b01-0.el7_9.x86_64/jre/bin/java
+
+3. 最后通过 `find / -name jar`查到jar可执行文件目录,
+
+   /es/elasticsearch-7.10.1/jdk/bin/jar
+
+4. 之后,链接文件就完事儿了.`ln -sf /es/elasticsearch-7.10.1/jdk/bin/jar /usr/bin/jar` (或是添加到环境变量)
+
+- FAQ
+
+1. 不过感觉,这个jar是 elastic的jar,,在系统里或许应该要安装软件包
+2. 这种根本原因,是只装了jre,并没有装jdk.jar命令是jdk中的,所以需要安装jdk
+3. `yum search oenjdk`
+4. `yum install java-devel`直接给他全套就完事儿
+5. 
 
 ---
 
