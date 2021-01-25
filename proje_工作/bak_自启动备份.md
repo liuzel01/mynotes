@@ -48,4 +48,3 @@ java "-Dthin.root=." "-Dthin.offline=true" -jar meeting-standard.jar
 ⁣
 ⁣pause
 ```
-
