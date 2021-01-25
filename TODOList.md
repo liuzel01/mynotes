@@ -16,6 +16,13 @@
 >
 > 易经,孙子兵法,唐太宗<<帝范>>都有提及
 
+- 重要原则
+
+1. type less, accomplish more
+2. DRY, don't repeat yourself，    DRY 是后面的缩写
+3. care about your tool
+
+---
 # totogoal
 
 ## linux 运维
