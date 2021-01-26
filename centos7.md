@@ -947,9 +947,12 @@ ip x.x.x.x
     discovery.zen.minimum_master_nodes: 1
     network.host: 0.0.0.0
        xpack.security.enabled: true
-      xpack.security.transport.ssl.enabled: true
-      action.auto_create_index: .security,.monitoring*,.watches,.triggered_watches,.watcher-history*
+        xpack.security.transport.ssl.enabled: true
+        action.auto_create_index: .security,.monitoring*,.watches,.triggered_watches,.watcher-history*
       ```
+     ```
+   
+     ```
    
 4. cd /es/kibana-7.10.1/
 
@@ -1094,7 +1097,7 @@ ip x.x.x.x
 
 5. `awk -F\' '$1=="menuentry " {print $2}' /etc/grub2.cfg` 查看grub中默认的内核版本
 
-5. 下载好驱动后，运行  ./autorun.sh ，报错了日
+5. 下载好驱动后，运行  ./autorun.sh ，报错了gan
 
 
 
@@ -1125,10 +1128,9 @@ ip x.x.x.x
 - FAQ
 
 1. 不过感觉,这个jar是 elastic的jar,,在系统里或许应该要安装软件包
-2. 这种根本原因,是只装了jre,并没有装jdk.jar命令是jdk中的,所以需要安装jdk
+2. 这种情况，根本原因，是只装了jre,并没有装jdk，jar命令是jdk中的,所以需要安装jdk
 3. `yum search oenjdk`
 4. `yum install java-devel`直接给他全套就完事儿
-5. 
 
 ---
 
