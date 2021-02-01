@@ -62,8 +62,13 @@
 3. pvcreate， 创建物理卷
    1. `pvcreate /dev/sdb`  `pvs`  
 4. 将新创建的pv卷，添加到vg组内；lvcreate  创建逻辑卷
-   1. `vgextend centos /dev/sdb`  
-   2. `lvcreate -l 100%FREE -n newsdb centos`  `lvs`  
+   1. 如若没有，需要创建centos-home
+      1. `vgcreate centos-home /dev/vdb`
+         `mkfs.ext4 /dev/centos_home/newvdb`          格式化，否则挂载不上，提示mount: /dev/mapper/centos_home-newvdb 写保护，将以只读方式挂载、、mount: 未知的文件系统类型“(null)”
+
+   2. `vgextend centos /dev/sdb`
+   3. `lvcreate -l 100%FREE -n newsdb centos`  `lvs`
+
 5. 创建挂载点，挂载
    1. `mkdir -p /newsdb`,  `mount /dev/mapper/centos-newsdb /newsdb`  
    2. 如果挂载点为已存在的文件夹，那该文件夹内的内容就会没了，因为/dev/mapper/centos-newsdb  毕竟是空的。umount 掉即可
