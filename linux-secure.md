@@ -227,11 +227,7 @@ install usb-storage /bin/true
 
 - enforcing stronger passwords
 
-1.
-
 - enable iptables (firewall)
-
-1.
 
 - disable Ctrl+Alt+Delete in inittab
 
@@ -279,30 +275,21 @@ fi
    chmod 600 /tmp/dbasky/${LOGNAME}/*dbasky* 2>/dev/null
 ```
 
-4. `source /etc/profile` 生效，退出当前用户，登录后，检查下目录/tmp/dbasky/root 下的内容
+4. `source /etc/profile` 生效，退出当前用户，登录后，检查下目录 /tmp/dbasky/root 下的内容
 
 - review logs regularly
 
 1. 将日志移动到专用服务器去,这可能会阻止入侵者轻松修改本地日志...以下是通用默认日志文件名称
 
 2. /var/log/message
-
    /var/log/auth.log
-
    /var/log/kern.log
-
    cron.log
-
    maillog
-
    boot.log
-
    mysqld.log
-
    secure
-
    utmp, 或 wtmp
-
    yum.log
 
 - 重要文件备份(上有提及)
@@ -314,13 +301,9 @@ fi
 - ignore ICMP or Broadcast Request
 
 1. vim /etc/sysctl.conf
-
    Ignore ICMP request:
-
    net.ipv4.icmp_echo_ignore_all = 1
-
    Ignore Broadcast request:
-
    net.ipv4.icmp_echo_ignore_broadcast = 1
 
 2. `sysctl -p` 加载配置文件
@@ -362,14 +345,42 @@ UUID=032231b0-b786-426e-9c86-729ddcb64d51 /boot                   xfs     defaul
 4. Block “SetUID” and “SetGID” file creation in world writable and web document root folders
 
 - harden the linux kernel
-- enable malware scanning， 启用恶意软件扫描
+- enable malware scanning，      启用恶意软件扫描
 
 - setup an intrusion detection system
 
 1. A^^A
-2. 使用linux FHS的inotify 功能，在创建新文件时出发扫描
+2. 使用linux FHS的inotify 功能，在创建新文件时触发扫描
 3. 使用web应用程序防火墙+防病毒来扫描web流量
 4. 使用多个防病毒签名数据库来确保没有恶意软件通过您的过滤器
+
+- 增减系统登录欢迎信息
+
+1. 为了保证系统的安全，可以修改或删除某些系统文件，涉及到的文件有：
+   /etc/issue                    记录了OS的名称和版本号
+   /etc/issue.net                记录了OS的名称和版本号，内容会在登录后显示（默认不显示）
+   /etc/redhat-release           记录了OS的名称和版本号。为安全起见，可将此文件中的内容删除
+   /etc/motd                     系统的公告信息。每次用户登录后，会显示在用户终端。这里文件，最大的作用就是发布一些警告信息，在攻击者登录后产生一些震慑
+
+2.
+
+- 检查并关闭系统可疑进程
+
+1. ps、top 只知进程的名称而无法得知路径，
+   pidof sshd                    查找正在运行的进程PID
+   ls -al /proc/exe              进入内存目录，查看对应PID目录下 exe 文件的信息。这就找到了进程对应的完整执行路径
+   ls -al /proc/981/fd           还可查看文件的句柄
+
+
+
+
+
+
+
+
+
+
+
 
 ## 40 linux server hardening tips
 

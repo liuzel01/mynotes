@@ -39,8 +39,6 @@
 
 <img src="./images/linux_os_zs_zongjie.jpg" alt="linux导图" style="zoom: 50%;" />
 
-
-
 ## linux命令行
 
 - 运行程序的方法，
