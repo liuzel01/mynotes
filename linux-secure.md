@@ -139,13 +139,13 @@
 
    ```bash
       # 不要安装，只做检查（有效值： yes|no）
-      CHECK_ONLY=yes
+      CHECK_ONLY = yes
       # check to see if you can reach the repos before updating 
       # CHECK_FIRST=yes
       # 不要安装，只做检查和下载。要求 CHECK_ONLY=yes（先要检查后，才可以知道要下载什么）
-      DOWNLOAD_ONLY=yes
+      DOWNLOAD_ONLY = yes
       # 设置一个有效的邮件地址
-      MAILTO="liuzelin01@outlook.com"
+      MAILTO = "zelin.liu@sipingsoft.com"
    ```
 
 4. `systemctl restart|enable yum-cron`
@@ -274,9 +274,9 @@ fi
                         mkdir /tmp/dbasky/${LOGNAME}
                         chmod 300 /tmp/dbasky/${LOGNAME}
 fi
-export HISTSIZE=4096
-export HISTFILE="/tmp/dbasky/${LOGNAME}/${USER_IP}_dbasky.$DT"
-chmod 600 /tmp/dbasky/${LOGNAME}/*dbasky* 2>/dev/null
+   export HISTSIZE=4096
+   export HISTFILE="/tmp/dbasky/${LOGNAME}/${USER_IP}_dbasky.$DT"
+   chmod 600 /tmp/dbasky/${LOGNAME}/*dbasky* 2>/dev/null
 ```
 
 4. `source /etc/profile` 生效，退出当前用户，登录后，检查下目录/tmp/dbasky/root 下的内容
@@ -364,15 +364,12 @@ UUID=032231b0-b786-426e-9c86-729ddcb64d51 /boot                   xfs     defaul
 - harden the linux kernel
 - enable malware scanning， 启用恶意软件扫描
 
-1. 
-
 - setup an intrusion detection system
 
-1. 
+1. A^^A
 2. 使用linux FHS的inotify 功能，在创建新文件时出发扫描
 3. 使用web应用程序防火墙+防病毒来扫描web流量
 4. 使用多个防病毒签名数据库来确保没有恶意软件通过您的过滤器
-
 
 ## 40 linux server hardening tips
 
