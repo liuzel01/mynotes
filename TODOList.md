@@ -107,9 +107,9 @@ done is better than perfect
 2. 熟悉Linux系统，至少掌握shell、python其中的一种脚本编写；
 3. **熟悉CI/CD常用工具，如jenkins，pipeline，gitlab等，**
 4. **熟悉自动化运维及配置工具ansible等；**
-5. 熟悉docker、kubernetes等容器云平台的管理和使用；
+5. ~~熟悉docker、kubernetes等容器云平台的管理和使用；~~
 6. ~~熟悉监控系统Zabbix/Prometheus中的一种以上；~~
-7. ~~有阿里云、腾讯云、金山云等常见云平台使用经验；~~
+7. **有阿里云、腾讯云、金山云等常见云平台使用经验；**
 
 - 加分项:
 
