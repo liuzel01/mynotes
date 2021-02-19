@@ -145,6 +145,7 @@ WantedBy=multi-user.target
 1. `docker pull docker.mirrors.ustc.edu.cn/prom/prometheus'`
     1. `docker pull docker.mirrors.ustc.edu.cn/prom/node-exporter`，一般没有的基本可以google了
     2. 在服务端或是在本地pull下来外部网络的镜像，然后tag 并上传到私仓，之后就可以从私仓pull
+
 2. `docker pull 192.168.10.85/prome/cadvisor_lzl@sha256:46d4d730ef886aaece9e0a65a912564cab0303cf88718d82b3df84d3add6885c`
 3. `ansible 192.168.10.85 -m shell -a 'docker tag d24b7db72c99 cadvisor:harbor_prome'`
 4. `docker rmi 192.168.10.85/prome/cadvisor_lzl@sha256:46d4d730ef886aaece9e0a65a912564cab0303cf88718d82b3df84d3add6885c`
@@ -191,6 +192,7 @@ docker run --name monitor-prometheus --restart always -d -v moni/prometheus:/etc
     - icmp测试：主机探活机制
     - post测试：接口连通性
     - ssl证书过期时间
+
 - 可参考网站，https://awesome-prometheus-alerts.grep.to/rules，有很多写好的规则
 
 ```bash
