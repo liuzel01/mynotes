@@ -1,18 +1,25 @@
 # linux security -- best practices for 2020
 
-1. `nmap localhost`，                                     相当从外部检测服务器端口情况
+1. `nmap localhost`，                                       相当从外部检测服务器端口情况
 
-2. `sestatus`，                                           查看SELinux status
+2. `sestatus`，                                             查看SELinux status
 
 3. 用户权限，
-    `rpm -qc openssh-server,vim /etc/ssh/sshd_config`,     修改SSH参数，
-        `rpm -qa | grep openssh-server`
-        `rpm -ql aide`
 
-    1. PasswordAuthentication no                        # 是否启用密码认证，no 表示不起用
-    PermitRootLogin no                                  # 是否允许root远程登录，no表示禁止
-    AddressFamily inet                                  # 通过修改此选项，将ssh服务限制为ipv4或ipv6，inet表示更改为仅使用ipv4
-    修改ssh 远程端口，默认22
+   `rpm -qc openssh-server,vim /etc/ssh/sshd_config`,       修改SSH参数，
+
+   `rpm -qa | grep openssh-server`
+
+   `rpm -ql aide`
+
+    1. PasswordAuthentication no                             # 是否启用密码认证，no 表示不起用
+
+         PermitRootLogin no                                  # 是否允许root远程登录，no表示禁止
+
+         AddressFamily inet                                  # 通过修改此选项，将ssh服务限制为ipv4或
+         ipv6，inet表示更改为仅使用ipv4
+
+         修改ssh 远程端口，默认22
 
     2. 禁用777 权限。如若具有777权限，对文件和目录的完全许可，意味着即使是web用户也可执行文件。
         find . -type f -perm 777                            查找home 目录下具有完全权限的文件
@@ -79,10 +86,10 @@
 
   - 设置GRUB密码，来保护Linux Servers
 
-1. 设置，修改菜单条目时的密码，
+1. 设置，修改菜单条目时，需要输入的密码，
    1. `grub2-setpassword`， 会创建文件， /boot/grub2/user.cfg ，其中包含已加密的密码。这个密码的用户是root，在/boot/grub2/grub.cfg  文件中已定义。
    2. 然后重启，在引导期间修改引导条目需要指定root用户名和密码
-2. 设置，启动菜单条目时的密码，
+2. 设置，启动菜单条目时，需要输入的密码，
    1. vim /boot/grub2/grub.cfg， 搜索 10_linux，然后修改条目中的，--unrestricted 参数
    2. 你有几个menuentry， 就都需要去掉
    3. 重启，验证。在启动系统的时候，就会提示输入用户名/密码，
@@ -101,30 +108,28 @@
 - Disk Partitions
 
 1. 重要的是，要有不同的分区，以提高数据安全性，以防万一发生灾难。通过创建不同的分区，可以对数据进行分离和分组。发生意外时，仅该分区的数据被损坏，其他分区上的数据则得以保留。
-2. 建议分区，/ /boot /usr /var /home /tmp /opt  
+2. 建议分区为，/ /boot /usr /var /home /tmp /opt  
    1. 应将第三方应用程序安装在 /opt 下的单独文件系统上。
 
 - 最小化软件包以最小化漏洞
 
 1. `chkconfig --list | grep '3:on'`
-2. `chkconfig serviceName off`
-3. `yum -y remove pack`
+2. `chkconfig 'serviceName' off`
+3. `yum -y remove 'packname'`
 
 - 检查监听网络端口
 
 1. `netstat -tulnp`
-2. `netstat -at` 列出仅TCP端口连接
-3. `netstat -au` 列出仅UDP端口连接
-4. `netstat -l`    列出所有活动的侦听端口连接
+2. `netstat -at`              列出仅TCP端口连接
+3. `netstat -au`              列出仅UDP端口连接
+4. `netstat -l`               列出所有活动的侦听端口连接
 
 - 使用安全shell
 
 1. 主要是ssh，远程登录，编辑 /etc/ssh/sshd_config
 
 2. PermitRootLogin no
-
    AllowUsers username
-
    Protocol 2
 
 - 保持系统更新
@@ -132,7 +137,7 @@
 1. `yum updates -y`
 2. `yum check-update`
 3. `yum install -y yum-cron`
-   `rpm -ql yum-cron`  编辑配置文件，`vim /etc/yum/yum-cron.conf`
+   `rpm -ql yum-cron`         编辑配置文件，`vim /etc/yum/yum-cron.conf`
 
    ```bash
       # 不要安装，只做检查（有效值： yes|no）
@@ -151,31 +156,24 @@
 - 锁定 cronjobs
 
 1. 禁止所有用户使用cron，
-
    echo ALL >>/etc/cron.deny
 
 - disable USB stick to detect
 
 1. 要限制用户在系统中使用USB记忆棒来保护、避免安全数据被窃取。创建文件 /etc/modprobe.d/no-usb， 添加内容
-
-install usb-storage /bin/true
+   install usb-storage /bin/true
 
 - 打开 SELinux
 
 1. `sestatus` 查看SELinux状态
 
-- Remove KDE/GNOME Desktops
+- Remove KDE/GNOME Desktops（**这里，我司有几台服务器还是装的桌面化**）
 
 1. 对于LAMP服务器,运行KDE或GNOME之类的X Window桌面,没有必要. 可以删除以提高服务器的安全性和性能.要禁用,编辑 /etc/inittab
-
    ​将运行级别设置为3,
-
    不过,发现,被 multi-user.target, 和 graphical.target 替代了
-
    `systemctl get-default` 查看默认启动的target
-
    `systemctl set-default multi-user.target` 将默认的修改为多用户状态(字符界面)
-
    `systemctl set-default graphical.target` 将默认的修改为图形界面执行
 
 2. yum groupremove 'X Window System',  完全删除X Window 桌面
@@ -183,9 +181,7 @@ install usb-storage /bin/true
 - turn off ipv6
 
 1. 未使用IPv6协议,应将其禁用.因为大多数应用程序或策略不需要IPv6协议,并确保当前服务器不需要它.编辑文件 /etc/sysconfig/network
-
    NETWORKING_IPV6=no
-
    IPV6INIT=no
 
 - Restrict Users to Use Old Passwords
@@ -223,19 +219,13 @@ install usb-storage /bin/true
    ​-u, --unlock 解锁指定账户的密码(对root用户仍可用)
 
 - enforcing stronger passwords
-
 - enable iptables (firewall)
-
 - disable Ctrl+Alt+Delete in inittab
 
 1. 编辑文件, /etc/inittab 发现 有一行描述 Ctrl+Alt+Delete is handled by /usr/lib/systemd/system/ctrl-alt-del.target
-
    经过观察,文件 /usr/lib/systemd/system/ctrl-alt-del.target  为文件 reboot.target 的软链接,
-
    删除掉链接文件即可,
-
    init q 重新加载配置文件使配置生效,
-
    ctrl+alt+delete 测试,reboot 测试
 
 - 检查账户中的空密码
@@ -262,14 +252,14 @@ fi
                 mkdir /tmp/dbasky
                 chmod 777 /tmp/dbasky
         fi
-                if [ ! -d /tmp/dbasky/${LOGNAME} ]
-                then
+               if [ ! -d /tmp/dbasky/${LOGNAME} ]
+               then
                         mkdir /tmp/dbasky/${LOGNAME}
                         chmod 300 /tmp/dbasky/${LOGNAME}
-fi
-   export HISTSIZE=4096
-   export HISTFILE="/tmp/dbasky/${LOGNAME}/${USER_IP}_dbasky.$DT"
-   chmod 600 /tmp/dbasky/${LOGNAME}/*dbasky* 2>/dev/null
+               fi
+export HISTSIZE=4096
+export HISTFILE="/tmp/dbasky/${LOGNAME}/${USER_IP}_dbasky.$DT"
+chmod 600 /tmp/dbasky/${LOGNAME}/*dbasky* 2>/dev/null
 ```
 
 4. `source /etc/profile` 生效，退出当前用户，登录后，检查下目录 /tmp/dbasky/root 下的内容
@@ -339,7 +329,7 @@ UUID=032231b0-b786-426e-9c86-729ddcb64d51 /boot                   xfs     defaul
    2. nodev, Don't interpret block special devices on the filesystem
    3. nosuid, Block the operation of suid, and sgid bits
 
-4. Block “SetUID” and “SetGID” file creation in world writable and web document root folders
+3. Block “SetUID” and “SetGID” file creation in world writable and web document root folders
 
 - harden the linux kernel
 - enable malware scanning，      启用恶意软件扫描
@@ -399,7 +389,7 @@ UUID=032231b0-b786-426e-9c86-729ddcb64d51 /boot                   xfs     defaul
    3. 防止堆栈溢出。配置文件， /etc/security/limit.conf 增加一行， *  hard core 0
 
 5. 入侵防范
-   操作系统应遵循最小安装的原则，仅安装需要的组件和应用程序，并通过设置升级服务器、系统软件预防性维护服务等方式保持系统补丁及时得到更新
+   操作系统应遵循**最小安装**的原则，仅安装需要的组件和应用程序，并通过设置升级服务器、系统软件预防性维护服务等方式保持系统补丁及时得到更新
    1. 关闭不必要的网络和系统服务
    如无特殊需要，应关闭lpd,telnet,routed,sendmail,bluetooth,identd,xfs,rlogin,rwho,rsh,rexec服务
 
