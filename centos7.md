@@ -218,10 +218,6 @@
 5. 如若 `git pull`  提示 `no tracking information`  ，说明本地分支，和远程分支的链接关系没创建，命令
    1. `git branch --set-upstream-to new01 origin/new01`  
 
-
-
-
-
 ###### rebase
 
 ### 标签
@@ -231,7 +227,6 @@
 ### FAQ
 
 - 参考链接，[git笔记](https://juejin.cn/post/6844903877138087950#heading-4)，  
-
 
 # docker
 
@@ -249,7 +244,8 @@
    1. `-g, --gid GROUP               force use GROUP as new primary group`
    2. `-G, --groups GROUPS           new list of supplementary GROUPS`  新的补充清单
 
-3. 查看容器的运行时日志，`docker logs --tail=100 -f process_exporter`   表示从第100行开始
+3. 查看容器的运行时日志，`docker logs --tail=100 -f process_exporter`   表示输出最近的若干日志
+   `man docker-logs`
 
 4. dockerfile里用到的基础镜像，主要来自dockerhub官方人员制作维护的。如若要自己制作，可以参考，[create a base image](https://docs.docker.com/develop/develop-images/baseimages/),
 
@@ -456,8 +452,6 @@ WantedBy=multi-user.target
 
 <img src="./images/centos7_docker_harbor_regists.png" alt="docker_harbor_images" style="zoom:80%;" />
 
- 
-
 - 从私仓push镜像，演示
 
 1. `docker pull 192.168.226.134/ops/lzl_c7sshd:hostname-centos7`  或是 `docker pull 192.168.226.134/ops/lzl_c7sshd:V0.2`  
@@ -473,8 +467,6 @@ WantedBy=multi-user.target
 <img src="./images/centos7_docker_harbor_php.png" alt="docker_harbor_images" style="zoom:80%;" />
 
 <img src="./images/centos7_docker_harbor_yanshi.png" alt="docker_harbor_images" style="zoom:80%;" />
-
-
 
 - 参考，[harbor介绍与企业级私有docker镜像仓库搭建](https://cloud.tencent.com/developer/article/1718372)，  
 - 参考，[使用harbor搭建docker私仓](https://www.jianshu.com/p/e896a2c7b975)，  [docker compose详解](https://www.jianshu.com/p/658911a8cff3)，  
@@ -536,7 +528,7 @@ WantedBy=multi-user.target
 
 - `vim Dockerfile`  
 
-```
+```dockerfile
 FROM centos:centos7.5.1804
 LABEL maintainer="inspur_lyx@hotmail.com"
 ENV LANG en_US.UTF-8
@@ -565,7 +557,7 @@ RUN tar -zxf /opt/nginx-1.13.7.tar.gz -C /opt  && cd /opt/nginx-1.13.7 && ./conf
 
 - `vim Dockerfile_optimized`  
 
-```
+```dockerfile
 FROM 192.168.226.134/ops/lzl_django@sha256:547b84f6b26af61004657c43c9045917a87a963ed7927476b315db4aff2db941
 LABEL maintainer="liuzel01@hotmail.com"
 #工作目录
@@ -593,7 +585,7 @@ CMD ["./run.sh"]
 
 - `vim mysql/my.cnf`  
 
-```
+```bash
 [mysqld]
 user=root
 character-set-server=utf8
@@ -610,7 +602,7 @@ default-character-set=utf8
 
 - `vim mysql/Dockerfile`  
 
-```
+```dockerfile
 FROM mysql:5.7
 COPY my.cnf /etc/mysql/my.cnf
 ```
@@ -627,7 +619,7 @@ COPY my.cnf /etc/mysql/my.cnf
 - `docker run -d -p 8002:8002 --name myblog_lzl -e MYSQL_HOST=172.17.0.4 -e MYSQL_USER=root -e MYSQL_PASSWD=123456  myblog:latest`  
 - 如若不成功，注意你的运行docker环境的运存，不能太小
 
-```
+```bash
 ## migrate 迁移
 $ docker exec -ti myblog bash
 #/ python3 manage.py makemigrations
@@ -662,13 +654,6 @@ $ docker exec -ti myblog python3 manage.py createsuperuser
 2. 容器的端口一定要全部开放
 3. 只要你选对image 后，一切都是那么丝滑
 
-
-
-
-
-
-
-
 # ansible 记录
 
 1. `ansible centos_server -m ping `  在尝试连接过程中，会提示，**Permission denied (publickey,gssapi-keyex,gssapi-with-mic)** ，
@@ -681,7 +666,7 @@ $ docker exec -ti myblog python3 manage.py createsuperuser
 
 - `vim  /etc/ansible/ansible.cfg `   `ssh -V`   查看主机上ssh的版本，高于5.6则可以直接添加如下
 
-```
+```bash
 [ssh_connection]
 ssh_args = -o ControlMaster=auto -o ControlPersist=5d
 ```
@@ -693,7 +678,7 @@ ssh_args = -o ControlMaster=auto -o ControlPersist=5d
 
 2. 如果要达到ssh长连接的目的，也可修改主机（控端/中控机）的sshd_config  配置，（没尝试）
 
-```
+```bash
 ServerAliveInterval 30
 ServerAliveCountMax 3
 ControlMaster auto
@@ -715,7 +700,7 @@ ControlPersist 5d
 
 2. 同样是在 ansible.cfg  文件中，
 
-```
+```bash
 [ssh_connection]	同样是此节点下
 pipelining = True
 ```
@@ -746,7 +731,7 @@ accelerate_connect_timeout= 5.0
 
 - 有个参数，默认值如下，修改修改成free  
 
-```
+```bash
 # Ansible will use the 'linear' strategy but you may want to try another one.
 #strategy = linear
 strategy = free,	# 修改成free,
@@ -755,7 +740,7 @@ strategy = free,	# 修改成free,
 1. 默认值是linear,即按批次并行处理；  free 表示的是ansible会尽可能快的切入到下一个主机。所以在执行结果的task 显示顺序就不一样，也就可以理解了
 2. playbook中的设置，
 
-```
+```bash
 ---
 - hosts: all
    strategy: free
@@ -769,7 +754,7 @@ tasks:
 - 参数async未设置，则为同步执行。可以为执行时间非常长（有可能遭遇超时）的操作使用异步模式
 - 为异步启动一个任务，可指定其最大超时时间以及轮询其状态的频率，如若没有为poll指定值，默认轮询频率10s
 
-```
+```bash
 ---
   - hosts: all
    remote_user: root
@@ -797,7 +782,7 @@ tasks:
 
   `gather_facts: false`   提高playbook 效率
 
-```
+```bash
 ---
 - hosts: 10.0.108.2
 gather_facts: no
@@ -807,7 +792,7 @@ tasks:
 
 - 也可以在 ansible.cfg  文件中添加如下配置，禁用facts采集
 
-```
+```bash
 [defaults]
 gathering = explicit
 ```
@@ -832,7 +817,7 @@ gathering = explicit
 
 2. 编辑 /etc/ansible/ansible.cfg  文件
 
-```
+```bash
 [defaults]							# 此处只列出了defaults下的配置
 inventory = /etc/ansible/hosts    	#主机列表配置文件
 library = /usr/share/ansible/    	#库文件存放目录
