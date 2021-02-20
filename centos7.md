@@ -1090,10 +1090,10 @@ ip x.x.x.x
 1. `uname -r` ,`cat /etc/redhat-release`
 
 2. `rpm -import https://www.elrepo.org/RPM-GPG-KEY-elrepo.org`
-   
-1. `rpm -Uvh http://www.elrepo.org/elrepo-release-7.0-2.el7.elrepo.noarch.rpm`
-   
-3. `lspci -v` 查看使用的网卡驱动（内核默认使用的网卡驱动r8169，但实际网卡是r8168）
+
+3. `rpm -Uvh http://www.elrepo.org/elrepo-release-7.0-2.el7.elrepo.noarch.rpm`
+
+4. `lspci -v` 查看使用的网卡驱动（内核默认使用的网卡驱动r8169，但实际网卡是r8168）
 
    1. `ethtool -i enp3s0` 查看网卡的固件版本以及所依赖的驱动，firmware-version: rtl8168g-2_0.0.1 02/06/13
 
@@ -1103,9 +1103,7 @@ ip x.x.x.x
 
 5. `awk -F\' '$1=="menuentry " {print $2}' /etc/grub2.cfg` 查看grub中默认的内核版本
 
-5. 下载好驱动后，运行  ./autorun.sh ，报错了gan
-
-
+6. 下载好驱动后，运行  ./autorun.sh ，报错了gan
 
 ## centos7 GUI版报错jar command not found
 
