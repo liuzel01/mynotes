@@ -408,9 +408,11 @@ wine 5.21-1
 
 1. `yay -S samba`   archlinux配置与windows文件共享
 
-- 实现了，非root用户也可对共享文件进行编辑并保存，可以的~
+- ~~实现了，非root用户也可对共享文件进行编辑并保存，可以的~~
 - **这是因为用户属于root用户组，！！！！这种情况非常不安全，而且删除文件时没提示。。。**  
-- 
+- `yum install nfs-utils rpcbind``systemctl start|enable rpcbind|nfs`
+- 客户端(linux)，`yum install samba-client cifs-utils`
+  - 测试，`smbclient -L 192.168.10.185 -Uliuzel01`
 
 ```shell
 需要现在windows（主机名DESKTOP-GU5AA0B）上共享一个文件夹，文件夹路径为C:\siping\newOneFiles\file
