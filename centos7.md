@@ -357,12 +357,12 @@ openssl verify -CAfile ca.crt httpd.crt
 ##################### 最后，会显示： httpd.crt: OK
 ```
 
-- 自签名证书不被浏览器信任，适合内部或者测试使用
+- 自签名证书(私人证书)不被浏览器信任，适合内部或者测试使用
 - 将httpd.key httpd.crt 放到 /etc/harbor/cert 目录下，
 
 ###### 安装docker-ce
 
-1. 
+1.
 
 ```bash
 [root@master harbor]# docker --version
@@ -913,19 +913,19 @@ ip x.x.x.x
     1. usermod -g root es
 
 3. cd /es/elasticsearch-7.10.1/
-   
+
     1. ./bin/elasticsearch &                启动后台运行
-    
+
     2. ss -tlnp | grep 9200                 占用端口9200
-    
+
     3. ulimit -Hn 显示131072，ulimit -Sn 显示65536
-    
+
     4. vim config/jvm.options               修改配置文件
         -Xms3g
         -Xmx3g
-        
+
     5. vim config/elasticsearch.yml
-       
+
         ```yaml
         cluster.name: es-lzl
         node.name: "es-node1"
