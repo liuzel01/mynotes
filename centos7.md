@@ -940,10 +940,14 @@ ip x.x.x.x
        xpack.security.enabled: true
         xpack.security.transport.ssl.enabled: true
         action.auto_create_index: .security,.monitoring*,.watches,.triggered_watches,.watcher-history*
+       ```
       ```
-     ```
    
-     ```
+      ```
+   
+    ```
+   
+    ```
    
 4. cd /es/kibana-7.10.1/
 
@@ -1020,9 +1024,92 @@ ip x.x.x.x
 
 ---
 
+# 网络
 
+## 内网穿透
 
+- 了解一下
 
+- lanproxy，代理，本质上是通过公网ip:端口，来访问到你的内网服务器上所映射端口，上的服务~
+
+[可参考此](*https://github.com/ffay/lanproxy*)
+
+- 目前，我是在xizang 所属服务器上搭建了Server 端；在内网linux搭建了client端。通过`ssh root@221.236.26.67 -p 5222` 来远程到内网linux
+
+- 再一个client端，是部署在了win10工作机上，mstsc远程目的机即可。此过程使用的是，服务端所属服务器上的带宽。此方法比向日葵要稳定些。
+
+![lanproxy](https://gitee.com/liuzel01/picbed/raw/master/data/20210318115145_lanproxy_web_win.png)
+
+1. 比方说，以下，是我Server端（部署在公网服务器/云服务器）上的配置，proxy-server-0.1/conf/config.properties
+
+```
+ server.bind=0.0.0.0
+
+# 与代理客户端通信端口
+  server.port=14900  
+# ssl相关配置
+  server.ssl.enable=true
+  server.ssl.bind=0.0.0.0
+  server.ssl.port=14903
+  server.ssl.jksPath=test.jks
+  server.ssl.keyStorePassword=123456
+  server.ssl.keyManagerPassword=123456
+# 配置可忽略
+  server.ssl.needsClientAuth=false
+# WEB在线配置管理相关信息
+  config.server.bind=0.0.0.0
+  config.server.port=18090
+  config.admin.username=admin
+  config.admin.password=admin123
+```
+
+- 以下，是我client端（部署在内网服务器/目的机）的配置，proxy-client-0.1/conf/config.properties
+
+```
+# client.key=client
+# 在Server-WEB端-添加客户端-生成随机秘钥后，填写进配置文件
+  client.key=55154da57451494c9d81bad09f28416e
+  ssl.enable=true
+  ssl.jksPath=test.jks
+  ssl.keyStorePassword=123456
+# server.host=127.0.0.1
+  server.host=221.236.26.67
+# default ssl port is 4993
+# 注意端口与服务端端口保持一致。 因为ssl.enable 都为true
+  server.port=14903
+```
+
+1. 注意启动后，随时看日志，方便实时检查问题
+
+2. 这是Server-WEB端截图
+
+1. 客户端管理-客户端列表，注意“状态”一列，要为“在线”才可
+
+![lanproxy-web](https://gitee.com/liuzel01/picbed/raw/master/data/20210318101403_lanproxy_web.png)
+
+---
+
+***\*注：\****
+
+1. 用nginx配置反向代理，转发ssh服务。 使用stream模块，需要编译安装nginx时， --with-stream 
+
+2. 本配置可参考，
+
+```
+# 需要stream 模块，要重新编译安装nginx
+# stream {
+# upstream ssh {
+# server 221.236.26.67:52115;
+# }
+# 
+# server {
+#  listen 81;
+#  proxy_pass ssh;
+#  proxy_connect_timeout 1h;
+#  proxy_timeout 1h;
+# }
+# }
+```
 
 # 技巧技巧 :medal_sports:  
 
