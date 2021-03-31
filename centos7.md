@@ -860,7 +860,7 @@ ip x.x.x.x
 ##### 配置ansible ssh 通信
 
 1. `ssh-keygen`  ,生成ssh public 和 private key
-2. `for i in $ `cat /tmp/ansible_docker.txt`;do ssh-copy-id root@$i;done`  ，也可以写进脚本执行
+2. for i in $ `cat /tmp/ansible_docker.txt`;do ssh-copy-id root@$i;done  ，也可以写进脚本执行
 
 - 这个时候需要输入密码，来建立互信过程。。
 - **应该可以在脚本中，自动写密码的！！！！**  
@@ -942,11 +942,11 @@ ip x.x.x.x
         action.auto_create_index: .security,.monitoring*,.watches,.triggered_watches,.watcher-history*
        ```
       ```
-   
+      
       ```
    
     ```
-   
+      
     ```
    
 4. cd /es/kibana-7.10.1/
