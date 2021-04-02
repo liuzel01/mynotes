@@ -226,7 +226,90 @@
 
 ### FAQ
 
-- 参考链接，[git笔记](https://juejin.cn/post/6844903877138087950#heading-4)，  
+- 参考链接，[git笔记](https://juejin.cn/post/6844903877138087950#heading-4)， 
+
+##  使用原则
+
+1. 每次commit只做一件事。 linux中心原则是，所有更改都必须分解为小步骤进行。针对某一项单一任务的更改
+
+2. commit不能破坏构建。 不仅应该将所有更改分解为尽可能小的变量（上一条），而且不能破坏内核（就内核维护而言）。 即每个步骤都必须完全起作用，并且不引起退化。
+
+3. 所有代码都是二等分的。 二等分是一种操作，它使开发者可以找到所有发生错误的确切时间点。 只有在遵守上面的规则的情况下，才能很好起作用。开发者可以在十几次编译/测试中，从成千上万的可能 commit 中分离出导致问题出现的 commit 。Git 甚至可以通过 git bisect 功能帮助自动化该过程
+
+4. 永远不要rebase 公共分支。 linux项目工作流程不允许这样，因为rebase这些公共分支后，已重新基准化的commit 将不再与 基于原存储库中的相同 commit 匹配
+
+​    在树的层次结构中，不是叶子的公共主干部分 不能重新设置基准，否则将会破坏层次结构中的下游分支。
+
+5. git正确合并。
+
+6. 保留定义明确的commit 日志。 每个commit都必须是独立的， 这也应该包括与commit相应的日志。内核贡献者（就内核维护而言） 必须在更改的commit 日志中做出说明，让所有人了解与正在进行的更改相关的所有内容
+
+   git blame来查看。编写良好的代码更改日志可以帮助确定是否可以删除改代码或如何对其进行修改
+
+7. 持续测试和集成。 linux-next是一个公共仓库，任何人都可以测试它。
+
+### 规范使用git commit
+
+```
+type(必须)
+    用于说明git commit的类别，只允许使用下面的标识。
+    feat：新功能（feature）。
+    fix/to：修复bug，可以是QA发现的BUG，也可以是研发自己发现的BUG。
+        fix：产生diff并自动修复此问题。适合于一次提交直接修复问题
+        to：只产生diff不自动修复此问题。适合于多次提交。最终修复问题提交时使用fix
+    docs：文档（documentation）。
+    style：格式（不影响代码运行的变动）。
+    
+    refactor：重构（即不是新增功能，也不是修改bug的代码变动）。
+    perf：优化相关，比如提升性能、体验。
+    test：增加测试。
+    chore：构建过程或辅助工具的变动。
+    revert：回滚到上一个版本。
+    merge：代码合并。
+    sync：同步主线或分支的Bug。
+```
+
+1. commit message 格式： <type>(<scope>): <subject>
+
+2. 下面举几个例子： 按照使用频率排列
+
+```
+feat： 创建项目
+    feat： 添加数据页面xxxxxx
+style： 修改文本格式
+test： 用于xxxx相关测试
+perf： 增加用户交互选项
+    perf： 优化判断语句
+fix：  xxx详情页面，展示不全，滚动条不能xxxx
+docs： 新增xxxx文档
+refactor： 修改网站名字为xxxx网
+```
+
+
+
+### faq
+
+- 修改之前已commit 的某次注释信息，
+
+git rebase -i HEAD~3                显示倒数三次注释。要修改哪次注释，就将前面的pick改成edit，
+
+git commit --amend                 按照terminal 给出的提示，修改你要修改的注释，然后保存退出。接着回到本地最新的版本，
+
+git rebase --continue                会提示， Successfully rebased and updated refs/heads/master.
+
+git add -A（如果你在这期间， 对文件有更改）      所以说，你在修改注释的时候，就不要改动文件了
+
+---
+
+- 拉取指定分支的代码，
+
+`git clone -b meeting_standard_v3.0 http://192.168.xx.xx:8000/meeting/meeting.git`
+
+`git remote -v ` 查看仓库的origin
+
+`git remote rename origin old-origin`
+
+`git remote rm origin`
 
 # docker
 
@@ -1175,7 +1258,47 @@ ip x.x.x.x
 
 5. `awk -F\' '$1=="menuentry " {print $2}' /etc/grub2.cfg` 查看grub中默认的内核版本
 
-6. 下载好驱动后，运行  ./autorun.sh ，报错了gan
+6. 下载好驱动后，运行  ./autorun.sh ，报错了
+
+------
+
+1. cat /boot/grub2/grub.cfg |grep menuentry     查看系统可用内核
+
+2. uname -sr                     查看当前内核
+
+3. grub2-set-default 'CentOS Linux (3.10.0-1160.xxxx) 7 (Core)'     修改开机时默认使用的内核
+
+4. grub2-editenv list                查看内核修改结果
+
+5. rpm -qa |grep kernel               查看系统安装了哪些内核包
+
+6. yum remove kernelxxxx              yum remove 或者rom -e 删除无用内核
+
+---
+
+- 可以在线升级内核，[centos7在线升级最新版本内核](*https://cloud.tencent.com/developer/article/1666173*)
+
+​    `rpm --import https://www.elrepo.org/RPM-GPG-KEY-elrepo.org`
+
+​    `yum install https://www.elrepo.org/elrepo-release-7.el7.elrepo.noarch.rpm`
+
+​    yum --enablerepo=elrepo-kernel install kernel-lt          安装lt内核，lt为长期支持的内核。 kernel-ml 为最新版本的内核
+
+​    grub2-mkconfig -o /boot/grub2/grub.cfg
+
+​    cat /boot/grub2/grub.cfg | rgep menuentry
+
+​	grub2-set-default 'CentOS Linux (5.4.93-1.el7.elrepo.x86_64) 7 (Core)'
+
+​    less /etc/default/grub                       检查一下
+
+​    uname -sr
+
+​    grub2-editenv list
+
+​    rpm -qa | grep kernel                        查看系统中全部的内核RPM包
+
+​    yum remove xxxx                           卸载旧内核（不需要）的RPM包
 
 ## centos7 GUI版报错jar command not found
 
@@ -1211,3 +1334,124 @@ ip x.x.x.x
 ---
 
 1. 参考，[升级centos7/6内核版本到4.12.4的方法](https://www.cnblogs.com/sexiaoshuai/p/8399599.html)，[ubuntu最近升级到最新linux内核后，网络无法使用怎么办](https://www.cnblogs.com/dakewei/p/10902439.html)，[linux内核升级-更新网卡驱动](https://blog.csdn.net/weixin_30614109/article/details/97691924?utm_medium=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.control&depth_1-utm_source=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.control)，
+
+## 编译安装软件，报错
+
+- 在编译安装软件时，make sense 报错：
+
+```
+/usr/bin/ld: 找不到 -lc
+collect2: 错误：ld 返回 1
+make: *** [strings-static] 错误 1
+```
+
+1. 解决： yum install glibc-static
+
+
+
+## rsync实现linux-win文件同步
+
+- [参考](*https://www.mekau.com/3773.html*)
+- win客户端同步linux服务器上的文件夹（将linux服务器的文件夹内容， 同步到windows客户端主机）
+- 倍智-192.168.4.247服务器， 可能由于不是管理员administrator；也可能由于是winserver服务器，暂时文件备份未成功；也可能由于win无创建ssh-keygen 秘钥导致的
+
+1. 在我本机（win10）测试过，可以通过运行脚本同步文件夹（centos7.9）。再将脚本加入到win的计划定时任务，就可以实现定时同步linux上的数据文件了~
+2. linux服务端，安装 `yum install -y rsync`， linux服务器地址，192.168.10.27，账户名： root，密码： 123456
+
+```
+/etc/rsyncd.conf
+uid = root
+gid = root
+max connections = 4 
+pid file = /var/run/rsyncd.pid
+lock file = /var/run/rsync.lock
+log file = /var/log/rsyncd.log
+#下面这个模块区域可以配置多个，每一个代表一个允许同步的path*
+[backup]
+path = /home/lzl/bakup/
+ignore errors
+read only = no
+list = true
+auth user = root 
+secrets file = /etc/rsyncd.pwd  
+/etc/rsyncd.pwd
+123456
+```
+
+1. win客户端，下载[cwRsync_5.4.1_x86_Free.zip](*https://download.cnet.com/cwRsync/3001-18511_4-75765181.html*)，
+
+​    在程序 rsync.exe 同级下创建backup.bat 即可，还有文件passwd.txt，和文件夹backback，内容如下
+
+```
+backup.bat
+cd C:\Users\44362\Desktop\cwRsync_5.4.1_x86_Free
+rsync -vzrtopg --password-file=passwd.txt root@192.168.10.27::backup /cygdrive/C/Users/44362/Desktop/cwRsync_5.4.1_x86_Free/backback
+pause
+# 用于测试。 测试成功后，上一行可去掉，
+```
+
+```
+文件： passwd.txt
+passwd.txt
+123456
+```
+
+**最后，将bat 批处理文件加入到计划定时任务就好了~**
+
+<img src="https://gitee.com/liuzel01/picbed/raw/master/data/20210311163931.png" alt="rsync" style="zoom:85%;" />
+
+## cdls 别名
+
+- 给cd 命名别名，目前操作办法，是在系统配置里写func： vim /etc/bashrc(因为使用的root用户，为了切换用户时仍可使用，就写在了系统配置里)
+
+```bash
+alias cd='cdls'
+cdls() {
+     \cd $1 &&\
+         ls
+}
+```
+
+1. 要查看活动别名的列表,使用 `alias -p`
+
+  `echo $0`      查看目前使用的终端
+
+  `showkey -a`    显示按键的ASCII码
+
+2. 可能是因为cd 属于内置命令。意指，bash 自身提供的命令，而不是文件系统中的某个可执行文件
+
+  type cd ;type ifconfig 来查看一条命令是否内建命令
+
+  xxx is a shell builtin
+
+## 磁盘相关
+
+- lsblk -f                       查看磁盘UUID
+
+​    -f, --fs                    输出文件系统信息
+
+​    blkid，
+
+​    ll /dev/disk/by-uuid/
+
+- 注意，自己要挂载的是centos_data-vdb ext4， 而不是vdb，因为你已经分区了，UUID就应该是分区后的那块盘
+
+## 脚本相关
+
+- 有时候，linux上的sh 脚本无法执行，原因可能是脚本内容是用dos 模式编辑的，
+
+  `sed -i "s/\r//" jdkInstall.sh` 可以运行了
+
+- 查看、更改文件的格式，vim jdkInstall.sh
+
+  :set ff     观察会弹出什么，fileformat=unix是正常的， =dos就不正确
+
+  :set ff=unix  就将文件格式改变成了unix了
+
+---
+
+- printenv 查看全局环境变量
+
+  set, 显示特定进程的所有环境变量集.其中除了全局,还有本地环境变量
+
+  标准约定: 若要创建新环境变量,则建议使用小写字母.用于区分个人与系统环境变量
