@@ -1112,14 +1112,14 @@ ip x.x.x.x
 ## 内网穿透
 
 - 了解一下
-
 - lanproxy，代理，本质上是通过公网ip:端口，来访问到你的内网服务器上所映射端口，上的服务~
+- 不过，client 和server端一定要能够互相通信才行
 
-[可参考此](*https://github.com/ffay/lanproxy*)
+[可参考此](https://github.com/ffay/lanproxy#%E7%9B%B8%E5%85%B3%E5%9C%B0%E5%9D%80)
 
-- 目前，我是在xizang 所属服务器上搭建了Server 端；在内网linux搭建了client端。通过`ssh root@221.236.26.67 -p 5222` 来远程到内网linux
+- 目前，我是在xizang 所属服务器（或某云服务器）上搭建了Server 端；在内网linux（或本地虚拟机）搭建了Client端。通过`ssh root@221.236.26.67 -p 5222` 来远程到内网linux
 
-- 再一个client端，是部署在了win10工作机上，mstsc远程目的机即可。此过程使用的是，服务端所属服务器上的带宽。此方法比向日葵要稳定些。
+- 再一个，Client端，是部署在了win10工作机上，mstsc远程目的机即可。此过程使用的是，服务端所属服务器上的带宽。此方法比向日葵要稳定些。
 
 ![lanproxy](https://gitee.com/liuzel01/picbed/raw/master/data/20210318115145_lanproxy_web_win.png)
 
@@ -1194,6 +1194,35 @@ ip x.x.x.x
 # }
 ```
 
+# 记一次，C7离线安装软件包
+
+## 
+
+- 在离线服务器内，无法连通网络（只能通过vpn连接到服务器，sftp传输文件），所以一般选择下载二进制包来安装，
+  - centos上安装软件的一般方法：rpm工具（二进制包，需特别注意包的依赖关系），yum工具（能自动解决依赖，最常用），源码包（安装难度大），
+
+1. 所以，`wget https://mirrors.tuna.tsinghua.edu.cn/mariadb//mariadb-10.4.6/bintar-linux-systemd-x86_64/mariadb-10.4.6-linux-systemd-x86_64.tar.gz`此次采用的是下载源码包，
+
+2. 下载完了，创建软链接，
+
+![image-20210426093734129](https://gitee.com/liuzel01/picbed/raw/master/data/20210426093741_C7_mariadb_lnsf.png)
+
+- 下载使用rpm包，安装软件
+
+1. `rpm -ivh bison-3.0.4-2.el7.x86_64.rpm --nodeps --force`  `rpm -ivh ./*.rpm --nodeps --force`  软件包之间的依赖，强制安装上
+
+- 离线安装bison
+
+1. `wget http://rpmfind.net/linux/centos/7.9.2009/os/x86_64/Packages/bison-3.0.4-2.el7.x86_64.rpm` 
+
+---
+
+- 有时候，会报错，**报错，/lib/ld-linux.so.2: bad ELF interpreter问题**
+
+1. 这是因为64位系统，安装了32位程序。很可能是因为用了公司的jdk，名为jdk-8u221-linux-i586.tar.gz
+2. 解决：
+   1. `yum install glibc.i686` 
+
 # 技巧技巧 :medal_sports:  
 
 ## PC和手机快速文件传输
@@ -1201,6 +1230,42 @@ ip x.x.x.x
 1. 使用python3的模块，`python3 -m http.server`   
 2. 如果希望换个端口，`python3 -m http.server 1234 --bind 127.0.0.1`   绑定后就不能用本机ip访问
 3. 可以不使用weixin等第三方工具，随时随地传
+
+## chrome tools滚动截图（截长图）
+
+- F12（或者快捷键Ctrl+Shift+i）调出开发者工具，快捷键Ctrl+Shift+p 召唤出工具箱，输入full（因为命令全称是，Capture full size screenshot）,ok然后就可以浏览器截图并保存到本地了~Capture node screenshot, 对单个节点（单个节点也是可以长屏）进行截图，当然首先要选中你需要截图的node
+
+1. 涉及到隐私，就不贴截图了
+
+![image-20210426095911847](https://gitee.com/liuzel01/picbed/raw/master/data/20210426095911_chrome_full_size_screen.png)
+
+- 或是要对某个设备上来个截图，F12，然后改成iPad Pro，右上角有三个点，Capture screenshot（找screenshot），可对此时设备（iPad Pro）进行截图
+
+---
+
+- 重启发起XHR请求，
+
+1. F12，Network面板，选中其中一个请求，右键，用 "Replay XHR" 来重启发起请求，而不需要再填一次表单了
+
+- 修改网站上的内容，
+
+1. F12,Console,type this "document.body.contentEditable="true"", just try on ur website
+
+- 快速调出需要的面板，
+
+1. 快捷键，Ctrl+Shift+p, type this "show animations" OR "show coverage"
+
+- 快速找到网页上的图片，
+
+1. F12, Network, Img, u can see the pics, click right, copy-copy link address
+
+## 针对前后端分项目
+
+- 一般的，后端使用spring-boot 的项目都打成了jar包，需要排查问题或是修改配置的时候，可以直接在服务器上进行解压和打包
+
+1. 解压包，到同级下的meeting-stand目录下，`unzip meeting-standard.jar -d meeting-stand`
+2. 重新打包，`jar -cvfM0 meeting_lzl.jar meeting-stand/`
+3. 所以，如果是这种，则可以直接找到对应的文件，vim修改内容并保存退出
 
 ## 其他
 
@@ -1232,17 +1297,17 @@ ip x.x.x.x
 2. 查日志（查看系统日志 /var/log/ 目录下的日志文件。如若是相关服务，就查看服务的日志文件，比如mysql数据库的日志文件等）
 3. 上网查相关资料
 
-## centos7 升级内核！！！！！失败
+## centos7 升级内核
 
 - 问题描述
 
 1. 升级内核
-2. 开机使用新内核时，识别不出有线网卡。
-   1. 最后，确认为网卡驱动不满足所导致。内核默认使用的是 r8169，需要装r8168的，要和网卡相匹配
+2. 开机使用新内核时，识别不出有线网卡。而且，你去看主机后面网卡灯也是不正常的
+   1. 最后，确认为网卡驱动不满足所导致。内核默认使用的是 r8169，需要去[官网](https://www.realtek.com/zh-tw/component/zoo/category/network-interface-controllers-10-100-1000m-gigabit-ethernet-pci-express-software)装r8168的，要和网卡相匹配
 
 - 问题解决
 
-1. `uname -r` ,`cat /etc/redhat-release`
+1. `uname -sr` ,`cat /etc/redhat-release`
 
 2. `rpm -import https://www.elrepo.org/RPM-GPG-KEY-elrepo.org`
 
@@ -1256,49 +1321,73 @@ ip x.x.x.x
 
       03:00.0 Ethernet controller [0200]: Realtek Semiconductor Co., Ltd. RTL8111/8168/8411 PCI Express Gigabit Ethernet Controller [10ec:8168] (rev 0c)
 
-5. `awk -F\' '$1=="menuentry " {print $2}' /etc/grub2.cfg` 查看grub中默认的内核版本
+5. `awk -F\' '$1=="menuentry " {print $2}' /etc/grub2.cfg` 查看grub中默认内核版本
 
 6. 下载好驱动后，运行  ./autorun.sh ，报错了
+
+   1.  tar -xjf r8168-8.048.03.tar_2.bz2
 
 ------
 
 1. cat /boot/grub2/grub.cfg |grep menuentry     查看系统可用内核
-
 2. uname -sr                     查看当前内核
-
 3. grub2-set-default 'CentOS Linux (3.10.0-1160.xxxx) 7 (Core)'     修改开机时默认使用的内核
-
 4. grub2-editenv list                查看内核修改结果
 
-5. rpm -qa |grep kernel               查看系统安装了哪些内核包
+- <font color=orange>**出错，只可能是因为下载安装的不够多我觉得**</font>
 
-6. yum remove kernelxxxx              yum remove 或者rom -e 删除无用内核
+1. rpm -qa |grep kernel               查看系统安装了哪些内核包
+2. yum remove kernelxxxx              yum remove 或者rom -e 删除无用内核
+
+- <font color=orange>**好嘛，突然之间整好了**</font>，不过服务使用的还是NetworkManager
+
+```bash
+192.168.10.27, 有点caoDan昂，
+    lspci | grep Eth        查看 Netowrk device
+    lsmod | grep 816        显示 loaded driver，可以看到前后两者并不匹配
+    cat /etc/init.d/connectNet 文件内容如下（当然也可以直接在这里加入到开机自启）
+    rmmod r8169 ;systemctl restart NetworkManager ;modprobe r8169
+
+    能够看出，虽然两者不匹配，但是重启后可以上网。但是网速的话，可能会受到点影响...
+        但是我远程连着，貌似影响不大呢，玄学
+    init 6 重启
+    awk -F\' '$1=="menuentry " {print i++ " : " $2}' /etc/grub2.cfg     列出已安装了的内核版本
+    	能看出，新安装的5.4 版本索引是0
+```
+
+3. 参考，[ethernet RTL 8168 driver on Centos](https://www.unixteacher.org/blog/ethernet-rtl-8168-driver-on-centos/)
+
+4.  加入到开机自启动失败，发现 /etc/rc.local 的软链接是 /etc/rc.d/rc.local
+
+   ​    而/etc/rc.d/rc.local 文件没有执行权限，chmod +x ;init 6 验证成功了
 
 ---
 
-- 可以在线升级内核，[centos7在线升级最新版本内核](*https://cloud.tencent.com/developer/article/1666173*)
+- 也可以在线升级内核，[centos7在线升级最新版本内核](*https://cloud.tencent.com/developer/article/1666173*)
 
 ​    `rpm --import https://www.elrepo.org/RPM-GPG-KEY-elrepo.org`
 
-​    `yum install https://www.elrepo.org/elrepo-release-7.el7.elrepo.noarch.rpm`
+```
+yum install https://www.elrepo.org/elrepo-release-7.el7.elrepo.noarch.rpm
+yum --enablerepo=elrepo-kernel install kernel-lt          安装lt内核，lt为长期支持的内核。 kernel-ml 为最新版本的内核
+为方便后面一步到位，下面这里也安装上
+yum --disablerepo=’*’ --enablerepo=elrepo-kernel install kernel-lt-devel
+yum --disablerepo=’*’ --enablerepo=elrepo-kernel install kernel-lt-headers
+```
 
-​    yum --enablerepo=elrepo-kernel install kernel-lt          安装lt内核，lt为长期支持的内核。 kernel-ml 为最新版本的内核
+   grub2-mkconfig -o /boot/grub2/grub.cfg
 
-​    grub2-mkconfig -o /boot/grub2/grub.cfg
-
-​    cat /boot/grub2/grub.cfg | rgep menuentry
+​    cat /boot/grub2/grub.cfg | grep menuentry
 
 ​	grub2-set-default 'CentOS Linux (5.4.93-1.el7.elrepo.x86_64) 7 (Core)'
 
 ​    less /etc/default/grub                       检查一下
 
+如若没有，就 reboot一下试试。。可惜的是，有时候还是会出现驱动不匹配的情况，还是要见上
+
 ​    uname -sr
 
 ​    grub2-editenv list
-
-​    rpm -qa | grep kernel                        查看系统中全部的内核RPM包
-
-​    yum remove xxxx                           卸载旧内核（不需要）的RPM包
 
 ## centos7 GUI版报错jar command not found
 
