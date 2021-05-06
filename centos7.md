@@ -61,26 +61,23 @@
    1. `fdisk /dev/sdb`，  注意type，改成lvm
 3. pvcreate， 创建物理卷
    1. `pvcreate /dev/sdb`  `pvs`  
+   2. `vgextend centos /dev/sdb`
 4. 将新创建的pv卷，添加到vg组内；lvcreate  创建逻辑卷
    1. 如若没有，需要创建centos-data
-      1. `vgextend centos /dev/sdb`
-         `mkfs.ext4 /dev/centos_data/newvdb`          格式化，否则挂载不上，提示mount: /dev/mapper/centos_home-newvdb 写保护，将以只读方式挂载、、mount: 未知的文件系统类型“(null)”
-
+      1. `mkfs.ext4 /dev/centos_data/newvdb`          格式化，否则挂载不上，提示mount: /dev/mapper/centos_home-newvdb 写保护，将以只读方式挂载、、mount: 未知的文件系统类型“(null)”
    2. `vgcreate centos-data /dev/vdb`
    3. `lvcreate -l 100%FREE -n newsdb centos`  `lvs`
       `lvdisplay`
-
 5. 创建挂载点，挂载
    1. `mkdir -p /newsdb`,  `mount /dev/mapper/centos-newsdb /newsdb`  
    2. 如果挂载点为已存在的文件夹，那该文件夹内的内容就会没了，因为/dev/mapper/centos-newsdb  毕竟是空的。umount 掉即可
 6. 要扩容 / 根目录，lvextend 将空间100% 加入到root逻辑卷内
-   1. 在上面第4步骤，不要创建新卷，而是  `lvextend -l +100%FREE /dev/centos/root`，  就可以看到LV Size 成功增大了
-   2. `xfs_growfs /dev/centos/root`，  重新识别下分区大小，`df -hT`  就可以看到效果了
-   3. 成功对 / 根目录扩容~
+   1. 在上面第4步骤，不要创建新卷，**而是扩容  vgextend**，还有  `lvextend -l +100%FREE /dev/centos/root`，  就可以看到LV Size 成功增大了
+   2. `xfs_growfs /dev/centos/root`，  重新识别下分区大小，
+   3. `df -hT`  就可以看到效果了
+   4. 成功对 / 根目录扩容~
 
 ---
-
-
 
 
 
@@ -128,7 +125,6 @@
 22. `git push origin :refs/tags/<标签名字>`  
 23. `git config --global color .ui true`  
 24. `git check-ignore -v <file>`  
-25. 
 
 ---
 
@@ -1194,6 +1190,38 @@ ip x.x.x.x
 # }
 ```
 
+## 路由
+
+-   netstat -rn               查看到服务器路由表， Kernel IP routing table
+
+    route add default gw 192.168.10.1   临时的
+
+    cat /etc/sysconfig/static-routes    永久的，内容如下any net default gw 192.168.10.1
+
+    systemctl restart network
+
+1. `route -n `查看linux路由表，netstat -rn
+   1. 如下，其意义和这句一样，
+
+![image-20210428111328512](https://gitee.com/liuzel01/picbed/raw/master/data/20210428111328_C7_route_add-host.png)
+
+添加到主机的路由 `route add -host 192.168.10.1 dev eth0` 
+   `route add -host 192.168.10.1 gw 192.168.10.1 `
+
+2. 添加到网络的路由，`route add -net 192.168.10.0 netmask 255.255.255.0 gw 192.168.10.1` 
+3. 添加默认路由，`route add default gw 192.168.10.1` 
+上面有，添加永久的路由的方法
+   在 /etc/rc.local 添加 route add 指令
+   在 /etc/sysconfig/network 里添加  GATEWAY=gw-ip 或者 GATEWAY=gw-dev
+
+4. 屏蔽一条路由，`route add -net 224.0.0.0 netmask 240.0.0.0 reject`
+5. 删除和添加add 默认网关，`route del default gw 192.168.120.240`
+6. route ，哪条在前面，哪条就有优先，前面都没有，就用最后一条default
+
+
+
+
+
 # 记一次，C7离线安装软件包
 
 ## 
@@ -1221,7 +1249,83 @@ ip x.x.x.x
 
 1. 这是因为64位系统，安装了32位程序。很可能是因为用了公司的jdk，名为jdk-8u221-linux-i586.tar.gz
 2. 解决：
-   1. `yum install glibc.i686` 
+   1. `yum install -y glibc.i686` 
+
+# vim进阶
+
+cat /etc/os-release ，linux发行版中都有此文件，可以通过 source 命令将文件中的K/V值引入到上下文中~
+
+  source /etc/os-release; 
+
+**if** [[ ${VERSION_ID} -ne 7 ]];**then**
+
+1. 进阶
+
+:1,$s/word1/word2/gc  " 从第一行到最后一行，全文替换，并出现确认提示
+
+9dd           " 向下删除9行
+
+ddp           " 将当前行下移一行
+
+d1G / dgg  " 删除第一行到当前行的数据
+
+d$     " 删除当前字符到行尾
+
+d0     " 从行首删除到当前字符
+
+nyy     " 从当前行开始复制 n 行
+
+y1G / ygg  " 从第一行复制到当前行
+
+yG     " 从当前行复制到最后一行
+
+y0     " 从行首复制到当前字符
+
+y$     " 从当前字符复制到行尾
+
+p, P    " 黏贴，p 黏贴到光标下一行，P 黏贴到光标上一行
+
+
+
+进入insert模式，
+
+i      在光标前，进入
+
+I      在当前行最左第一个非空字符前进入insert
+
+a      在光标后，进入
+
+A      在当前行最右第一个非空字符前进入insert
+
+s      删除光标下字符，并进入insert
+
+S      删除当前行，并进入insert
+
+o      光标下一行进入insert
+
+O      光标上一行进入insert
+
+
+
+r  " 替换单个字符，自动返回 normal 模式。省去了s 切换到insert模式，s可以删除光标下的字符然后，继续输入多个内容
+
+R  " 连续替换多个字符，手动 <esc> 返回 normal 模式。省去了切换到insert模式再输入的步骤
+
+
+
+bing meiy shenm cuo ,zhishi ba ziji de weizhi baif de taizheng le ,zhengde wo ye youdian huanghu .xiangl ,
+
+  wufei zhishi yiqi zhu de ren ,fentan fangzu bal ,zaijin yibu sihu ye bing meiy biyao ,ye butai xians .
+
+  fanshi doudei zijiguo ,hebi qiangjia yu biegou .
+
+jiehou ,zuihao haishi wenxia .
+
+---
+
+
+
+
 
 # 技巧技巧 :medal_sports:  
 
@@ -1356,10 +1460,9 @@ ip x.x.x.x
 ```
 
 3. 参考，[ethernet RTL 8168 driver on Centos](https://www.unixteacher.org/blog/ethernet-rtl-8168-driver-on-centos/)
-
 4.  加入到开机自启动失败，发现 /etc/rc.local 的软链接是 /etc/rc.d/rc.local
-
-   ​    而/etc/rc.d/rc.local 文件没有执行权限，chmod +x ;init 6 验证成功了
+   1. 而/etc/rc.d/rc.local 文件没有执行权限，chmod +x ;init 6 验证成功了
+5. 见[官网](http://elrepo.org/tiki/HomePage)
 
 ---
 
@@ -1381,9 +1484,11 @@ yum --disablerepo=’*’ --enablerepo=elrepo-kernel install kernel-lt-headers
 
 ​	grub2-set-default 'CentOS Linux (5.4.93-1.el7.elrepo.x86_64) 7 (Core)'
 
+​		或是`grub2-set-default 0`
+
 ​    less /etc/default/grub                       检查一下
 
-如若没有，就 reboot一下试试。。可惜的是，有时候还是会出现驱动不匹配的情况，还是要见上
+如若没有，就 reboot一下试试。。可惜的是，有时候还是会出现驱动不匹配的情况，还是要返回上面
 
 ​    uname -sr
 
