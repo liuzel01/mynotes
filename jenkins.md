@@ -19,6 +19,9 @@
 
 System.setProperty('org.apache.commons.jelly.tags.fmt.timeZone','Asia/Shanghai')
 
+2. 有时候，会报错，**报错，/lib/ld-linux.so.2: bad ELF interpreter问题**
+
+这个问题，在centos7.md 文件中有说明，在此不赘述
 ### FAQ
 
 #### 迁移问题
@@ -62,6 +65,7 @@ systemctl status EasyMonitor.service
     # 实践证明，上面这个是不行滴
 # 创建jenkins命令、指令， docker-jenkins
 docker run --net=host -p 8080:8080 -p 50000:5000 --name jenkins001 --hostname 111 -u root -v /etc/localtime:/etc/localtime -v /home/jenkins_home:/var/jenkins_home --privileged=true -e Java_OPTS=-Duser.timezone=Asia/Shanghai -d jenkins/jenkins:2.271-centos7
+或可使用jenkins/jenkins:lts, jenkins/jenkins:2.291-centos7
 会提示一句，WARNING: Published ports are discarded when using host network mode 说明端口号可能不必写出来
 ```
 
@@ -82,4 +86,20 @@ Caused by: org.springframework.beans.factory.UnsatisfiedDependencyException: Err
 - 将对应的job重新建一次，
 
 1. 注意，在 /etc/resolv.conf DNS文件添加，nameserver 61.139.2.69
+
+### active(exited)
+
+1. `systemctl restart jenkins `   启动后不报错，看日志也未打印出，
+
+- `systemctl status jenkins `   查询状态，同时刷新网页，一会就变成 active(exited)  了
+
+- 解决办法：
+
+1. 给用户jenkins授权，
+
+- `chown -R jenkins: /var/lib/jenkins`  
+- `chown -R jenkins: /var/cache/jenkins`  
+- `chown -R jenkins: /var/log/jenkins `
+
+2. 重启，并刷新网页  
 
