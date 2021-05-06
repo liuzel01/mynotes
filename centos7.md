@@ -1058,35 +1058,6 @@ ip x.x.x.x
 
 
 
-
-
-
-
-
-# jenkins
-
-## FAQ
-
-##### active(exited)
-
-1. `systemctl restart jenkins `   启动后不报错，看日志也未打印出，
-
-- `systemctl status jenkins `   查询状态，同时刷新网页，一会就变成 active(exited)  了
-
-- 解决办法：
-
-1. 给用户jenkins授权，
-
-- `chown -R jenkins: /var/lib/jenkins`  
-- `chown -R jenkins: /var/cache/jenkins`  
-- `chown -R jenkins: /var/log/jenkins `
-
-2. 重启，并刷新网页  
-
-
-
-
-
 # golang
 
 ## 国内go get无法下载的问题，
