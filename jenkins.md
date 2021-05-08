@@ -21,7 +21,8 @@ System.setProperty('org.apache.commons.jelly.tags.fmt.timeZone','Asia/Shanghai')
 
 2. 有时候，会报错，**报错，/lib/ld-linux.so.2: bad ELF interpreter问题**
 
-这个问题，在centos7.md 文件中有说明，在此不赘述
+这个问题，在[centos7.md](./centos7.md) 文件中有说明，在此不赘述
+
 ### FAQ
 
 #### 迁移问题
@@ -57,12 +58,9 @@ systemctl status EasyMonitor.service
 
 ---
 
-- 后续进展（解决方案）
+- 后续进展（即解决方案）
 
 ```bash
-# docker run --net=host --name=lzljenkins_host -itd jenkins/jenkins:2.271-centos7
-# docker run --net=lzl --ip=10.0.3.244 --name=lzljenkins -itd jenkins/jenkins:2.271-centos7
-    # 实践证明，上面这个是不行滴
 # 创建jenkins命令、指令， docker-jenkins
 docker run --net=host -p 8080:8080 -p 50000:5000 --name jenkins001 --hostname 111 -u root -v /etc/localtime:/etc/localtime -v /home/jenkins_home:/var/jenkins_home --privileged=true -e Java_OPTS=-Duser.timezone=Asia/Shanghai -d jenkins/jenkins:2.271-centos7
 或可使用jenkins/jenkins:lts, jenkins/jenkins:2.291-centos7
@@ -101,5 +99,4 @@ Caused by: org.springframework.beans.factory.UnsatisfiedDependencyException: Err
 - `chown -R jenkins: /var/cache/jenkins`  
 - `chown -R jenkins: /var/log/jenkins `
 
-2. 重启，并刷新网页  
-
+2. 重启，并刷新网页
