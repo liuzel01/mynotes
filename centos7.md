@@ -59,20 +59,21 @@
    1. `lsblk`,  
 2. 对新磁盘分区
    1. `fdisk /dev/sdb`，  注意type，改成lvm
-3. pvcreate， 创建物理卷
-   1. `pvcreate /dev/sdb`  `pvs`  
-   2. `vgextend centos /dev/sdb`
-4. 将新创建的pv卷，添加到vg组内；lvcreate  创建逻辑卷
-   1. 如若没有，需要创建centos-data
+3. pvcreate， 创建pv physical volume
+   1. `pvcreate /dev/sdb` 
+   2.  `pvs`  
+   3. `vgextend centos /dev/sdb`
+4. 将新创建的pv，添加到vg内；lvcreate  创建lv logical volume
+   1. **如若没有，需要创建centos-data**
       1. `mkfs.ext4 /dev/centos_data/newvdb`          格式化，否则挂载不上，提示mount: /dev/mapper/centos_home-newvdb 写保护，将以只读方式挂载、、mount: 未知的文件系统类型“(null)”
-   2. `vgcreate centos-data /dev/vdb`
-   3. `lvcreate -l 100%FREE -n newsdb centos`  `lvs`
-      `lvdisplay`
+      2. `vgcreate centos-data /dev/vdb`
+      3. `lvcreate -l 100%FREE -n newsdb centos` 
+      4.  `lvs`  `lvdisplay`
 5. 创建挂载点，挂载
    1. `mkdir -p /newsdb`,  `mount /dev/mapper/centos-newsdb /newsdb`  
    2. 如果挂载点为已存在的文件夹，那该文件夹内的内容就会没了，因为/dev/mapper/centos-newsdb  毕竟是空的。umount 掉即可
-6. 要扩容 / 根目录，lvextend 将空间100% 加入到root逻辑卷内
-   1. 在上面第4步骤，不要创建新卷，**而是扩容  vgextend**，还有  `lvextend -l +100%FREE /dev/centos/root`，  就可以看到LV Size 成功增大了
+6. 要扩容 / 根，lvextend 将空间100% 加入到root逻辑卷内
+   1. 在上面第4步骤，不要创建新卷，**而是直接  vgextend**，还有  `lvextend -l +100%FREE /dev/centos/root`，  就可以看到LV Size 成功增加了
    2. `xfs_growfs /dev/centos/root`，  重新识别下分区大小，
    3. `df -hT`  就可以看到效果了
    4. 成功对 / 根目录扩容~
@@ -1260,11 +1261,11 @@ p, P    " 黏贴，p 黏贴到光标下一行，P 黏贴到光标上一行
 
 进入insert模式，
 
-i      在光标前，进入
+i      在光标前，insert
 
 I      在当前行最左第一个非空字符前进入insert
 
-a      在光标后，进入
+a      在光标后，insert
 
 A      在当前行最右第一个非空字符前进入insert
 
