@@ -78,6 +78,32 @@
    3. `df -hT`  就可以看到效果了
    4. 成功对 / 根目录扩容~
 
+- 新增swap分区，
+
+1， 前提是，一块新的磁盘，挂载目录下并无数据。如果有数据，也可以先拷贝出来。
+2， 将磁盘分区。举例子：一块8G，作swap分区；一块剩余所有容量，作数据盘，mkfs.ext4 
+   fuser -m -v /home    查看使用 /home 目录的进程，并杀死pid，然后卸载掉
+   fdisk -l /dev/vdb，新增后大致和下面类似。
+
+​	1. 两者都是primary 分区，swap 分区是82，LinuxLVM是8e
+
+```
+Disk /dev/vdb: 536.9 GB, 536870912000 bytes, 1048576000 sectors
+Units = sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disk label type: dos
+Disk identifier: 0x7b35c36f
+
+   Device Boot      Start         End      Blocks   Id  System
+/dev/vdb1            2048    16779263     8388608   82  Linux swap / Solaris
+/dev/vdb2        16779264  1048575999   515898368   8e  Linux LVM
+```
+
+2. partprobe 使分区生效
+3. lsblk 查看下分区后的是否正常。 mkswap /dev/vdb1  swapon /dev/vdb1
+4. mkfs.ext4 /dev/vdb2  blkid  最后将挂载信息写入/etc/fstab 文件
+
 ---
 
 
@@ -1194,7 +1220,7 @@ ip x.x.x.x
 
 
 
-# 记一次，C7离线安装软件包
+# C7离线安装软件包
 
 ## 
 
@@ -1234,6 +1260,7 @@ cat /etc/os-release ，linux发行版中都有此文件，可以通过 source �
 1. 进阶
 
 :1,$s/word1/word2/gc  " 从第一行到最后一行，全文替换，并出现确认提示
+q + :    调出EX命令行历史
 
 9dd           " 向下删除9行
 
@@ -1256,6 +1283,7 @@ y0     " 从行首复制到当前字符
 y$     " 从当前字符复制到行尾
 
 p, P    " 黏贴，p 黏贴到光标下一行，P 黏贴到光标上一行
+   P    在光标前黏贴的（shift+p）
 
 
 
@@ -1621,3 +1649,19 @@ cdls() {
   set, 显示特定进程的所有环境变量集.其中除了全局,还有本地环境变量
 
   标准约定: 若要创建新环境变量,则建议使用小写字母.用于区分个人与系统环境变量
+
+- exit [n]  用户使用此，自定义退出状态码
+  - 状态码 echo $?  熟悉吧，就是这个意思
+
+1. <font color=orange>**注意：**</font> 脚本中一旦遇到exit命令，脚本会立即终止；终止退出状态取决于exit后面的数字
+2. 如果未给脚本指定退出状态码，整个脚本的退出状态码取决于脚本中执行的最后一条命令的状态码
+
+---
+
+- 防止扩展
+
+1. \  转义，会使随后的字符按原意解释
+2. 加引号防止扩展
+   1. 单引号 ''  防止所有扩展
+   2. 双引号 ""  防止扩展，但$ 除外
+3. set -e 如果一个命令返回一个非0 退出状态（失败）就退出，等同 set -o errexit 
