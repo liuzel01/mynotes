@@ -1375,7 +1375,49 @@ jiehou ,zuihao haishi wenxia .
 
 1. `yay -S vnstat`   安装vnstat,监控网络流量
 
-- 
+
+
+## 同一ip+同一端口，访问不同项目
+
+**且还有一个域名可用。。。。。** 
+
+此问题，可转化为： 在外部，通过两个二级域名（例如xxxx.sipingsososo.com:80），来访问内部不同的两个网站
+
+
+
+- 现有两个二级域名，目标是：访问到两个内网网站。192.168.10.62:80  以及 192.168.10.28:80
+
+1. 首先，在域名管理网站，将二级域名指向公网ip，如下图所示 （有的内网服务器，或因防火墙不支持直接指向）
+
+![image-20210611171852461](https://gitee.com/liuzel01/picbed/raw/master/data/20210611171852_ip_port_diffSite.png)
+
+- 在防火墙，将此公网ip指向，内网网站，例如192.168.10.62
+- 10.62 负责nginx 转发。监听80端口，转发到本地的服务，以及另一台服务器10.28上的nginx。大概如下图所示
+
+![image-20210611172516687](https://gitee.com/liuzel01/picbed/raw/master/data/20210611172516_ip_port_diffsite_nginx.png)
+
+- 因为10.28服务器上，也是有nginx，所以这相当于多层代理。
+
+1. 使用了多层代理，需要将 gzip_http_version 1.0 配置开启，（默认是1.1，要注释掉并修改为1.0）否则gzip 配置不起作用
+2. 配置如下图：
+
+```conf
+gzip on;
+gzip_disable "msie6";
+gzip_vary on;
+gzip_static on;
+gzip_proxied any;
+gzip_comp_level 6;
+gzip_buffers 16 8k;
+#gzip_http_version 1.1;
+gzip_http_version 1.0;
+gzip_types text/plain text/css application/json application/x-javascript text/xml 
+application/xml application/xml+rss text/javascript image/jpeg image/gif image/png image/jpg;
+```
+
+- 供参考
+
+
 
 # FAQ
 
@@ -1651,6 +1693,7 @@ cdls() {
   标准约定: 若要创建新环境变量,则建议使用小写字母.用于区分个人与系统环境变量
 
 - exit [n]  用户使用此，自定义退出状态码
+  
   - 状态码 echo $?  熟悉吧，就是这个意思
 
 1. <font color=orange>**注意：**</font> 脚本中一旦遇到exit命令，脚本会立即终止；终止退出状态取决于exit后面的数字
