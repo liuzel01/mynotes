@@ -77,7 +77,7 @@ docker run --net=host -p 8080:8080 -p 50000:5000 --name jenkins001 --hostname 11
 
 ##### xdotool 实现每日重启并登录
 
-- 隔了几天，回头再解决此问题。google大神有提到用xdotool来做桌面软件 自动登录的。 也算是有了点头绪
+- 隔了几天，回头再解决此问题。gooo大神有提到用xdotool来做桌面软件 自动登录的。 也算是有了点头绪
 
 1. xdotool，可用于获取鼠标坐标，模拟鼠标（实际上是指针）移动和点击动作，获取窗口焦点等
 
@@ -91,15 +91,15 @@ docker run --net=host -p 8080:8080 -p 50000:5000 --name jenkins001 --hostname 11
    1. 结果类似  x:654 y:417 screen:0 window:35663115， 可以得到x 坐标，y 坐标
 2. 模拟指针移动到输入框，xdotool mousemove ${MOUSE_X} ${MOUSE_Y}
 3. 模拟指针点击， xdotool click 1  目前这几个指令就够完成此脚本
-4. 脚本可参考仓库内的，less /home/lzl/command-file/shellInstall/check_Easycont.sh
+4. 脚本可参考仓库内的，less /home/lzl/command-file/shellInstall/restart_Easycont.sh
 5. 最后，测试脚本可用之后，写入定时任务，每天8:20 实现自动重启vpn强制刷新连接时间  :laughing: 
-   1. 20 8 * * *    sh /home/backup/restart_Easycont.sh
+   1. `20 8 * * *    DISPLAY=:1 bash /home/backup/restart_Easycont.sh`
 
-
+6. 观察日志文件，`vim /var/log/cron`   `vim /var/spool/mail/root`  
 
 - 可用于参考，
 
-1. [一种自动登录EasyConnect的思路](https://zhuanlan.zhihu.com/p/339953626)，[xdotool一个神器](https://www.cnblogs.com/winafa/p/14230029.html)，  [use xdotool to stimulate mouse clicks and ketstrokes in linux](https://linuxhint.com/xdotool_stimulate_mouse_clicks_and_keystrokes/), 
+1. [一种自动登录EasyConnect的思路](https://taoshu.in/auto-login-easyconnect-in-docker.html)，[xdotool一个神器](https://www.cnblogs.com/winafa/p/14230029.html)，  [use xdotool to stimulate mouse clicks and ketstrokes in linux](https://linuxhint.com/xdotool_stimulate_mouse_clicks_and_keystrokes/), 
 
 #### jenkins报错
 
