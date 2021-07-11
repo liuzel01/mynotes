@@ -1387,7 +1387,7 @@ jiehou ,zuihao haishi wenxia .
 
 - 现有两个二级域名，目标是：访问到两个内网网站。192.168.10.62:80  以及 192.168.10.28:80
 
-1. 首先，在域名管理网站，将二级域名指向公网ip，如下图所示 （有的内网服务器，或因防火墙不支持直接指向）
+1. 首先，在域名管理网站，将二级域名指向公网ip，即多域名指向同一公网ip地址。如下图所示 （有的内网服务器，或因防火墙不支持直接指向）
 
 ![image-20210611171852461](https://gitee.com/liuzel01/picbed/raw/master/data/20210611171852_ip_port_diffSite.png)
 
@@ -1416,6 +1416,71 @@ application/xml application/xml+rss text/javascript image/jpeg image/gif image/p
 ```
 
 - 供参考
+
+## 美化初始终端
+
+1. 在网上看到lolcat，终端彩虹 效果，大多人是这样用的，
+   1. fortune+cowsay+lolcat， 然后在终端欢迎页打出来彩虹效果的欢迎语，
+   2. 项目[git地址](https://github.com/busyloop/lolcat)
+2. 此次记录为，在centos7 上使用lolcat，并使终端输出内容，并可选是否搭配lolcat
+
+- 最终解决：
+
+1. 安装暂且不提
+2. 在文件 /etc/bashrc 中写入以下内容：（我在服务器上为root，所以就直接这么淦了，其他的视情况而定）
+
+```shell
+## usage?,Example: ls output is lol ls
+lol()
+{
+    if [ -t 1 ]; then
+        "$@" | lolcat
+    else
+        "$@"
+    fi
+}
+# bind 'RETURN: "\e[1~lol \e[4~\n"'
+COMMANDS=( cdls ls cat date)
+for COMMAND in "${COMMANDS[@]}"; do
+    alias "${COMMAND}=lol ${COMMAND}"
+    alias ".${COMMAND}=$(which ${COMMAND})"
+done
+```
+
+3. 也是巧妙用了循环，来遍历 COMMANDS 中的参数
+
+4. 效果大概如下图所示，还是挺炫的哈
+
+![image-20210615101619832](https://gitee.com/liuzel01/picbed/raw/master/data/20210615101619_c7_lolcat_rainbow_output.png)
+
+1. 但是吧，lolcat几处问题：`source /etc/profile` 后，会将环境覆盖调，例如ls 就无有效果了。 要 `source /etc/bashrc` 后才行
+   1. 还有，~~写在 `/etc/bashrc`  中的函数 和我的cdls冲突，cdls不生效~~
+   2. 多做几次尝试，取消cdls 的注释，可以了。lol() 针对的是${COMMOND} ，说到底也是对ls 命令而言，:wine_glass:
+2. ~~图就不展示了，多了就不美~~
+3. 参考，[redirecting all output to lolcat](https://stackoverflow.com/questions/59891025/redirecting-all-output-to-lolcat)
+4. ~~我也不懂，为什么每次xshell连接后，cdls并不会生效，还要 . /etc/bashrc 手动生效~~
+
+### /etc/profile.d 妙用
+
+- 在文件  /etc/profile  中，有这么一句  `for i in /etc/profile.d/*.sh /etc/profile.d/sh.local ; do`  ，可判断 /etc/profile.d/ 目录下的文件会仙贝执行
+  - 这是我此目录下，一些文件，仅供参考
+
+![image-20210706145228815](https://gitee.com/liuzel01/picbed/raw/master/data/20210706145230_c7_profiled_example.png)
+
+##### /etc/profile，/etc/bashrc，login shell， nologin shell 的区别
+
+/etc/profile.d 此目录中的文件，同样可以分别设置环境变量，且方便维护，不需像 /etc/profile 还要改动文件。
+
+  例如，见上面一节
+
+之后，安装了新软件，就可直接修改此文件，而不需在多个地方重复添加
+
+- /etc/profile 是交互式， /etc/bashrc 是非交互式，所以可知jenkins 上有的job需 `source /etc/profile`  方可正常运行
+
+  同理，crontab 设置的定时任务启动的shell都是非login 的，因此也不会载入 /etc/profile 中的变量
+
+可参考，[对linux的profile.d目录的使用](https://www.a-programmer.top/2018/06/21/Linux%E9%85%8D%E7%BD%AE%E6%89%80%E6%9C%89%E7%94%A8%E6%88%B7%E7%9A%84%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%EF%BC%8Cprofile.d%E6%96%87%E4%BB%B6%E5%A4%B9%E7%9A%84%E4%BD%BF%E7%94%A8/)
+
 
 
 
@@ -1708,3 +1773,33 @@ cdls() {
    1. 单引号 ''  防止所有扩展
    2. 双引号 ""  防止扩展，但$ 除外
 3. set -e 如果一个命令返回一个非0 退出状态（失败）就退出，等同 set -o errexit 
+
+## 更改网卡名
+
+- 重装系统为 centos7，
+  	原网卡名为：
+    	要更改为 ifcfg-enp1s0
+- 需要注意的是：知识更改名称，而设备并没有变，所以uuid 可以根据之前的网卡名来获取到；HWADDR：俺也一样
+   - `ifconfig | grep -C 5 eth0 | grep ether`  
+
+```
+ifstat
+uuidgen enp1s0
+既然uuid可以获取到，那HWADDR（mac地址）同样能在服务器找到~  
+```
+
+修改网络配置，	vim /etc/sysconfig/network-scripts/ifcfg-enp1s0
+		更改有关，NAME DEVICE UUID HWADDR 这几样参数
+
+这几项更改完后，基本按照正常流程，就没得其他要改动的点了
+
+- 可以实现，如若还存在问题，可以更改grub配置，
+
+  ```
+  vim /etc/sysconfig/grub 在倒数第二行 quit 后添加如下：
+  		net.ifnames=0 biosdevname=0
+  执行， grub2-mkconfig -o /boot/grub2/grub.cfg  来生成新的 grub.cfg文件
+  ```
+
+  [centos7中的网卡一致性命名规则、网卡重命名方法](https://www.huaweicloud.com/articles/6cb00c8de10b5a3d728ff22878c4b349.html)
+  [centos提示eth0 does not seem to be present, delaying initialization](https://www.huaweicloud.com/articles/5f94fe359aa0ffec72764201eaa258dd.html)
