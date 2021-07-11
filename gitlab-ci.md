@@ -182,7 +182,8 @@ git push -u origin --tags
 # and run `sudo gitlab-ctl reconfigure`.
 
 意思就是，此配置文件不能通过手动来修改，要改这个文件 /etc/gitlab/gitlab.rb(容器内路径)，添加一行
-external_url 'http://192.168.10.27'
+external_url 'http://192.168.10.27' 
+注意不能加端口
 ```
 
 2. 删除旧的容器，重新创建、启动就好了~
