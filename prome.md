@@ -167,6 +167,8 @@ docker run --name monitor-prometheus --restart always -d -v moni/prometheus:/etc
     --web.console.templates=/usr/share/prometheus/consoles \
     --storage.tsdb.path=/prometheus \
     --storage.tsdb.retention=30d
+
+docker run --rm -d -p 9115:9115 --name blackbox_exporter -v /moni/blackbox-exporter/config:/config prom/blackbox-exporter:master --config.file=/config/blackbox.yml
 ```
 
 ---
@@ -251,7 +253,7 @@ docker run -it -d --name monitor-alertmanager \
 
 ## prometheus的联邦集群支持！！！！！（表示还有待补充）
 
-1.
+1.[高可用prometheus：thanos实践](https://yasongxu.gitbook.io/container-monitor/yi-.-kai-yuan-fang-an/di-2-zhang-prometheus/thanos)，
 
 ## PromQL探索！！！！！
 
@@ -316,6 +318,7 @@ Four Golden Signals 是google针对大量分布式监控的经验总结。可以
 ---
 
 1. 参考，[10个常用监控k8s性能的prometheus oprtator指标](https://mp.weixin.qq.com/s/idQgb0GC2yhaVYwgGj5gcA)，  
+   1. [高可用prometheus，问题集锦](http://www.xuyasong.com/?p=1921) 
 
 ## FAQ
 
@@ -344,6 +347,6 @@ Four Golden Signals 是google针对大量分布式监控的经验总结。可以
 1. 参考，上面的[prometheus-books](https://yunlzheng.gitbook.io/prometheus-book/parti-prometheus-ji-chu/promql/prometheus-promql-best-praticase),  
 2. [prometheus替代IBM Monitoring（ITM）可行性分析](https://www.talkwithtrend.com/Article/246769)，  
 
-## 使用go编写exporter！！！！！
+## 使用go编写exporter
 
 - 参考，[使用Go开发prometheus exporter](https://mp.weixin.qq.com/s/s1nSaC-8ejvM342v5KPdxA)，  

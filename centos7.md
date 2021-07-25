@@ -76,7 +76,7 @@
    1. 在上面第4步骤，不要创建新卷，**而是直接  vgextend**，还有  `lvextend -l +100%FREE /dev/centos/root`，  就可以看到LV Size 成功增加了
    2. `xfs_growfs /dev/centos/root`，  重新识别下分区大小，
    3. `df -hT`  就可以看到效果了
-   4. 成功对 / 根目录扩容~
+   4. <font color=orange>成功对根目录扩容</font>
 
 - 新增swap分区，
 
@@ -180,7 +180,7 @@ Disk identifier: 0x7b35c36f
 ### 版本的回溯与前进
 
 - `git rest --hard + 版本号`  来回溯，版本号用 `git log `  来查看
-- **可以当成git 将这些版本串成一条时间线**  
+- **可以当成git 将这些版本串成一条时间线**
 
 1. 回溯之后，我想前进到最近的版本应如何？，`git reset --hard + 版本号`  来作，太艹了:joy:  反复横跳
 2. `git reflog`  ，可以帮你找到你的版本号，防止弄丢了，然后又可以 `git reset `  来回穿梭了
@@ -1550,7 +1550,10 @@ done
 1. rpm -qa |grep kernel               查看系统安装了哪些内核包
 2. yum remove kernelxxxx              yum remove 或者rom -e 删除无用内核
 
-- <font color=orange>**好嘛，突然之间整好了**</font>，不过服务使用的还是NetworkManager
+- 不过服务使用的还是NetworkManager。
+  - <font color=red>附：因为升级了5 版本，network好像就不太好使了，NetworkManager就被我写到自启动里了 /etc/rc.local</font>,
+
+
 
 ```bash
 192.168.10.27, 有点caoDan昂，
@@ -1595,11 +1598,11 @@ yum --disablerepo=’*’ --enablerepo=elrepo-kernel install kernel-lt-headers
 
 ​    less /etc/default/grub                       检查一下
 
-如若没有，就 reboot一下试试。。可惜的是，有时候还是会出现驱动不匹配的情况，还是要返回上面
+没有生效的话，reboot。。~~可惜的是，有时候还是会出现驱动不匹配的情况，还是要返回上面~~
 
 ​    uname -sr
 
-​    grub2-editenv list
+​    grub2-editenv list  查看默认内核，，此时就不要去看内核启动顺序那个了(不准确)。
 
 ## centos7 GUI版报错jar command not found
 
@@ -1779,7 +1782,7 @@ cdls() {
 - 重装系统为 centos7，
   	原网卡名为：
     	要更改为 ifcfg-enp1s0
-- 需要注意的是：知识更改名称，而设备并没有变，所以uuid 可以根据之前的网卡名来获取到；HWADDR：俺也一样
+- 需要注意的是：只是更改名称，而设备并没有变，所以uuid 可以根据之前的网卡名来获取到；HWADDR：俺也一样
    - `ifconfig | grep -C 5 eth0 | grep ether`  
 
 ```

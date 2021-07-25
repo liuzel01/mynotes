@@ -423,6 +423,8 @@ wine 5.21-1
 - 前往参考，[systemd.mount中文手册](http://www.jinbuguo.com/systemd/systemd.mount.html)，[samba服务实现linux与windows相互共享资源](https://www.jianshu.com/p/830f1bd5b5e0)  ，
 
   [configuring fstab based samba share mounts](https://discourse.osmc.tv/t/configuring-fstab-based-samba-share-mounts/38167/9),  
+  
+  [systemd时代的/etc/fstab](https://www.junmajinlong.com/linux/systemd/systemd_fstab/),
 
 
 
@@ -436,8 +438,9 @@ wine 5.21-1
 
 - [x] 这样的话，PC就要重装系统，装成arch
 - [ ] 8G内存，会不会有点卡
-  - [ ] **买根8G内存条，成16G运存**  
-- [ ] 
+  - [x] **买根8G内存条，成16G运存**  
+
+
 
 2. 之后，将公司的台式主机，（因为有主机名，可以在网络上找到），挂载到我的PC上面来，
 
