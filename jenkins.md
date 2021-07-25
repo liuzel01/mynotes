@@ -25,6 +25,21 @@ System.setProperty('org.apache.commons.jelly.tags.fmt.timeZone','Asia/Shanghai')
 
 这个问题，在[centos7.md](./centos7.md) 文件中有说明，在此不赘述
 
+#### tips
+
+##### 定时构建与轮询SCM
+
+- 定时构建： 不管远程代码分支上(svn/git)的代码，是否有更新，均会执行定时构建任务
+- 轮询SCM： 远程代码分支上只要有任何更新，则执行构建任务  （一般选这个就满足要求了~）
+  - 不过这俩格式倒是一样
+
+1. 工作日，每天8点定时构建。9-20点期间每2分钟检查一次，有代码更新则构建一次
+
+   ```
+   定时构建：H 8 * * *
+   轮询SCM：H/02 9-20 * * 1-5
+   ```
+
 ### FAQ
 
 #### 迁移问题
@@ -88,18 +103,36 @@ docker run --net=host -p 8080:8080 -p 50000:5000 --name jenkins001 --hostname 11
 ![image-20210608110426608](https://gitee.com/liuzel01/picbed/raw/master/data/20210608110426_jenkins_EasyConnect_home.png)
 
 1. 首选获取指针位置， `xdotool getmouselocation` 
+   
    1. 结果类似  x:654 y:417 screen:0 window:35663115， 可以得到x 坐标，y 坐标
+   
 2. 模拟指针移动到输入框，xdotool mousemove ${MOUSE_X} ${MOUSE_Y}
-3. 模拟指针点击， xdotool click 1  目前这几个指令就够完成此脚本
-4. 脚本可参考仓库内的，less /home/lzl/command-file/shellInstall/restart_Easycont.sh
-5. 最后，测试脚本可用之后，写入定时任务，每天8:20 实现自动重启vpn强制刷新连接时间  :laughing: 
-   1. `20 8 * * *    DISPLAY=:1 bash /home/backup/restart_Easycont.sh`
+   3. 模拟指针点击， xdotool click 1  
 
-6. 观察日志文件，`vim /var/log/cron`   `vim /var/spool/mail/root`  
+   目前这几个指令就够完成此脚本
+
+3. 脚本可参考仓库内的，cat /home/lzl/command-file/shellInstall/restart_Easycont.sh
+
+4. 最后，测试脚本可用之后，写入定时任务，每天8:20 实现自动重启vpn强制刷新连接时间  :laughing: 
+
+   1. `20 8,11,19 * * *    DISPLAY=:1 bash /home/backup/restart_Easycont.sh` 
+   2. `echo $DISPLAY`  一定要连接进vnc后，到桌面化去获取变量值
+      1. 我这里返回的是这样，localhost.localdomain:1 
+
+5. 观察日志文件，`vim /var/log/cron`   `vim /var/spool/mail/root`  
+
+6. 搜索关键词，bash send x11 key event
+
+7. 获取窗口名，`sleep 2 && xdotool getactivewindow` 
+
+   1. `printf 0x%x 39845956` 上一条输出结果
+   2. `xwininfo -root -tree | grep 0x2600044`  查询出 name of the window(active) 
 
 - 可用于参考，
 
-1. [一种自动登录EasyConnect的思路](https://taoshu.in/auto-login-easyconnect-in-docker.html)，[xdotool一个神器](https://www.cnblogs.com/winafa/p/14230029.html)，  [use xdotool to stimulate mouse clicks and ketstrokes in linux](https://linuxhint.com/xdotool_stimulate_mouse_clicks_and_keystrokes/), 
+1. 对比以下过程，我的这个相当于只有后半部分要做，还是相对简单的。 
+   1. [一种自动登录EasyConnect的思路](https://taoshu.in/auto-login-easyconnect-in-docker.html)，[xdotool一个神器](https://www.cnblogs.com/winafa/p/14230029.html)，  [use xdotool to stimulate mouse clicks and ketstrokes in linux](https://linuxhint.com/xdotool_stimulate_mouse_clicks_and_keystrokes/), 
+2. [Cron xdotool doesn't run](https://stackoverflow.com/questions/38391952/cron-xdotool-doesnt-run) 
 
 #### jenkins报错
 
