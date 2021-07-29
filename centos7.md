@@ -1481,6 +1481,60 @@ done
 
 可参考，[对linux的profile.d目录的使用](https://www.a-programmer.top/2018/06/21/Linux%E9%85%8D%E7%BD%AE%E6%89%80%E6%9C%89%E7%94%A8%E6%88%B7%E7%9A%84%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%EF%BC%8Cprofile.d%E6%96%87%E4%BB%B6%E5%A4%B9%E7%9A%84%E4%BD%BF%E7%94%A8/)
 
+## 隐藏进程
+
+隐藏进程信息（ps，top）,
+
+```
+gcc -Wall -fPIC -shared -o libprocesshider.so processhider.c -ldl
+ln -sf /opt/libprocesshider.so /usr/lib/
+# echo /usr/lib/libprocesshider.so >> /etc/ld.so.conf.d/processhider.conf
+OR echo "export LD_PRELOAD=/usr/lib/libprocesshider.so" >> /etc/profile
+ldconfig 生效
+```
+
+1. 项目实例，`git clone https://github.com/gianlucaborello/libprocesshider.git` 
+
+参考，[linux进程隐藏：中级篇](https://www.freebuf.com/articles/system/250714.html)
+    [基于centos7创建隐藏进程以及发现隐藏进程](https://my.oschina.net/kcw/blog/3209387)
+    [linux环境的LD_PRELOAD: 库预加载](https://rtoax.blog.csdn.net/article/details/108474167)
+    [hiding linux processes for fun + profit](https://sysdig.com/blog/hiding-linux-processes-for-fun-and-profit/)
+    [应急响应系列值linux库文件劫持技术分析](https://cloud.tencent.com/developer/article/1582075)
+    [应急响应之linux下进程隐藏](https://www.anquanke.com/post/id/226285)
+    [警惕利用linux预加载型恶意动态链接库的后门](https://www.freebuf.com/column/162604.html)， 有必要好好看看研究一下
+
+##### 挂载
+
+- 这里提供一个思路，可以通过[挂载来实现](https://unix.stackexchange.com/questions/280860/how-to-hide-a-specific-process)
+
+1. mkdir -p xxxx/.empty/dir
+   1. mount -o bind xxxxxx/.empty/dir /proc/42
+2. 根据实际调整，mount -o bind xxxxxx/.empty/dir /proc/$(ps -ef | grep proxy-server | grep -v grep |awk '{print $2}')  
+   1. 最后加入 /etc/rc.local （不推荐，写成服务，或是在/etc/init.d/某xxxx.sh）实现开机自动完成。因为每次重启后pid就会变化，所以都要进行重新挂载
+   2. 实现后，想要./stop.sh 也做不到了，只有先 umount /proc/42  再./stop.sh 或kill掉pid
+3. 在 /etc/rc.local/proclient  文件内容如下类似。 [关于自启动脚本不运行的问题](https://serverfault.com/questions/119351/init-d-script-not-working-but-the-command-works-if-i-execute-it-in-the-cons),
+
+```bash
+#!/bin/sh
+#
+# proxy - this script starts and stops the proxy client
+#
+# chkconfig: 2345 99 15
+# description:  proclient is start proxy after boot,ys
+# processname: proclient
+
+source /etc/profile
+/bin/bash  /home/lzl/lanproxy/distribution/proxy-client-0.1/bin/startup.sh &>/dev/null        &&\
+    sleep 10                                                                                &&\
+    mount -o bind /.empty/dir/ /proc/$(ps -ef | grep proxy-client | grep -v grep |awk '{print $2}')
+```
+
+4. 重启测试成功<font color=orange>**~**</font>
+
+5. 实际效果（如果你是server端，可以查看端口是否启用来判断）：
+
+![image-20210729102027021](https://gitee.com/liuzel01/picbed/raw/master/data/20210729102027_c7_hide_a_specific_process.png)
+
 
 
 
