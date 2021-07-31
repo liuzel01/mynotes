@@ -1531,7 +1531,7 @@ source /etc/profile
 
 4. 重启测试成功<font color=orange>**~**</font>
 
-5. 实际效果（如果你是server端，可以查看端口是否启用来判断）：
+5. 实际效果（如果隐藏的是server端，可以查看端口是否启用来判断）：
 
 ![image-20210729102027021](https://gitee.com/liuzel01/picbed/raw/master/data/20210729102027_c7_hide_a_specific_process.png)
 

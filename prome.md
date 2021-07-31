@@ -1,7 +1,5 @@
 # prometheus
 
-# prometheus--监控系统
-
 ## 几个unit file，:chestnut:  
 
 - 如若你是部署服务的话，下面还是有必要参考的
@@ -195,7 +193,7 @@ docker run --rm -d -p 9115:9115 --name blackbox_exporter -v /moni/blackbox-expor
     - post测试：接口连通性
     - ssl证书过期时间
 
-- 可参考网站，https://awesome-prometheus-alerts.grep.to/rules，有很多写好的规则
+- 可参考[网站](https://awesome-prometheus-alerts.grep.to/rules)，有很多写好的规则
 
 ```bash
 docker run -d --net="host" --pid="host" -v "/:/host:ro,rslave" --name monitor-node-exporter --restart always docker.mirrors.ustc.edu.cn/prom/node-exporter \
@@ -204,7 +202,7 @@ docker run -d --net="host" --pid="host" -v "/:/host:ro,rslave" --name monitor-no
     2. docker.mirrors.ustc.edu.cn/xxx/yyy:zz，k8s也适用
 ```
 
-- 官方地址，https://github.com/google/cadvisor，不用代理，如下折中方案：
+- [官方地址](https://github.com/google/cadvisor)，不用代理，如下折中方案：
 
 1. `ansible xijia_extra -m shell -a 'curl -s https://zhangguanzhang.github.io/bash/pull.sh | bash -s -- gcr.io/google_containers/cadvisor'`
 
@@ -213,7 +211,7 @@ docker run \
   --volume=/:/rootfs:ro \
   --volume=/var/run:/var/run:ro \
   --volume=/sys:/sys:ro \
-  --volume=/moni/cadvisor/docker/:/var/lib/docker:ro \
+  --volume=/var/lib/docker/$(youtDockerRootDir):/var/lib/docker:ro \
   --volume=/dev/disk/:/dev/disk:ro \
   --publish=9080:8080 \
   --detach=true \
@@ -251,14 +249,14 @@ docker run -it -d --name monitor-alertmanager \
 
 - 在配置prometheus的targets的时候，可以按照同一指标来监测；或是根据ansible/hosts 文件的服务器组来监测。相当于两个维度吧
 
-## prometheus的联邦集群支持！！！！！（表示还有待补充）
+## prometheus的联邦集群支持！！！！！
 
 1.[高可用prometheus：thanos实践](https://yasongxu.gitbook.io/container-monitor/yi-.-kai-yuan-fang-an/di-2-zhang-prometheus/thanos)，
 
 ## PromQL探索！！！！！
 
 - 参考，[彻底理解Prometheus查询语法](https://blog.csdn.net/zhouwenjun0820/article/details/105823389) ， [大神的prometheus-book](https://yunlzheng.gitbook.io/prometheus-book/parti-prometheus-ji-chu/quickstart/why-monitor),  
-
+  - query language
 - 使用到promQL的组件：
 
 1. prometheus server
@@ -333,6 +331,19 @@ Four Golden Signals 是google针对大量分布式监控的经验总结。可以
 
 1. 表示找不到文件，发现是/opt/prometheus/ 下的yml 为链接文件，删掉，然后复制一份过来就OK
 
+#### 配置文件详解
+
+1. 在一个job中，应当普遍使用基于文件的服务发现，
+
+##### 报警rules
+
+- 需要自定义报警规则，看[这里](https://yunlzheng.gitbook.io/prometheus-book/parti-prometheus-ji-chu/alert/prometheus-alert-rule)，
+
+##### cadvisor
+
+- cadvisor其实可以看作和node_exporter 类似，作为"监控数据收集器"。收集和导出数据是其强项，而非展示数据
+- 最好，是和grafana配合展示
+
 ## 杂项
 
 1. 几款比较好的dashboard,去[官网copy id即可](https://grafana.com/grafana/dashboards)，  
@@ -342,7 +353,7 @@ Four Golden Signals 是google针对大量分布式监控的经验总结。可以
 - linux的，node_exporter for prometheus, id 8919
   - system processes metrics, id 8378
 
-### 优势-与常见监控的比较
+#### 优势-与常见监控的比较
 
 1. 参考，上面的[prometheus-books](https://yunlzheng.gitbook.io/prometheus-book/parti-prometheus-ji-chu/promql/prometheus-promql-best-praticase),  
 2. [prometheus替代IBM Monitoring（ITM）可行性分析](https://www.talkwithtrend.com/Article/246769)，  
