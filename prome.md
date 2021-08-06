@@ -155,7 +155,7 @@ WantedBy=multi-user.target
 
 - prometheus/grafana/alertmanager，其实装在一个server上就行，只需一个server端
 
-1. blackbox-exporter应该也是
+1. blackbox-exporter应该也是，其用到的module 可以参考[官网](https://github.com/prometheus/blackbox_exporter)，
 
 ```bash
 docker run --name monitor-prometheus --restart always -d -v moni/prometheus:/etc/prometheus/ \
@@ -249,9 +249,13 @@ docker run -it -d --name monitor-alertmanager \
 
 - 在配置prometheus的targets的时候，可以按照同一指标来监测；或是根据ansible/hosts 文件的服务器组来监测。相当于两个维度吧
 
-## prometheus的联邦集群支持！！！！！
+## prometheus可靠性
+
+- [这个牛批](http://qiankunli.github.io/2020/07/26/prometheus_practice.html#:~:text=%E6%94%B6%E9%9B%86%E5%99%A8%E5%8F%AF%E9%80%89-,%E5%8F%AF%E9%9D%A0%E6%80%A7%E4%B8%8E%E5%8F%AF%E6%89%A9%E5%B1%95%E6%80%A7,-Prometheus%20%E6%9C%AC%E8%BA%AB%E8%87%AA)，
 
 1.[高可用prometheus：thanos实践](https://yasongxu.gitbook.io/container-monitor/yi-.-kai-yuan-fang-an/di-2-zhang-prometheus/thanos)，
+
+
 
 ## PromQL探索！！！！！
 
