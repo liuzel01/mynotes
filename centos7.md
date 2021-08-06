@@ -1319,7 +1319,10 @@ bing meiy shenm cuo ,zhishi ba ziji de weizhi baif de taizheng le ,zhengde wo ye
 
   fanshi doudei zijiguo ,hebi qiangjia yu biegou .
 
-jiehou ,zuihao haishi wenxia .
+- 在终端，ctrl + u撤销自己输入的内容，
+  - ctrl + w 向前撤销一个单词
+  - ctrl + a 回到行首
+  - ctrl + e 回到行尾
 
 ---
 
@@ -1363,12 +1366,12 @@ jiehou ,zuihao haishi wenxia .
 
 1. F12, Network, Img, u can see the pics, click right, copy-copy link address
 
-## 针对前后端分项目
+## 针对前后端分离项目
 
 - 一般的，后端使用spring-boot 的项目都打成了jar包，需要排查问题或是修改配置的时候，可以直接在服务器上进行解压和打包
 
-1. 解压包，到同级下的meeting-stand目录下，`unzip meeting-standard.jar -d meeting-stand`
-2. 重新打包，`jar -cvfM0 meeting_lzl.jar meeting-stand/`
+1. 解压包，到同级下的meeting-stand目录下，`unzip meeting-standard.jar -d meeting`
+2. 重新打包，`jar -cvfM0 meeting_lzl.jar meeting/`
 3. 所以，如果是这种，则可以直接找到对应的文件，vim修改内容并保存退出
 
 ## 其他
@@ -1379,7 +1382,7 @@ jiehou ,zuihao haishi wenxia .
 
 ## 同一ip+同一端口，访问不同项目
 
-**且还有一个域名可用。。。。。** 
+**另，有且只有一个域名可用。。。。。** 
 
 此问题，可转化为： 在外部，通过两个二级域名（例如xxxx.sipingsososo.com:80），来访问内部不同的两个网站
 
@@ -1391,15 +1394,15 @@ jiehou ,zuihao haishi wenxia .
 
 ![image-20210611171852461](https://gitee.com/liuzel01/picbed/raw/master/data/20210611171852_ip_port_diffSite.png)
 
-- 在防火墙，将此公网ip指向，内网网站，例如192.168.10.62
-- 10.62 负责nginx 转发。监听80端口，转发到本地的服务，以及另一台服务器10.28上的nginx。大概如下图所示
+- 在防火墙，将此公网ip指向，内网nginx服务器，例如192.168.10.62
+- 10.62 此服务器负责nginx 转发。监听80端口，转发本地的服务，以及另一台服务器10.28上的nginx(80端口)。大概如下图所示
 
 ![image-20210611172516687](https://gitee.com/liuzel01/picbed/raw/master/data/20210611172516_ip_port_diffsite_nginx.png)
 
 - 因为10.28服务器上，也是有nginx，所以这相当于多层代理。
 
 1. 使用了多层代理，需要将 gzip_http_version 1.0 配置开启，（默认是1.1，要注释掉并修改为1.0）否则gzip 配置不起作用
-2. 配置如下图：
+2. 配置如下图(在nginx.conf http{} 配置中添加，server头部上面)：
 
 ```conf
 gzip on;
@@ -1456,8 +1459,7 @@ done
 1. 但是吧，lolcat几处问题：`source /etc/profile` 后，会将环境覆盖调，例如ls 就无有效果了。 要 `source /etc/bashrc` 后才行
    1. 还有，~~写在 `/etc/bashrc`  中的函数 和我的cdls冲突，cdls不生效~~
    2. 多做几次尝试，取消cdls 的注释，可以了。lol() 针对的是${COMMOND} ，说到底也是对ls 命令而言，:wine_glass:
-2. ~~图就不展示了，多了就不美~~
-3. 参考，[redirecting all output to lolcat](https://stackoverflow.com/questions/59891025/redirecting-all-output-to-lolcat)
+2. 参考，[redirecting all output to lolcat](https://stackoverflow.com/questions/59891025/redirecting-all-output-to-lolcat)
 4. ~~我也不懂，为什么每次xshell连接后，cdls并不会生效，还要 . /etc/bashrc 手动生效~~
 
 ### /etc/profile.d 妙用
@@ -1535,7 +1537,152 @@ source /etc/profile
 
 ![image-20210729102027021](https://gitee.com/liuzel01/picbed/raw/master/data/20210729102027_c7_hide_a_specific_process.png)
 
+## 关于欢迎页面的动态呈现
 
+- 照例简单解释下，
+  1. linux 设置登录前后的欢迎信息，奇技淫巧 :laughing: 
+  2. /etc/issue 本地登录显示的信息。 本地登录前
+     1. \r  和\m的意思，通过 `man pam_issue` 可得知
+  3. /etc/issue.net 网络登录显示的信息。 登陆后显示，需要由sshd配置
+  4. /etc/motd 常用于通告信息，如计划关机时间的警告等。 登陆后的提示信息
+     1. message of the day， 即每次用户登录时，motd文件的内容会显示在用户终端
+  5. 这三文件暂且不表，主要看 motd 的更改
+
+##### 尝试配置
+
+以下是我服务器上的尝试配置，
+
+- 要运行脚本的话，同样可利用 /etc/profile.d/ 新建motd.sh ，
+
+- 目录结构如下，
+
+![image-20210805142456692](https://gitee.com/liuzel01/picbed/raw/master/data/20210805142500_c7_motd_dir.png)
+
+1. /etc/profile.d/motd/siping.py 文件内容，类似如下(供参考，长宽比貌似不是很协调)
+
+```python
+import cv2
+import matplotlib.pyplot as plt
+import numpy as np
+#先定义颜色和对应的16进制值
+based = range(0,16)
+based_palette = [
+    "%02x" %l    #转为16进制
+    for l in based
+]
+
+colored = [0] + [0x5f + 40 * n for n in range(0, 5)]    #array combined [0, 95, 135, 175, 215, 255]
+colored_palette = [
+    "%02x%02x%02x" % (r, g, b)    #转为16进制
+    for r in colored
+    for g in colored
+    for b in colored
+]
+
+grayscale = [0x08 + 10 * n for n in range(0, 24)]
+grayscale_palette = [
+    "%02x%02x%02x" % (a, a, a)
+    for a in grayscale 
+]
+
+color_256 = based_palette + colored_palette + grayscale_palette 
+#生成一个字典
+color_dict={color:i for (i,color) in enumerate(color_256)}
+#color_dict={}
+#for index,name in enumerate(color_256):
+#    color_dict[name]=index
+
+#首先定义函数，利用颜色字典将RGB颜色转换为真彩对应数值
+def cvtrgb(rgb,color_dict):
+    xx=''
+    #根据上面生成的颜色字典来，对于不同取值区间赋予不同的值
+    for i in range(3):
+        if rgb[i]<95:
+            xx+= '00'
+        elif rgb[i]<135:
+            xx+= '5f'
+        elif rgb[i]<175:
+            xx+= '87'
+        elif rgb[i]<215:
+            xx+= 'af'
+        elif rgb[i]<225:
+            xx+= 'd7'
+        else:
+            xx+= 'ff'
+        name =  ''.join(xx)
+    value = color_dict[name]
+    return value 
+
+#随后对输入图进行遍历，将所有的RGB值转换为相应的真彩值
+def cvtimg(img,color_dict):
+    ascii_img = np.array(img[:,:,0],dtype=np.string_)
+    for h in range(img.shape[0]):
+        for w in range(img.shape[1]):
+            ascii_img[h,w] = cvtrgb(img[h,w,:],color_dict)   #调用换色函数
+    return ascii_img  #返回值中每一个像素已经是真彩值
+
+def img_color_ascii(img,r=2):
+    grays = "@%#*+=-:. "   #由于控制台是白色背景，所以先密后疏/黑色背景要转置一下
+    gs = 10                #10级灰度
+
+    #h 图像的垂直尺寸（高。行数）、w 图像的水平尺寸（宽，列）
+    w = img.shape[1]
+    h = img.shape[0]
+    ratio = r*float(w)/h  #调整长宽比-根据终端改变r
+    scale = w // 100    #缩放尺度/取值步长，向下取整，每100/50个像素取一个 值越小图越小(scale 越大)
+    for y in range(0, h, int(scale*ratio)):  #根据缩放长度 遍历高度 y对于h，x对应w
+        strline=''
+        for x in range(0, w, scale):  #根据缩放长度 遍历宽度
+            idx=img[y][x] * gs // 255  #获取每个点的灰度  根据不同的灰度填写相应的 替换字符
+            if idx==gs:
+                idx=gs-1  #防止溢出
+			######改变这里， 将真彩值利用命令行格式化输出赋予
+            color_id = "\033[38;5;%sm%s"%(img[y][x],grays[2])      #输出！
+            strline+= color_id #按行写入控制台
+        print(strline)
+
+img0 = cv2.imread('/etc/profile.d/motd/siping_logo.png')
+img =cv2.cvtColor(img0,cv2.COLOR_BGR2RGB)
+plt.imshow(img)
+plt.axis('off')
+plt.show()
+
+#使用前面定义的颜色字典，颜色转换函数cvtrgb和图像映射哈数cvtimg
+ass = cvtimg(img,color_dict)
+ass = np.array(ass,dtype=np.int)  #将array转化为int类型
+
+img_color_ascii(ass,2.5)          #彩色绘图函数,r=2.5调整比例,由于命令行行距存在需要微调r因子
+```
+
+2. /etc/profile.d/motd.sh 脚本内容，类似如下
+
+```shell
+#!/bin/bash
+
+/usr/local/python3/bin/python3 /etc/profile.d/motd/siping.py
+```
+
+3. /etc/motd 内容，类似如下
+
+```
+Warning!!!Warning!!!Warning!!!Warning!!!Warning!!!Warning!!!Warning!!!Warning!!!!!!!
+====================================================================================
+FBI!!Open The Door!!!FBI!!Open The Door!!!FBI!!Open The Door!!!FBI!!Open The Door!!!
+```
+
+- /etc/profile.d/  目录下脚本开机自启，所以同样会在登录终端时呈现。。效果类似如下
+
+<img src="https://gitee.com/liuzel01/picbed/raw/master/data/20210805143451_motd_after_boot_patricks.png" alt="image-20210805143450995" style="zoom:75%;" />
+
+
+
+---
+
+参考，
+
+要显示动态提示信息，[is-it-possible-to-put-commands-in-etc-motd](https://serverfault.com/questions/459229/is-it-possible-to-put-commands-in-etc-motd), 
+
+[给服务器设置动态motd效果](https://whoisnian.com/2018/06/21/%E7%BB%99%E6%9C%8D%E5%8A%A1%E5%99%A8%E8%AE%BE%E7%BD%AE%E5%8A%A8%E6%80%81motd%E6%95%88%E6%9E%9C/)，
 
 
 # FAQ
