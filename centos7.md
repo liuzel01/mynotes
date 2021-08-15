@@ -2007,3 +2007,4 @@ uuidgen enp1s0
 
   [centos7中的网卡一致性命名规则、网卡重命名方法](https://www.huaweicloud.com/articles/6cb00c8de10b5a3d728ff22878c4b349.html)
   [centos提示eth0 does not seem to be present, delaying initialization](https://www.huaweicloud.com/articles/5f94fe359aa0ffec72764201eaa258dd.html)
+
