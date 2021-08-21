@@ -1040,12 +1040,12 @@ ip x.x.x.x
         node.name: "es-node1"
         cluster.initial_master_nodes: [ "es-node1" ]
         path.data: /es/elasticsearch-7.10.1/data
-    path.logs: /es/elasticsearch-7.10.1/logs
+       path.logs: /es/elasticsearch-7.10.1/logs
         transport.tcp.port: 9300
         transport.tcp.compress: true
-    http.port: 9200
-    discovery.zen.minimum_master_nodes: 1
-    network.host: 0.0.0.0
+       http.port: 9200
+       discovery.zen.minimum_master_nodes: 1
+       network.host: 0.0.0.0
        xpack.security.enabled: true
         xpack.security.transport.ssl.enabled: true
         action.auto_create_index: .security,.monitoring*,.watches,.triggered_watches,.watcher-history*
@@ -1687,8 +1687,102 @@ FBI!!Open The Door!!!FBI!!Open The Door!!!FBI!!Open The Door!!!FBI!!Open The Doo
 
 [给服务器设置动态motd效果](https://whoisnian.com/2018/06/21/%E7%BB%99%E6%9C%8D%E5%8A%A1%E5%99%A8%E8%AE%BE%E7%BD%AE%E5%8A%A8%E6%80%81motd%E6%95%88%E6%9E%9C/)，
 
+## systemd 管理服务
 
-# FAQ
+- 将服务创建一个新 systemd 服务，来实现**<u>开机自启</u>**，（算是进阶方法。当然也可以将脚本用chkconfig 添加到开机自启。或写到 /etc/rc.local，不过需要source /etc/profile ）
+
+```bash
+cat /etc/rc.local 
+#!/bin/bash
+# THIS FILE IS ADDED FOR COMPATIBILITY PURPOSES
+#
+# It is highly advisable to create own systemd services or udev rules
+# to run scripts during boot instead of using this file.
+#
+# In contrast to previous versions due to parallel execution during boot
+# this script will NOT be run after all other services.
+#
+# Please note that you must run 'chmod +x /etc/rc.d/rc.local' to ensure
+# that this script will be executed during boot.
+
+touch /var/lock/subsys/local
+source /etc/profiles || vncserver :1
+```
+
+1. 创建一个名为sone 的systemd服务，
+   1. 可以将一个项目内的所有启动服务指令，写到一个脚本内。将该项目  sone 服务开机自启即可。
+   2. ~~或是，将所有要重启的服务，都写到一个restart 脚本内，之后将该服务开机自启~~ 
+
+```
+vim /lib/systemd/system/sone.service
+
+[Unit]
+Description=restart
+After=default.target
+
+[Service]
+ExecStart=/root/script/restart.sh
+
+[Install]
+WantedBy=default.target
+```
+
+2. systemctl dameon-reload 
+   1. systemctl enable sone.service 
+
+3. 还有种服务，是需要其他服务启动成功后（有时间间隔），才能启的，可以如下类似
+
+```
+# 在启动后 5 分钟内运行指定的脚本。当然可以在脚本内判断他的前置服务是否启成功
+@reboot sleep 300 && /home/wwwjobs/clean-static-cache.sh
+```
+
+##### other
+
+- 查看开机启动项， systemctl list-unit-files
+  - systemctl status nginx 
+  -  systemctl is-enabled !$   查看某一服务是否开机自启，当然也可以在上面结果中查
+
+- 其他技巧
+
+1. systemctl status 24010，                         显示Active: active(running)
+   systemctl status 24045，                            提示，Failed to get unit for PID 24045: PID 24045 does not belong to any loaded unit.
+
+   systemctl list-units --type=target                  获取当前正在使用的运行目标
+   systemctl list-units --all --state=inactive         列出所有没有运行的Unit
+   systemctl list-units --failed                       列出所有加载失败的Unit
+   systemctl list-units -t service                 列出所有正在运行，类型为service 的Unit
+   systemctl cat nginx18.service                       查看Unit配置的内容
+
+   systemctl list-dependencies --all nginx18.service   列出一个Unit 所有依赖，包括target 类型
+   systemctl kill nginx.service                        立即杀死服务
+   systemctl daemon-reload                             将Unit 文件内容写到缓存中，所以Unit文件更新时，要systemd 重新读取
+   systemctl reset-failed                              移除标记为丢失的Unit文件
+   systemctl get-default                               查看启动时默认的Target，查看当前的运行级别
+   systemctl set-default multi-user.target             设置默认的
+   systemctl list-unit-files --type=target             查看系统的所有Target
+   systemctl list-dependencies multi-user.target       查看一个target包含的所有Unit
+   systemctl isolate multi-user.target                 关闭前一个Target里面所有不属于后一个Target的进程
+   systemctl -l| grep -v exited | less
+
+2. 
+
+   journalctl -u nginx18.service                       查看指定服务的日志
+   journalctl -f                                       实时滚动最新日志
+       journalctl -u nginx18.service -f
+
+systemctl reboot[poweroff|halt|suspend]                                     重启系统[切断电源|CPU停止工作|暂停系统]
+systemd-analyze critical-chain nginx18.service      查看指定服务的启动流
+    systemd-analyze blame
+
+3. timedatectl                                           查看当前时区设置
+       timedatectl list-timezones
+   loginctl show-user root
+
+
+
+
+# FAQ（服务器）
 
 ## centos7-ABRT has detected 1 problem(s)
 
@@ -2011,3 +2105,51 @@ uuidgen enp1s0
   [centos7中的网卡一致性命名规则、网卡重命名方法](https://www.huaweicloud.com/articles/6cb00c8de10b5a3d728ff22878c4b349.html)
   [centos提示eth0 does not seem to be present, delaying initialization](https://www.huaweicloud.com/articles/5f94fe359aa0ffec72764201eaa258dd.html)
 
+## 清理日志文件时出现文件空洞
+
+- 有一个后台服务，使用nohup启动。指令如下，
+
+   `nohup /usr/java/jdk1.8.0_271/bin/java -Xms512m -Xmx1024m -jar ${APP_NAME} > nohup-admin.log 2>&1 &`  
+
+<font color=orange>**现象： **</font> 
+
+1. 经过一段时间，nohup-admin.log文件 会很大，几十M
+   1. du -sh nohup-admin.log 
+2. 当你用  `echo > nohup-admin.log` ，再查看文件大小，发现为零。 但再次访问服务，日志文件又会马上回到之前几十M 的大小
+   1. 并且，会发现log文件顶端有大量的null...
+   2. 可以尝试， cat /dev/null > nohup-admin.log
+3. 这是典型的磁盘空间未释放的缘故。内容清空，但实际上写入的位置并没重置到文件起始位置，为覆盖写；因此重新写入时都以null占位。<u>所以是以nohup启动，重定向到nohup-admin.log  时出的问题</u> 
+
+<font color=orange>**解决： **</font> 
+
+1. 将启动脚本修改为： >> nohup-admin.log 2>&1 &  对日志文件追加写。验证可行
+2. 这样在清空文件时，写入位置置零，追加写入则从起始位置开始写
+3. [空洞文件原理详解](http://www.bdkyr.com/performance/2726.html) ，[怎样通过linux系统调用，来获取文件空洞信息](https://www.zhihu.com/question/407305048/answer/1358083582#:~:text=0xAA%20...%20%7C%20%20%20%20HOLE%20%20%20%20%20%7C%20%20%200x55%20...%20%20%7C%0A%2B-------------%2B-------------%2B-------------%2B-------------%2B-,%E8%BF%99%E4%B8%AA%E6%96%87%E4%BB%B6%E7%9A%84Size%E6%98%AF,-16k%EF%BC%8C%E4%BD%86%E6%98%AF%E5%AE%9E%E9%99%85) linux file hole
+
+> 其实计算机世界都很多设计都是人们现实生活的映射，比如稀疏文件的概念你可以想象我让你在一张白纸上画一只小鸟，正常情况你只需要把鸟画出来就行了，白色的部分不用你涂一遍白色。白色的部分就相当于空洞部分，如果一个文件系统不支持洗漱文件相当于你在画画时不能跳过白色的部分，要把白色涂成白色
+
+
+
+## linux mail发送邮件不成功
+
+- linux, mail,
+  221.236.26.68 发送不了邮件， 且无错误提示
+
+  且，119.3.247.174 也发送不了。。。先把这台搞定，上面的理应同理
+  经尝试，内网服务器和IDC托管的可以正常发送了。。云上的在下面有说到
+
+1. yum -y install mailx  postfix
+
+**记录下排查过程：**
+
+​	OS为centos7， 6的话，可能还要安装另外...
+vim /var/logs/maillog 跟踪日志
+netstat -tlnp | grep :25
+nmap 127.0.0.1 -p 25 检查服务是否开启了
+which sendmail
+ll /usr/sbin/sendmail  接着一步一步，发现软链接指向的是 /usr/sbin/sendmail.postfix
+然后，发现 能正常发送邮件的机器上，postfix 服务正在默默的运行着...
+​    systemctl status postfix
+
+1. 再者，如若是云服务器（阿里云、华为云），/var/log/maillog 会提示 connect to mxbizl.qq.ccom[xxx] Connection timed out
+       很可能是因为25端口被运营商封禁了....可以申请、投诉。或是配置smtp 发送邮件
