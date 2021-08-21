@@ -965,8 +965,11 @@ ip x.x.x.x
 
 ##### 配置ansible ssh 通信
 
-1. `ssh-keygen`  ,生成ssh public 和 private key
+1. `ssh-keygen -t rsa `  ,生成ssh public 和 private key
+   1. 在生成公钥时，可以输入密码， Enter passphrase (empty for no passphrase):    
+   2. 后来远程的时候就输入这个密码而不是服务器登录密码了
 2. for i in $ `cat /tmp/ansible_docker.txt`;do ssh-copy-id root@$i;done  ，也可以写进脚本执行
+   1. ssh-copy-id -i ~/.ssh/id_rsa.pub 192.168.10.62  也可以这样，传输完成后，可以 ssh 192.168.10.62 实现远程
 
 - 这个时候需要输入密码，来建立互信过程。。
 - **应该可以在脚本中，自动写密码的！！！！**  
