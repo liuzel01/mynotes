@@ -59,6 +59,8 @@
    1. `lsblk`,  
 2. 对新磁盘分区
    1. `fdisk /dev/sdb`，  注意type，改成lvm
+   2. partprobe使生效
+   3. partx -s /dev/vda  查看分区情况
 3. pvcreate， 创建pv physical volume
    1. `pvcreate /dev/sdb` 
    2.  `pvs`  
