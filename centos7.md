@@ -1318,6 +1318,11 @@ r  " 替换单个字符，自动返回 normal 模式。省去了s 切换到inser
 
 R  " 连续替换多个字符，手动 <esc> 返回 normal 模式。省去了切换到insert模式再输入的步骤
 
+```
+ctrl+alt+v 可进入vim的visual模式
+# vim的help要学会善用， :help ctrl-v
+```
+
 
 
 bing meiy shenm cuo ,zhishi ba ziji de weizhi baif de taizheng le ,zhengde wo ye youdian huanghu .xiangl ,
@@ -1384,6 +1389,18 @@ bing meiy shenm cuo ,zhishi ba ziji de weizhi baif de taizheng le ,zhengde wo ye
 ## 其他
 
 1. `yay -S vnstat`   安装vnstat,监控网络流量
+
+##### ssh持久化
+
+1. ssh远程服务器，一会不操作了就会断开，要重连就很烦
+   编辑配置文件，/etc/ssh/sshd_config
+
+```bash
+ClientAliveInterval 50      每50秒发送一次，然后客户端响应，这样就保持了长连接
+ClientAliveCountMax 3       默认值3， 表示服务器发出请求后客户端没有响应的次数达到3，就自动断开
+```
+
+
 
 
 
@@ -1782,6 +1799,90 @@ systemd-analyze critical-chain nginx18.service      查看指定服务的启动�
 3. timedatectl                                           查看当前时区设置
        timedatectl list-timezones
    loginctl show-user root
+
+
+
+# 桌面化相关
+
+## vnc
+
+1. yum install tigervnc-server
+
+2. mv /lib/systemd/system/vncserver@.service /lib/systemd/system/vncserver@:1.service
+
+  systemctl daemon-reload
+
+  vncpasswd root
+
+​    vncserver， 如果不行试试这个
+
+  systemctl status vncserver@:1.service
+
+  启动服务，设置开机自启。 status 是running 状态，就表示能用root连的
+
+  ss -tlnp | grep vnc
+
+3. VNC Viewer 登录时，这么写， 192.168.10.27:5901
+
+```bash
+▶ cat /lib/systemd/system/vncserver@:1.service
+[Unit]
+Description=Remote desktop service (VNC)
+After=syslog.target network.target
+[Service]
+Type=simple
+User=root
+# Clean any existing files in /tmp/.X11-unix environment*
+ExecStartPre=/bin/sh -c '/usr/bin/vncserver -kill %i > /dev/null 2>&1 || :'
+ExecStart=/usr/bin/vncserver_wrapper root %i
+ExecStop=/bin/sh -c '/usr/bin/vncserver -kill %i > /dev/null 2>&1 || :'
+[Install]
+WantedBy=multi-user.target
+# 但是装好DM(lighttdm)后，vnc远程过去看不到登录页面；只有在外接显示器情况下能看到lightdm，不知道是不是这里参数要改
+```
+
+## DE (desktop environment)
+
+1. <font color=orange>**下面是在centos上做的试验。**</font>
+
+```
+DM(desktop management): lightdm
+WM(window management): i3wm
+...ToBeContinued
+
+```
+
+- i3wm, 其实可以对比KDE（K Desktop Environment） 中的Kwin
+- systemctl enable lightdm.service
+  - systemctl get-default,  注意一定检查，默认启动方式是什么。不然排查半天，还是在检查lightdm的配置
+
+1. 首先查看下，是否有装gnome环境， yum list installed | grep -Pi '(gnome)'
+       yum remove gnome-desktop3
+       ▶ yum grouplist | grep -i 'gnome'       查看是否有安装gnome桌面化
+       然后， yum groupremove 上面的包名~
+       不过你list installed 的时候，还是有很多gnome 的软件，可以一并删除
+
+2. lightdm 的配置文件， vim /etc/lightdm/lightdm.conf 有这样一行，
+
+```
+[VNCServer]
+enabled=true  # 改成true，可以连接vnc进行登录测试
+```
+
+- 关闭centos启动项，[centos7优化启动项](http://doc.aiwaly.com/docs/yunwei/yunwei-1bvfa4rr9q776) 
+  - 查看所有的正在运行的进程， systemctl status -all| grep running 
+
+3. 要自定义桌面化的话，可参考reddit上的 [这里](https://www.reddit.com/r/unixporn/comments/pf4vvk/i3gaps_blue_is_my_favorite_color_which_blue_yes/) 
+
+
+
+##### manjaro-kde
+
+- 下面就是在虚拟机，对manjaro 自定义DE 
+
+
+
+
 
 
 
