@@ -1413,13 +1413,14 @@ ClientAliveCountMax 3       默认值3， 表示服务器发出请求后客户�
 
 
 - 现有两个二级域名，目标是：访问到两个内网网站。192.168.10.62:80  以及 192.168.10.28:80
+- 还有一个防火墙（硬件），做公网IP映射
 
 1. 首先，在域名管理网站，将二级域名指向公网ip，即多域名指向同一公网ip地址。如下图所示 （有的内网服务器，或因防火墙不支持直接指向）
 
 ![image-20210611171852461](https://gitee.com/liuzel01/picbed/raw/master/data/20210611171852_ip_port_diffSite.png)
 
 - 在防火墙，将此公网ip指向，内网nginx服务器，例如192.168.10.62
-- 10.62 此服务器负责nginx 转发。监听80端口，转发本地的服务，以及另一台服务器10.28上的nginx(80端口)。大概如下图所示
+- 10.62 此服务器负责nginx 转发。监听80端口，转发本地（及局域网内其他）的服务，以及另一台服务器10.28上的nginx(80端口)。大概如下图所示
 
 ![image-20210611172516687](https://gitee.com/liuzel01/picbed/raw/master/data/20210611172516_ip_port_diffsite_nginx.png)
 
@@ -1446,10 +1447,10 @@ application/xml application/xml+rss text/javascript image/jpeg image/gif image/p
 
 ## 美化初始终端
 
-1. 在网上看到lolcat，终端彩虹 效果，大多人是这样用的，
+1. 在网上看到lolcat，终端彩虹 效果，大多人是下面这样用的，
    1. fortune+cowsay+lolcat， 然后在终端欢迎页打出来彩虹效果的欢迎语，
-   2. 项目[git地址](https://github.com/busyloop/lolcat)
-2. 此次记录为，在centos7 上使用lolcat，并使终端输出内容，并可选是否搭配lolcat
+   2. 项目[git地址](https://github.com/busyloop/lolcat) 
+2. 以下记录为，在centos7 上使用lolcat，并使终端输出内容，并可选是否搭配lolcat
 
 - 最终解决：
 
@@ -1467,14 +1468,14 @@ lol()
     fi
 }
 # bind 'RETURN: "\e[1~lol \e[4~\n"'
-COMMANDS=( cdls ls cat date)
+COMMANDS=(cdls ls cat date)
 for COMMAND in "${COMMANDS[@]}"; do
     alias "${COMMAND}=lol ${COMMAND}"
     alias ".${COMMAND}=$(which ${COMMAND})"
 done
 ```
 
-3. 也是巧妙用了循环，来遍历 COMMANDS 中的参数
+3. 也是用了循环，来遍历 COMMANDS 中的参数
 
 4. 效果大概如下图所示，还是挺炫的哈
 
@@ -1483,10 +1484,10 @@ done
 1. 但是吧，lolcat几处问题：`source /etc/profile` 后，会将环境覆盖调，例如ls 就无有效果了。 要 `source /etc/bashrc` 后才行
    1. 还有，~~写在 `/etc/bashrc`  中的函数 和我的cdls冲突，cdls不生效~~
    2. 多做几次尝试，取消cdls 的注释，可以了。lol() 针对的是${COMMOND} ，说到底也是对ls 命令而言，:wine_glass:
-2. 参考，[redirecting all output to lolcat](https://stackoverflow.com/questions/59891025/redirecting-all-output-to-lolcat)
+2. 参考，[redirecting all output to lolcat](https://stackoverflow.com/questions/59891025/redirecting-all-output-to-lolcat) 
 4. ~~我也不懂，为什么每次xshell连接后，cdls并不会生效，还要 . /etc/bashrc 手动生效~~
 
-### /etc/profile.d 妙用
+## /etc/profile.d 妙用
 
 - 在文件  /etc/profile  中，有这么一句  `for i in /etc/profile.d/*.sh /etc/profile.d/sh.local ; do`  ，可判断 /etc/profile.d/ 目录下的文件会仙贝执行
   - 这是我此目录下，一些文件，仅供参考
@@ -1507,7 +1508,7 @@ done
 
 可参考，[对linux的profile.d目录的使用](https://www.a-programmer.top/2018/06/21/Linux%E9%85%8D%E7%BD%AE%E6%89%80%E6%9C%89%E7%94%A8%E6%88%B7%E7%9A%84%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%EF%BC%8Cprofile.d%E6%96%87%E4%BB%B6%E5%A4%B9%E7%9A%84%E4%BD%BF%E7%94%A8/)
 
-## 隐藏进程
+## 隐藏进程-hideprocess
 
 隐藏进程信息（ps，top）,
 
@@ -1843,7 +1844,7 @@ WantedBy=multi-user.target
 
 ## DE (desktop environment)
 
-1. <font color=orange>**下面是在centos上做的试验。**</font>
+1. <font color=orange>**下面是在centos上做的试验。**</font> 
 
 ```
 DM(desktop management): lightdm
@@ -1873,6 +1874,19 @@ enabled=true  # 改成true，可以连接vnc进行登录测试
   - 查看所有的正在运行的进程， systemctl status -all| grep running 
 
 3. 要自定义桌面化的话，可参考reddit上的 [这里](https://www.reddit.com/r/unixporn/comments/pf4vvk/i3gaps_blue_is_my_favorite_color_which_blue_yes/) 
+
+---
+
+- 杂项
+
+```txt
+WM（窗口管理器），和DE（桌面环境）是两个不同概念。同一个DE（例如GNOME）可以使用不同的WM（例如TWM FVWM Kwin）
+echo $XDG_CURRENT_DESKTOP       打印出，当前正在使用哪个桌面环境。我在vnc连接进去后的终端运行就会显示KDE, 这也证明了和我ssh远程过去的 session 并不是同一个
+	并且，在vnc连进去后和用ssh远程时，screenfetch 所打印出的信息也会有差异。vnc连进去会有DE/ WM/ WM Theme/Resolution信息
+
+tty,                            打印出当前连接者用的终端，
+w                           显示所有终端，
+```
 
 
 
