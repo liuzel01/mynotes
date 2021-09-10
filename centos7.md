@@ -1400,7 +1400,29 @@ ClientAliveInterval 50      每50秒发送一次，然后客户端响应，这�
 ClientAliveCountMax 3       默认值3， 表示服务器发出请求后客户端没有响应的次数达到3，就自动断开
 ```
 
+2. 终端搜索
 
+ctrl+s 是向后搜索， 不过c+s 会与某些终端停止响应的快捷键(说的就是Konsole)冲突，要先屏蔽掉
+
+​	stty -icon 写入到 /etc/bashrc 或类似文件
+
+​	stty ixany(可以不执行)
+
+[可参考](*https://stackoverflow.com/questions/791765/unable-to-forward-search-bash-history-similarly-as-with-ctrl-r*) 
+
+之后，效果很明显
+
+c-r 会显示： bck-i-search: xxx
+
+c-s 会显示： fwd-i-search: xxx
+
+3. 隐藏属性
+
+chattr +i /etc/resolv.conf 防止文件被修改
+
+chattr +a /etc/resolv.conf 文件只能追加数据，但不能删除。 适用于日志文件
+
+赋予目录i 属性，则创建/删除文件提示： 权限不够。 不过可追加文件内容
 
 
 
@@ -2144,6 +2166,39 @@ cdls() {
   type cd ;type ifconfig 来查看一条命令是否内建命令
 
   xxx is a shell builtin
+
+- 对于别名存储位置
+
+1. 对于别名，理应存储在一个文件内，参考~~centos~~（其实是git-MINGW64）上的环境
+
+```bash
+cat /etc/profile.d/aliases.sh
+# Some good standards, which are not used if the user
+# creates his/her own .bashrc/.bash_profile
+
+# --show-control-chars: help showing Korean or accented characters
+alias ls='ls -F --color=auto --show-control-chars'
+alias ll='ls -l'
+alias ssh27='ssh -p 6022 root@140.246.90.106'
+alias ssh68='ssh root@192.168.10.68'
+
+case "$TERM" in
+xterm*)
+        # The following programs are known to require a Win32 Console
+        # for interactive usage, therefore let's launch them through winpty
+        # when run inside `mintty`.
+        for name in node ipython php php5 psql python2.7
+        do
+                case "$(type -p "$name".exe 2>/dev/null)" in
+                ''|/usr/bin/*) continue;;
+                esac
+                alias $name="winpty $name.exe"
+        done
+        ;;
+esac
+```
+
+
 
 ## 磁盘相关
 
