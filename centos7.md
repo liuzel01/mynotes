@@ -373,6 +373,12 @@ git add -A（如果你在这期间， 对文件有更改）      所以说，你
    2. 然后，其实可以通过不以root运行、不以特权模式运行来达到某些需求，实现更高容器安全
 2. `docker run -itd --name lzl_c7 --privileged=true  -v /sys/fs/cgroup:/sys/fs/cgroup:ro 192.168.226.134/ops/lzl_c7sshd /sbin/init`  无需挂载cgroup 也是可以的
 
+---
+
+- 在停止docker 后，提示： Warning: Stopping docker.service, but it can still be activated by : docker.socket 
+
+1. sudo systemctl stop docker.socket  再执行， `docker ps` 就是正常的返回了
+
 ## 技巧
 
 ###### 将docker镜像体积减少99%！！！！！，有待补充
@@ -1116,7 +1122,7 @@ ip x.x.x.x
 - lanproxy，代理，本质上是通过公网ip:端口，来访问到你的内网服务器上所映射端口，上的服务~
 - 不过，client 和server端一定要能够互相通信才行
 
-[可参考此](https://github.com/ffay/lanproxy#%E7%9B%B8%E5%85%B3%E5%9C%B0%E5%9D%80)
+[可参考此](https://github.com/ffay/lanproxy#%E7%9B%B8%E5%85%B3%E5%9C%B0%E5%9D%80) 
 
 - 目前，我是在xizang 所属服务器（或某云服务器）上搭建了Server 端；在内网linux（或本地虚拟机）搭建了Client端。通过`ssh root@221.236.26.67 -p 5222` 来远程到内网linux
 
@@ -1173,7 +1179,7 @@ ip x.x.x.x
 
 ---
 
-***\*注：\****
+***注：***
 
 1. 用nginx配置反向代理，转发ssh服务。 使用stream模块，需要编译安装nginx时， --with-stream 
 
@@ -1194,6 +1200,35 @@ ip x.x.x.x
 # }
 # }
 ```
+
+##### 编写服务
+
+- 编写到系统服务的话，可参考这样，
+
+```bash
+cat /usr/lib/systemd/system/proclient.service
+
+[Unit]
+Description = Run proclient jobs
+After = default.target
+DefaultDependencies = no
+
+[Service]
+Type = simple  # simple和forking其实没差，我这里测试的都是可以的。simple是 设置了ExecStart但未设置BusName时的默认值，ExexStart启动的进程为该服务主进程
+User = root
+Group = root
+KillMode = control-group
+ExecStart = /bin/bash /etc/init.d/proclient
+# ExecStop = /bin/bash -c 'kill -9 $(ps -ef | grep proxy-client-0.1 | grep -v grep | awk '{print $2}')'
+ExecReload = /bin/kill -s HUP $MAINPID
+PrivateTmp = true
+RemainAfterExit = yes
+[Install]
+WantedBy = multi-user.target
+
+```
+
+- ***<font color=red>再者，写到系统服务中，再enable，会发现和隐藏进程那里貌似有点冲突。。有待验证</font>*** 
 
 ## 路由
 
@@ -1559,7 +1594,7 @@ ldconfig 生效
 1. mkdir -p xxxx/.empty/dir
    1. mount -o bind xxxxxx/.empty/dir /proc/42
 2. 根据实际调整，mount -o bind xxxxxx/.empty/dir /proc/$(ps -ef | grep proxy-server | grep -v grep |awk '{print $2}')  
-   1. 最后加入 /etc/rc.local （不推荐，写成服务，或是在/etc/init.d/某xxxx.sh）实现开机自动完成。因为每次重启后pid就会变化，所以都要进行重新挂载
+   1. 最后加入 /etc/rc.local （不推荐，~~写成服务，或是在/etc/init.d/某xxxx.sh）实现开机自动完成~~。因为每次重启后pid就会变化，所以都要进行重新挂载
    2. 实现后，想要./stop.sh 也做不到了，只有先 umount /proc/42  再./stop.sh 或kill掉pid
 3. 在 /etc/rc.local/proclient  文件内容如下类似。 [关于自启动脚本不运行的问题](https://serverfault.com/questions/119351/init-d-script-not-working-but-the-command-works-if-i-execute-it-in-the-cons),
 
@@ -1763,10 +1798,8 @@ vim /lib/systemd/system/sone.service
 [Unit]
 Description=restart
 After=default.target
-
 [Service]
 ExecStart=/root/script/restart.sh
-
 [Install]
 WantedBy=default.target
 ```
@@ -1780,6 +1813,88 @@ WantedBy=default.target
 # 在启动后 5 分钟内运行指定的脚本。当然可以在脚本内判断他的前置服务是否启成功
 @reboot sleep 300 && /home/wwwjobs/clean-static-cache.sh
 ```
+
+##### systemctl 创建kift.service 管理服务
+
+- 内网搭建了一个网盘服务[kiftd](*https://kohgylw.gitee.io/index.html#myCarousel*) ，需要做开机自启，服务目录结构如下
+
+  `▶ tree -LN 1 /usr/local/kiftd` 
+
+```
+/usr/local/kiftd
+├── conf
+├── filesystem
+├── fonts
+├── kiftd-1.0.35-RELEASE.jar
+├── kiftd说明文档.pdf
+├── libs
+├── logs
+├── mybatisResource
+├── nohup.out
+├── README.md
+├── startup.sh
+├── webContext
+└── 使用许可
+```
+
+- 编写的启动脚本内容为：
+
+```bash
+cat startup.sh
+#!/bin/bash
+
+nohup java -jar kiftd-1.0.35-RELEASE.jar -start &
+```
+
+- 编写的系统服务kift.service 内容为：
+
+```bash
+▶ cat  /usr/lib/systemd/system/kift.service
+[Unit]              # 主要描述和规定启动前后的顺序依赖关系
+Description=demo_kiftd_service
+Documentation=xxxxxx
+After=default.target
+Wants=yyyyyyy
+Requires=zzzzzzzz
+[Service]           # 主要是核心的控制语句
+Type=forking
+User=root
+Group=root
+KillMode=control-group
+ExecStart=/bin/bash -c 'nohup /usr/bin/java -jar /usr/local/kiftd/kiftd-1.0.35-RELEASE.jar -start &'
+# ExecStop=/bin/bash -c 'kill -9 $(ps -ef | grep kiftd-1.0.35 | grep -v grep | awk '{print $2}')'
+ExecReload=/bin/kill -s HUP $MAINPID
+PrivateTmp=true
+RemainAfterExit=yes
+[Install]           # 主要是定义服务启动相关
+WantedBy=multi-user.target
+Alias=zzzzz
+```
+
+1. 经测试，systemctl start|stop|restart kift.service 均成功
+
+   设置开机自启，systemctl enable kift.service
+
+2. 注意看打印出的服务状态，
+
+```
+▶ systemctl status kift.service
+● kift.service - demo
+   Loaded: loaded (/usr/lib/systemd/system/kift.service; enabled; vendor preset: disabled)
+   Active: active (running) since Wed 2021-09-15 09:08:53 CST; 10min ago
+ Main PID: 15234 (java)
+   CGroup: /system.slice/kift.service
+           └─15234 /usr/bin/java -jar /usr/local/kiftd/kiftd-1.0.35-RELEASE.jar -start
+
+Sep 15 09:08:55 localhost.localdomain bash[15233]: WARNING: Illegal reflective access by org.springframework.cglib.core.ReflectUtils$1 (file:/usr/local/kiftd/libs/spring-core-5.0.6.RELEASE.jar) t...ectionDomain)
+Sep 15 09:08:55 localhost.localdomain bash[15233]: WARNING: Please consider reporting this to the maintainers of org.springframework.cglib.core.ReflectUtils$1
+Sep 15 09:08:55 localhost.localdomain bash[15233]: WARNING: Use --illegal-access=warn to enable warnings of further illegal reflective access operations
+Sep 15 09:08:55 localhost.localdomain bash[15233]: WARNING: All illegal access operations will be denied in a future release
+Sep 15 09:08:56 localhost.localdomain bash[15233]: [2021年09月15日 09:08:56]初始化文件节点...
+Sep 15 09:08:56 localhost.localdomain bash[15233]: [2021年09月15日 09:08:56]文件节点初始化完毕。
+```
+
+
 
 ##### other
 
@@ -1822,6 +1937,15 @@ systemd-analyze critical-chain nginx18.service      查看指定服务的启动�
 3. timedatectl                                           查看当前时区设置
        timedatectl list-timezones
    loginctl show-user root
+
+4. 排查服务日志
+
+`journalctl -u proclient.service -b` (-b，仅查看当前引导的日志消息)
+`journalctl -f` 
+`journalctl -xe` 
+`systemctl is-enabled|is-active|is-failed  anacron.service` 
+
+`systemd-analyze verify proclient.service` 检查proclient 服务的编写有无问题
 
 
 
