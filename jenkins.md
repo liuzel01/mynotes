@@ -40,6 +40,11 @@ System.setProperty('org.apache.commons.jelly.tags.fmt.timeZone','Asia/Shanghai')
    轮询SCM：H/02 9-20 * * 1-5
    ```
 
+##### jenkins 高级用法，jenkinsfile
+
+- 参考， [jenkins高级用法](https://www.cnblogs.com/stulzq/p/10115589.html) ，[官方流水线语法](https://www.jenkins.io/zh/doc/book/pipeline/syntax/#declarative-directives) 
+- 
+
 ### FAQ
 
 #### 迁移问题
