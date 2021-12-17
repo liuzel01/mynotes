@@ -10,7 +10,7 @@ VMware-VCSA-all-6.7.0-18485166.iso  （VCSA: VMware vCenter Server Appliance）
 - 网页上登录地址： https://192.168.10.25/ui/#/login 
   - 记录新的SSO域： vsphere.local
     								administrator
-    								Siping123!@#
+          								Siping123!@#
 - 创建的VCSA名称：       VMware vCenter Server Appliance
   	  密码：	                  Siping123!@#
 - 设备入门页面：		https://192.168.10.40:443
@@ -18,7 +18,13 @@ VMware-VCSA-all-6.7.0-18485166.iso  （VCSA: VMware vCenter Server Appliance）
   登录账户密码：		administrator@vsphere.local
   					               Siping123!@#
 
-2. 规则：
+2. 10.40 可以认为是统一管理的一个地方
+
+   10.25，可以对网络、虚拟交换机等信息进行编辑~
+
+   
+
+3. 规则：
 
 - 虚拟机命名规则： 项目名-操作系统名-ip
 - 模板命名规则：      tmplt-操作系统名-xCy运存z存储
@@ -35,7 +41,35 @@ VMware-VCSA-all-6.7.0-18485166.iso  （VCSA: VMware vCenter Server Appliance）
 
    从模板部署：
 
-   ![image-20211108091225231](https://gitee.com/liuzel01/picbed/raw/master/data/20211108091225-VMware-ESXI-tmplt-c7-8C8G200GB.png)
+   ![从模板部署](https://gitee.com/liuzel01/picbed/raw/master/data/20211108091225-VMware-ESXI-tmplt-c7-8C8G200GB.png)  
+
+#### vmware esxi 自动快照
+
+1. 可以在vCenter -虚拟机-配置，点击"已调度任务"，新建-生成快照
+
+![生成快照路径](https://gitee.com/liuzel01/picbed/raw/master/data/20211109110529VMware-ESXI-%E7%94%9F%E6%88%90%E5%BF%AB%E7%85%A7.png)
+
+2. 接着按照步骤，调度新任务即可~
+
+![调度新任务](https://gitee.com/liuzel01/picbed/raw/master/data/20211109111251-VMware-ESXI-%E8%B0%83%E5%BA%A6%E6%96%B0%E4%BB%BB%E5%8A%A1.png)
+
+3. 然后就创建好拉
+
+
+
+1. 可[参考](https://codeantenna.com/a/73I5dhvUMn) 
+
+2. 首先，要启动esxi主机的ssh服务，启动路径如下
+
+![启动ssh服务](https://gitee.com/liuzel01/picbed/raw/master/data/20211109094238-VMware-ESXI-ssh.png) 
+
+
+
+#### 通过cVenter Server管理多台ESXI主机
+
+1. [参考地址](https://www.yisu.com/zixun/9271.html) 
+
+
 
 #### FAQ
 
@@ -45,11 +79,14 @@ VMware-VCSA-all-6.7.0-18485166.iso  （VCSA: VMware vCenter Server Appliance）
    ​	将系统名称<font color=red>**photon-machine**</font> ，修改成VCSA的IP地址。(当然可以在第一阶段的时候就把地址填成VCSA的ip)
 
    ​	然后，点击第二阶段-继续配置vCenter Server
+   
+2. [VMware-VCSA安装到80%卡住](http://blog.itpub.net/31480736/viewspace-2155743/) 
 
 #### 参考资料
 
 - [无DNS环境下使用IP部署VCSA](https://www.cnblogs.com/itfat/p/15234566.html) 
 - [VMware vCenter6.7 添加ESXI主机](https://www.cnblogs.com/aqicheng/p/13537874.html) 
+- [VCSA7.0部署](https://little-star.love/posts/4bd44b30/#%E6%B7%BB%E5%8A%A0ESXI) 
 
 
 
