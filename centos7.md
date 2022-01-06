@@ -67,7 +67,7 @@
    3. `vgextend centos /dev/sdb`
 4. 将新创建的pv，添加到vg内；lvcreate  创建lv logical volume
    1. **如若没有，需要创建centos-data**
-      1. `mkfs.ext4 /dev/centos_data/newvdb`          格式化，否则挂载不上，提示mount: /dev/mapper/centos_home-newvdb 写保护，将以只读方式挂载、、mount: 未知的文件系统类型“(null)”
+      1. `mkfs.ext4 /dev/centos_data/newvdb`          注意格式化，否则挂载不上，提示mount: /dev/mapper/centos_home-newvdb 写保护，将以只读方式挂载、、mount: 未知的文件系统类型“(null)”
       2. `vgcreate centos-data /dev/vdb`
       3. `lvcreate -l 100%FREE -n newsdb centos` 
       4.  `lvs`  `lvdisplay`
