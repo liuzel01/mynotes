@@ -1058,16 +1058,9 @@ ip x.x.x.x
        network.host: 0.0.0.0
        xpack.security.enabled: true
         xpack.security.transport.ssl.enabled: true
-        action.auto_create_index: .security,.monitoring*,.watches,.triggered_watches,.watcher-history*
+        action.auto_create_index: .security,.monitoring*,.watches,.triggered_watches,.watcher-history*  
        ```
-      ```
-      
-      ```
-   
-    ```
-      
-    ```
-   
+    
 4. cd /es/kibana-7.10.1/
 
     1. ./bin/kibana -q &                    启动后台运行，或者-Q，-Q, --silent                     Prevent all logging
@@ -1089,8 +1082,6 @@ ip x.x.x.x
         ```
 
     4. curl -XDELETE http://localhost:9200/.kibana* 删除elastic里的索引
-
-5. SSL证书暂未配置
 
 6. 参考，[elasticsearch6破解x-pack，设置密码并用head插件登录](https://www.cnblogs.com/xiaodai12138/p/12019213.html),
 
@@ -2061,6 +2052,54 @@ w                           显示所有终端，
 
 
 # FAQ（服务器）
+
+## proc file system in linux
+
+- /proc  目录下各文件解释，
+
+```
+/proc/crypto		list of available cryptographic modules
+/proc/diskstats		information (including device numbers) for each of the logical disk devices
+/proc/filesystems	列出时内核支持的文件系统列表
+/proc/kmsg			保存内核输出信息
+/proc/scsi			information about any devices connected via a SCSI or RAID controller
+/proc/tty			information about the current terminals
+meminfo				summary of how the kernel is managing its memory.
+version				包含 Linux 内核版本、发行版号、gcc 版本号（用于构建内核）以及与当前运行的内核版本相关的任何其他相关信息
+cmdline 
+cpuinfo 
+```
+
+1. 获取某进程pid
+
+2. `cd /proc/$pid `  进入到某进程的目录下，
+
+```txt
+仅列出一些重要的
+less cmdline		command line of the process
+cat environ    		environmental variables
+less fd            file descriptors
+less limits    		contains information about the limits of the process
+less mounts    		related information
+less status 		查看启动这个进程的用户所在的组
+	cat /proc/`pgrep java | grep -v grep `/status | grep -i 'groups'
+	Pid				ps命令的LWP列输出，PID是进程组。LWP是轻量级进程，也即是线程。所有的进程必须一个线程，
+		譬如，ps -Lf `pgrep java | grep -v grep `
+	PPid			当前进程的父进程，
+	
+
+几个常见链接： cwd		a link to the current working directory of the process
+   exe                  link to the executable of the process
+   root                 link to the work directory of the process
+```
+
+
+
+
+
+
+
+
 
 ## centos7-ABRT has detected 1 problem(s)
 
