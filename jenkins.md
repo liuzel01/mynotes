@@ -1,6 +1,6 @@
 > 此文件用作记录，jenkins遇到的一些问题
 
-##### 环境变量
+### 环境变量
 
 - 感觉还是用服务器本机上的环境变量比较好。用jenkins自动安装的，那是jenkins自己的一套变量
 
@@ -25,7 +25,7 @@ System.setProperty('org.apache.commons.jelly.tags.fmt.timeZone','Asia/Shanghai')
 
 这个问题，在[centos7.md](./centos7.md) 文件中有说明，在此不赘述
 
-#### tips
+### tips
 
 ##### 定时构建与轮询SCM
 
@@ -63,7 +63,7 @@ Executing Maven:  -B -f /var/jenkins_home/workspace/meeting-mvn/pom.xml -s /var/
 
 2. 解决方法： ...只是将他调用的配置文件，用修改之后的文件，强行替换了
 
-**根源还是没有解决！！！！**
+
 
 #### 深信服EasyConnect
 

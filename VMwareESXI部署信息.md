@@ -69,9 +69,53 @@ VMware-VCSA-all-6.7.0-18485166.iso  （VCSA: VMware vCenter Server Appliance）
 
 1. [参考地址](https://www.yisu.com/zixun/9271.html) 
 
+2. 机架式服务器，相关信息如下：
+
+   192.168.10.50 登录账号密码：
+
+   root   siping123!@#
+
+   192.168.10.51：VCSA
+
+   root 密码： Siping123!@#
+
+3. 目前使用的VCSA 是10.51 上的，vCenter Server 7 Standard
+
+  访问地址：  https://192.168.10.51/ui/app/admin/licensing/licenses
+
+### 搭建完成
+
+```
+192.168.10.25- vmware esxi6.5 
+前期准备：			VMware_ESXi_7.0.2_17867351_LNV_20210717.iso
+					VMware-VCSA-all-6.7.0-18485166.iso
+登录账号密码：		root  siping123!@#
+网页上登录地址：	https://192.168.10.25/ui/#/login
+
+新的SSO域：			vsphere.local
+					administrator
+					Siping123!@#
+VMware vSphere 6序列号大全， https://blog.csdn.net/sj349781478/article/details/82378244
+虚拟机名称：	VMware vCenter Server Appliance
+	  密码：	Siping123!@#
+VMware Appliance Management访问地址： https://192.168.10.40:5480/configure/#/installer?locale=zh_CN
+	!!!不要直接进第二阶段，使用https://VCSAip:5480登录进去，将系统名称photon-machine，修改成VCSA的IP地址
+	然后，点击第二阶段-设置vCenter Server
+
+	设备入门页面：		https://192.168.10.40:443
+		跳转页面：
+	登录账户密码：		administrator@vsphere.local
+						Siping123!@#
+虚拟机命名规则：				项目名-操作系统名-ip 
+模板命名规则：					tmplt-操作系统名-?C?运存?存储
+以模板创建虚拟机：		很完美，创建了ip为 10.98 的虚拟机， 而且不需要修改mac地址啥的。能够ping通外网~
+						从模板， tmplt-c7-8C8G200GB 创建的虚拟机，同样能够ping通外网~
+						具体，可见截图~
+```
 
 
-#### FAQ
+
+### FAQ
 
 1. VMware Appliance Management访问地址： https://192.168.10.40:5480/configure/#/installer?locale=zh_CN
    	**不要直接进第二阶段**，使用https://VCSAip:5480登录进去，
@@ -81,6 +125,8 @@ VMware-VCSA-all-6.7.0-18485166.iso  （VCSA: VMware vCenter Server Appliance）
    ​	然后，点击第二阶段-继续配置vCenter Server
    
 2. [VMware-VCSA安装到80%卡住](http://blog.itpub.net/31480736/viewspace-2155743/) 
+
+3. 参考：  [无DSN环境下使用IP部署VSCA](https://www.cnblogs.com/itfat/p/15234566.html) 
 
 #### 参考资料
 
@@ -99,3 +145,8 @@ VMware-VCSA-all-6.7.0-18485166.iso  （VCSA: VMware vCenter Server Appliance）
 
 
 
+> VMware vSphere 6 Enterprise Plus		0A65P-00HD0-3Z5M1-M097M-22P7H
+>
+> vSphere 7 Enterprise Plus						JH09A-2YL84-M7EC8-FL0K2-3N2J2
+>
+> vCenter Server 7 Standard					   NA4DK-46LDJ-48509-H22Q4-AA262
