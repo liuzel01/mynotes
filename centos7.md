@@ -70,15 +70,18 @@
       1. `mkfs.ext4 /dev/centos_data/newvdb`          注意格式化，否则挂载不上，提示mount: /dev/mapper/centos_home-newvdb 写保护，将以只读方式挂载、、mount: 未知的文件系统类型“(null)”
       2. `vgcreate centos-data /dev/vdb`
       3. `lvcreate -l 100%FREE -n newsdb centos` 
+         这里，倒不必用 +100%FREE
       4.  `lvs`  `lvdisplay`
 5. 创建挂载点，挂载
    1. `mkdir -p /newsdb`,  `mount /dev/mapper/centos-newsdb /newsdb`  
    2. 如果挂载点为已存在的文件夹，那该文件夹内的内容就会没了，因为/dev/mapper/centos-newsdb  毕竟是空的。umount 掉即可
 6. 要扩容 / 根，lvextend 将空间100% 加入到root逻辑卷内
    1. 在上面第4步骤，不要创建新卷，**而是直接  vgextend**，还有  `lvextend -l +100%FREE /dev/centos/root`，  就可以看到LV Size 成功增加了
+      注意： 这里一定要用 +100%FREE 不然扩充后，容量会有问题的
    2. `xfs_growfs /dev/centos/root`，  重新识别下分区大小，
    3. `df -hT`  就可以看到效果了
    4. <font color=orange>成功对根目录扩容</font>
+   参考，[一次lvm扩容记录](http://blog.wuxu92.com/lvm-extend-record/) 
 
 - 新增swap分区，
 
