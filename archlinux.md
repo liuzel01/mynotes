@@ -402,29 +402,6 @@ wine 5.21-1
 ### git
 
 - `git branch -v`   查看分支
-- 
-
-### linux挂载windows共享文件
-
-1. `yay -S samba`   archlinux配置与windows文件共享
-
-- ~~实现了，非root用户也可对共享文件进行编辑并保存，可以的~~
-- **这是因为用户属于root用户组，！！！！这种情况非常不安全，而且删除文件时没提示。。。**  
-- `yum install nfs-utils rpcbind``systemctl start|enable rpcbind|nfs`
-- 客户端(linux)，`yum install samba-client cifs-utils`
-  - 测试，`smbclient -L 192.168.10.185 -Uliuzel01`
-
-```shell
-需要现在windows（主机名DESKTOP-GU5AA0B）上共享一个文件夹，文件夹路径为C:\siping\newOneFiles\file
-# //DESKTOP-GU5AA0B/file /home/liuzel01/windows cifs username=liuzel01,password=Tianfuc11,guest,x-systemd.automount 0 0
-//DESKTOP-GU5AA0B/file /home/liuzel01/windows cifs x-systemd.automount,rw,iocharset=utf8,username=liuzel01,password=Tianfuc11,file_mode=0775,dir_mode=0775 0 0
-```
-
-- 前往参考，[systemd.mount中文手册](http://www.jinbuguo.com/systemd/systemd.mount.html)，[samba服务实现linux与windows相互共享资源](https://www.jianshu.com/p/830f1bd5b5e0)  ，
-
-  [configuring fstab based samba share mounts](https://discourse.osmc.tv/t/configuring-fstab-based-samba-share-mounts/38167/9),  
-  
-  [systemd时代的/etc/fstab](https://www.junmajinlong.com/linux/systemd/systemd_fstab/),
 
 
 

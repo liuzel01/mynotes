@@ -1821,7 +1821,7 @@ WantedBy=default.target
 @reboot sleep 300 && /home/wwwjobs/clean-static-cache.sh
 ```
 
-##### systemctl 创建kift.service 管理服务
+##### systemctl创建kift.service 管理服务
 
 - 内网搭建了一个网盘服务[kiftd](*https://kohgylw.gitee.io/index.html#myCarousel*) ，需要做开机自启，服务目录结构如下
 
@@ -1860,22 +1860,22 @@ nohup java -jar kiftd-1.0.35-RELEASE.jar -start &
 [Unit]              # 主要描述和规定启动前后的顺序依赖关系
 Description=demo_kiftd_service
 Documentation=xxxxxx
-After=default.target
-Wants=yyyyyyy
+After=network-online.target
+Wants=network-online.target
 Requires=zzzzzzzz
 [Service]           # 主要是核心的控制语句
 Type=forking
 User=root
 Group=root
 KillMode=control-group
-ExecStart=/bin/bash -c 'nohup /usr/bin/java -jar /usr/local/kiftd/kiftd-1.0.35-RELEASE.jar -start &'
-# ExecStop=/bin/bash -c 'kill -9 $(ps -ef | grep kiftd-1.0.35 | grep -v grep | awk '{print $2}')'
+# ExecStart=/bin/bash -c 'nohup /usr/bin/java -jar /usr/local/kiftd/kiftd-1.0.35-RELEASE.jar -start &'
+ExecStop=/usr/local/kiftd/kiftd stop		# 还是调脚本启动停止
 ExecReload=/bin/kill -s HUP $MAINPID
 PrivateTmp=true
 RemainAfterExit=yes
 [Install]           # 主要是定义服务启动相关
 WantedBy=multi-user.target
-Alias=zzzzz
+# Alias=zzzzz
 ```
 
 1. 经测试，systemctl start|stop|restart kift.service 均成功
@@ -1901,6 +1901,9 @@ Sep 15 09:08:56 localhost.localdomain bash[15233]: [2021年09月15日 09:08:56]�
 Sep 15 09:08:56 localhost.localdomain bash[15233]: [2021年09月15日 09:08:56]文件节点初始化完毕。
 ```
 
+- [systemd各字段含义-入门](https://www.ruanyifeng.com/blog/2016/03/systemd-tutorial-part-two.html)  ，
+  - [服务配置文件编写](https://www.junmajinlong.com/linux/systemd/service_2/)  
+
 
 
 ##### other
@@ -1922,7 +1925,7 @@ Sep 15 09:08:56 localhost.localdomain bash[15233]: [2021年09月15日 09:08:56]�
 
    systemctl list-dependencies --all nginx18.service   列出一个Unit 所有依赖，包括target 类型
    systemctl kill nginx.service                        立即杀死服务
-   systemctl daemon-reload                             将Unit 文件内容写到缓存中，所以Unit文件更新时，要systemd 重新读取
+   ~~systemctl daemon-reload                             将Unit 文件内容写到缓存中，所以Unit文件更新时，要systemd 重新读取~~ 
    systemctl reset-failed                              移除标记为丢失的Unit文件
    systemctl get-default                               查看启动时默认的Target，查看当前的运行级别
    systemctl set-default multi-user.target             设置默认的
@@ -1931,6 +1934,8 @@ Sep 15 09:08:56 localhost.localdomain bash[15233]: [2021年09月15日 09:08:56]�
    systemctl isolate multi-user.target                 关闭前一个Target里面所有不属于后一个Target的进程
    systemctl -l| grep -v exited | less
 
+   systemd-analyze time								从内核启动开始，至开机结束所花时间
+   
 2. 
 
    journalctl -u nginx18.service                       查看指定服务的日志
@@ -1954,7 +1959,30 @@ systemd-analyze critical-chain nginx18.service      查看指定服务的启动�
 
 `systemd-analyze verify proclient.service` 检查proclient 服务的编写有无问题
 
+## samba 挂载（同步）win共享文件夹
 
+1. `yay -S samba`   archlinux配置与windows文件共享
+
+- ~~实现了，非root用户也可对共享文件进行编辑并保存，可以的~~
+- **这是因为用户属于root用户组，！！！！这种情况非常不安全，而且删除文件时没提示。。。**  
+- `yum install nfs-utils rpcbind``systemctl start|enable rpcbind|nfs`
+- 客户端(linux)，`yum install samba-client cifs-utils`  （cifs 是samba的文件系统）
+  - 测试，`smbclient -L 192.168.10.185 -Uliuzel01`
+
+```shell
+需要现在windows（主机名DESKTOP-GU5AA0B）上共享一个文件夹，文件夹路径为C:\siping\newOneFiles\file
+当然，要添加映射cat /etc/hosts
+192.168.10.214  DESKTOP-GU5AA0B
+cat /etc/fstab 
+# //DESKTOP-GU5AA0B/file /home/liuzel01/windows cifs username=liuzel01,password=Tianfuc11,guest,x-systemd.automount 0 0
+//DESKTOP-GU5AA0B/file /home/liuzel01/windows cifs x-systemd.automount,rw,iocharset=utf8,username=liuzel01,password=Tianfuc11,file_mode=0775,dir_mode=0775 0 0
+```
+
+- 前往参考，[systemd.mount中文手册](http://www.jinbuguo.com/systemd/systemd.mount.html)，[samba服务实现linux与windows相互共享资源](https://www.jianshu.com/p/830f1bd5b5e0)  ，
+
+  [configuring fstab based samba share mounts](https://discourse.osmc.tv/t/configuring-fstab-based-samba-share-mounts/38167/9),  
+
+  [systemd时代的/etc/fstab](https://www.junmajinlong.com/linux/systemd/systemd_fstab/), 
 
 # 桌面化相关
 
