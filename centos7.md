@@ -1984,6 +1984,82 @@ cat /etc/fstab
 
   [systemd时代的/etc/fstab](https://www.junmajinlong.com/linux/systemd/systemd_fstab/), 
 
+## logrotate转储日志文件
+
+ head -10000 nohup.log > nohup_Head.log  获取文件的前10000行。 tail获取文件的后10000
+
+  sed -n '1,10000' nohup.log  从第N行截取到M行
+
+  split -d -l 500 nohup.log nohup --verbose 
+
+  split -d -b 50m nohup-license.log  nohup. --verbose  每个文件50M，输出文件名 nohup.0{1..n}
+
+​    for i in `ls | grep nohup`; do q=`echo $i | awk -F '.' '{print $1$2".log"}'`; mv $i $q ;done  文件名换位 .log 后缀
+
+​    切割后的文件合并，cat nohup0*.log > nohup-l01
+
+  logrotate ，配置存放路径， /etc/logrotate.d/
+
+```
+vim /etc/logrotate.d/new_mariadb
+
+/home/data/log/maria*.log {
+  # 当日志文件为空时，不进行轮转
+  notifempty
+  # 一天执行一次rotate轮转工作
+  daily
+  # 历史文件保留目录
+  olddir /home/log_old/mysql
+  # 文件大小达到指定大小时，才会转储
+  minsize 1M 或 size=500M
+  # 保留10个日志文件（轮转几次）就是日志文件删除之前轮转的次数，0指没有备份
+  rotate 10
+  # 自动创建新的日志文件，指定权限及所属
+  create 600 mysql mysql
+  # 切割后的日志文件以当前日期为格式结尾，如：nginx.access.log-20190101
+  dateformat -%Y%m%d%s
+  # 日志时间格式
+  dateext
+  # 如果日志丢失，不报错继续滚动下一个日志
+  missingok
+  # 否开启压缩，压缩格式gzip,如xxxx.log-20222222.gz。下面表示不做gzip压缩处理
+  nocompress
+  # 在logrotate转储之后需要执行的指令，例如kill某个服务
+  postrotate
+  # just if mysqld is really running
+  if test -x /usr/bin/mysqladmin && \
+  /usr/bin/mysqladmin ping &>/dev/null
+  then
+  /usr/bin/mysqladmin --local flush-error-log \
+  flush-engine-log flush-general-log flush-slow-log
+  fi
+  endscript
+}
+```
+
+ -vfd  调试验证一下，但不进行具体操作     --debug
+
+ logrotate -fv /etc/logrotate.d/new_mariadb --force 手动强制执行日志切割
+   -v  根据日志切割设置进行操作，显示详细信息
+
+ 可参考，/etc/logrotate.d/syslog
+
+- tomcat 日志切割
+
+```
+cat /etc/logrotate.d/tomcat
+
+rotate 14
+daily 
+# 用于还在打开中的日志文件，把当前日志备份并截断。拷贝和清空之间有一个时间差，可能会丢失部分日志数据
+copytruncate
+compress
+notifempty
+missingok
+```
+
+- 参考，[linux日志切割神器](https://blog.csdn.net/yjk13703623757/article/details/119757254)  
+
 # 桌面化相关
 
 ## vnc
