@@ -1433,20 +1433,9 @@ ClientAliveCountMax 3       默认值3， 表示服务器发出请求后客户�
 
 ctrl+s 是向后搜索， 
 
-
-
-
-
-
-
-
-
-
-
-
 不过c+s 会与某些终端停止响应的快捷键(说的就是Konsole)冲突，要先屏蔽掉
 
-​	stty -ixon 写入到 /etc/bashrc 或类似文件
+​	stty -ixon 写入到 /etc/bashrc（建议， ~/.zshrc，之后备份配置文件，只需要source ~/.zshrc就可以在新电脑搞定 ）
 
 ​	stty ixany(可以不执行)
 
