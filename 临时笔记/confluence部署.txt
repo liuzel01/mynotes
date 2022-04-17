@@ -1,0 +1,60 @@
+confluence 部署
+
+服务器： 192.168.10.35
+1. 数据库  192.168.10.31 
+	root  Tianfu.C11-2001
+	
+2. 服务器ID  BNUU-1IQX-K4SA-DCO7
+
+key: 
+AAABNA0ODAoPeJxtkM1ugzAQhO9+Cks9OwomKFIkS3WMDyj8pAWq9ujSJbFEDLJN1PTpS0JziXrc3
+dmZb/epOo44UxbTFQ7WmyjahBEWZYXpklIUg2usHrzuDRO9absRTAMoH0+fYIu2dmAdIwESFtRVF
+CsP7LpJliGhKzTteNX4XJ2A/UCnDWoml8XU0mdg3o5wl8hM6Y55pS/KHJ6dHrQ5uL71i6Y/IXlW3
+XgLYK3qHMwuqW7AOKguA9wCRJFl8lUkPEWTmfFg1AQrvwdtLzNYGK5JQAmNZoP7GaIbnQeb91/g2
+BKVMmcfRY0zvpM4k5jjksd4z/OYL1BhD8poN8Po/E2XeptKXEmeoRLsGWwSs21e1yRIXt7JblVyE
+otijf5op2maxPfqf7j9aJujcvDwzV8FZIqXMC0CFDH7LhcY1awmvuld65olV8JaUJN1AhUAlSWCC
+/Ze9lyfXdQ3ZoYwDSH1a/k=X02ff
+
+3. 系统管理员账号信息
+	用户名：	admin
+	全名：		admin
+	邮件：		sipingsoft.hrms@sipingsoft.com
+	密码：		hr.siping
+	确认：		
+	首页：		http://wiki.sipingsoft.com/
+	管理员界面：		http://192.168.10.35:8090/admin/console.action
+
+
+FAQ:
+1. confluence 缓慢，字体乱码，宏乱码，编辑不能贴图，https://www.cnblogs.com/ding2016/p/8108468.html
+2. linux 搭建confluence 企业级wiki， https://www.dczzs.com/articles/2021/09/14/1631581152758.html#%E4%B8%89-%E5%AE%89%E8%A3%85Confluence
+
+1. 登录验证码显示不了
+	yum install libgcc.i686 --setopt=protected_multilib=false
+2. mysql error during install: Your database must use 'READ-COMMITTED' as the default isolation level.
+	https://community.atlassian.com/t5/Confluence-questions/MySQL-error-during-install-Your-database-must-use-READ-COMMITTED/qaq-p/705190
+3. 导出PDF  乱码
+	http://meetbychance.cn/2017/09/16/17Confluence%E5%AF%BC%E5%87%BA%E6%88%96%E9%A2%84%E8%A7%88%E6%96%87%E4%BB%B6%E4%B9%B1%E7%A0%81%E9%97%AE%E9%A2%98%E4%B8%8E%E7%AB%AF%E5%8F%A3%E9%87%8D%E5%AE%9A%E5%90%91/
+
+4. home directory 
+	vim confluence/WEB-INF/classes/confluence-init.properties'
+		 confluence.home=/home/atlassian-confluence-7.4.14/
+5. vim bin/setenv.sh
+	CATALINA_OPTS="-Djava.awt.headless=true -Dfile.encoding=UTF-8 ${CATALINA_OPTS}"
+	CATALINA_OPTS="-Dconfluence.document.conversion.fontpath=/usr/share/fonts/confluence ${CATALINA_OPTS}"
+
+6. 更改访问地址： 
+	        <Connector port="8090" connectionTimeout="20000" redirectPort="8443"
+				maxThreads="48" minSpareThreads="10"
+				enableLookups="false" acceptCount="10" debug="0" URIEncoding="UTF-8"
+				protocol="org.apache.coyote.http11.Http11NioProtocol"
+				scheme="http" proxyName="wiki.sipingsoft.com" proxyPort="80"/>
+
+
+6. 配置ssl访问
+	aliyun，申请免费证书，
+	下载。选择tomcat部署方式。根据“帮助”内的解释，来做检查
+
+
+
+

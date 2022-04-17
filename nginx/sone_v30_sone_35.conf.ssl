@@ -1,0 +1,273 @@
+server {
+	listen  80;
+	server_name sone.sipingsoft.com;
+        charset utf-8;
+		
+	location / {
+	rewrite ^(.*)$ https://$host$1 permanent;
+	}
+	}
+
+server {
+    listen 443 ssl;
+#     server_name localhost;
+     ssl_certificate ../cert/6523322_sone.sipingsoft.com.pem;
+     ssl_certificate_key ../cert/6523322_sone.sipingsoft.com.key;
+    ssl_session_timeout 5m;
+    ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE:ECDH:AES:HIGH:!NULL:!aNULL:!MD5:!ADH:!RC4;
+    ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+    ssl_prefer_server_ciphers on;
+
+    client_max_body_size 100M;
+    charset utf-8;
+
+	location / {
+                        root /home/sone/static/admin;
+                        index  index.html;
+                }
+
+	location /ps_html {
+                        alias /home/sone/static/ps_html;
+                        index index.html;
+                      }
+        location /erp_html {
+                        alias /home/sone/static/erp_html;
+                        index index.html;
+                }
+
+	location /as_html {
+		alias /home/sone/static/as_html;
+		index index.html;
+			}
+	location /gl_html {
+		alias /home/sone/static/gl_html;
+		index index.html;
+			}
+
+                location /plm_html {
+                      alias /home/sone/static/plm_html;
+              }
+                location /license_html {
+            alias /home/sone/static/license_html;
+        }
+                location /hr_html {
+                        alias /home/sone/static/hr_html;
+                }
+                location /crm_html {
+                        alias /home/sone/static/crm_html;
+                }
+                location /ap_html {
+                        alias /home/sone/static/ap_html;
+                }
+                location /cc_v2_html {
+                        alias /home/sone/static/cc_v2_html;
+                }
+                location /admin {
+                        proxy_set_header Upgrade $http_upgrade;
+                        proxy_set_header Connection "upgrade";
+                        if ($request_method = 'OPTIONS') {
+                                add_header 'Access-Control-Allow-Origin' '*' always;
+                                add_header 'Access-Control-Allow-Credentials' 'true';
+                                add_header 'Access-Control-Allow-Methods' 'GET, POST, PATCH, DELETE, PUT, OPTIONS';
+                                add_header 'Access-Control-Allow-Headers' 'DNT,X-Mx-ReqToken,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,  Access-Control-Expose-Headers, Token, Authorization';
+                                add_header 'Access-Control-Max-Age' 1728000;
+                                add_header 'Content-Type' 'text/plain charset=UTF-8';
+                                add_header 'Content-Length' 0;
+                                return 204;
+                }
+                         sub_filter_once off;
+                         sub_filter_types *;
+                         sub_filter 'http://192.168.10.31:9000' 'http://sone.sipingsoft.com/api_minio';
+                         add_header 'Access-Control-Allow-Origin' '*' always;
+                        proxy_set_header Host $host;
+                        proxy_set_header X-Real-IP $remote_addr;
+                        proxy_set_header X-Forwarded-Host $host;
+                        proxy_set_header X-Forwarded-Server $host;
+                        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                        proxy_set_header X-Forwarded-Proto $scheme;
+                        proxy_pass http://businessNodes;
+                        #proxy_redirect off;
+
+                }
+        location /minio {
+                    proxy_set_header Host $host;
+                    proxy_set_header X-Real-IP $remote_addr;
+                    proxy_set_header X-Forwarded-Host $host;
+                    proxy_set_header X-Forwarded-Server $host;
+                    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                    proxy_set_header X-Forwarded-Proto $scheme;
+                    proxy_pass http://192.168.10.31:9000;
+                   #proxy_redirect off;
+                }
+
+                location ^~/api_minio {
+                proxy_set_header Host 192.168.10.31:9000;
+                rewrite ^/api_minio/(.*)$ /$1 break;
+                proxy_pass http://192.168.10.31:9000;
+        }
+
+        location /code {
+			proxy_set_header Host $host;
+                        proxy_set_header X-Real-IP $remote_addr;
+                        proxy_set_header X-Forwarded-Host $host;
+                        proxy_set_header X-Forwarded-Server $host;
+                        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                        proxy_set_header X-Forwarded-Proto $scheme;
+                        proxy_pass http://businessNodes;
+                }
+	location /auth {
+                        proxy_set_header Host $host;
+                        proxy_set_header X-Real-IP $remote_addr;
+                        proxy_set_header X-Forwarded-Host $host;
+                        proxy_set_header X-Forwarded-Server $host;
+                        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                        proxy_set_header X-Forwarded-Proto $scheme;
+                        proxy_pass http://businessNodes;
+                        #proxy_redirect off;
+                }
+	location /plm {
+                        proxy_set_header Host $host;
+                        proxy_set_header X-Real-IP $remote_addr;
+                        proxy_set_header X-Forwarded-Host $host;
+                        proxy_set_header X-Forwarded-Server $host;
+                        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                        proxy_set_header X-Forwarded-Proto $scheme;
+                        proxy_pass http://businessNodes;
+                        #proxy_redirect off;
+                }       
+	location /erp {
+			proxy_set_header Upgrade $http_upgrade;
+                        proxy_set_header Connection "upgrade";                        
+			proxy_set_header Host $host;
+                        proxy_set_header X-Real-IP $remote_addr;
+                        proxy_set_header X-Forwarded-Host $host;
+                        proxy_set_header X-Forwarded-Server $host;
+                        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                        proxy_set_header X-Forwarded-Proto $scheme;
+                        proxy_pass http://businessNodes;
+                        
+                }
+		location /ps {
+			proxy_set_header Host $host; 
+			proxy_set_header X-Real-IP $remote_addr;
+			proxy_set_header X-Forwarded-Host $host; 
+			proxy_set_header X-Forwarded-Server $host;
+			proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; 
+			proxy_set_header X-Forwarded-Proto $scheme; 
+			proxy_pass http://businessNodes;
+			
+		}
+                location /as {
+                      proxy_set_header Host $host;
+                      proxy_set_header X-Real-IP $remote_addr;
+                      proxy_set_header X-Forwarded-Host $host;
+                      proxy_set_header X-Forwarded-Server $host;
+                      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                      proxy_set_header X-Forwarded-Proto $scheme;
+                      proxy_pass http://businessNodes;
+                      #proxy_redirect off;
+                    }
+                location /gl {
+                  proxy_set_header Host $host;
+                  proxy_set_header X-Real-IP $remote_addr;
+                  proxy_set_header X-Forwarded-Host $host;
+                  proxy_set_header X-Forwarded-Server $host;
+                  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                  proxy_set_header X-Forwarded-Proto $scheme;
+                  proxy_pass http://businessNodes;
+                  #proxy_redirect off;
+                }
+                location /hr {
+                  proxy_set_header Host $host;
+                  proxy_set_header X-Real-IP $remote_addr;
+                  proxy_set_header X-Forwarded-Host $host;
+                  proxy_set_header X-Forwarded-Server $host;
+                  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                  proxy_set_header X-Forwarded-Proto $scheme;
+                  proxy_pass http://businessNodes;
+                  #proxy_redirect off;
+                }
+                location /crm-sks {
+                        if ($request_method = 'OPTIONS') {
+                add_header 'Access-Control-Allow-Origin' '*' always;
+                add_header 'Access-Control-Allow-Credentials' 'true';
+                add_header 'Access-Control-Allow-Methods' 'GET, POST, PATCH, DELETE, PUT, OPTIONS';
+                add_header 'Access-Control-Allow-Headers' 'DNT,X-Mx-ReqToken,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,  Access-Control-Expose-Headers, Token, Authorization';
+                add_header 'Access-Control-Max-Age' 1728000;
+                add_header 'Content-Type' 'text/plain charset=UTF-8';
+                add_header 'Content-Length' 0;
+                return 204;
+                }
+                        add_header 'Access-Control-Allow-Origin' '*' always;
+                        proxy_set_header Host $host;
+                        proxy_set_header X-Real-IP $remote_addr;
+                        proxy_set_header X-Forwarded-Host $host;
+                        proxy_set_header X-Forwarded-Server $host;
+                        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                        proxy_set_header X-Forwarded-Proto $scheme;
+                        proxy_pass http://businessNodes;
+                        #proxy_redirect off;
+                }
+                location /ar {
+                  proxy_set_header Host $host;
+                  proxy_set_header X-Real-IP $remote_addr;
+                  proxy_set_header X-Forwarded-Host $host;
+                  proxy_set_header X-Forwarded-Server $host;
+                  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                  proxy_set_header X-Forwarded-Proto $scheme;
+                  proxy_pass http://businessNodes;
+                  #proxy_redirect off;
+                }
+                location /ap {
+                  proxy_set_header Host $host;
+                  proxy_set_header X-Real-IP $remote_addr;
+                  proxy_set_header X-Forwarded-Host $host;
+                  proxy_set_header X-Forwarded-Server $host;
+                  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                  proxy_set_header X-Forwarded-Proto $scheme;
+                  proxy_pass http://businessNodes;
+                  #proxy_redirect off;
+                }
+                location /cc_v2 {
+                  proxy_set_header Host $host;
+                  proxy_set_header X-Real-IP $remote_addr;
+                  proxy_set_header X-Forwarded-Host $host;
+                  proxy_set_header X-Forwarded-Server $host;
+                  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                  proxy_set_header X-Forwarded-Proto $scheme;
+                  proxy_pass http://businessNodes;
+                  #proxy_redirect off;
+                }
+                location /co {
+                  proxy_set_header Host $host;
+                  proxy_set_header X-Real-IP $remote_addr;
+                  proxy_set_header X-Forwarded-Host $host;
+                  proxy_set_header X-Forwarded-Server $host;
+                  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                  proxy_set_header X-Forwarded-Proto $scheme;
+                  proxy_pass http://businessNodes;
+                  #proxy_redirect off;
+                }
+                location /ajs {
+                  proxy_set_header Host $host;
+                  proxy_set_header X-Real-IP $remote_addr;
+                  proxy_set_header X-Forwarded-Host $host;
+                  proxy_set_header X-Forwarded-Server $host;
+                  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                  proxy_set_header X-Forwarded-Proto $scheme;
+                  proxy_pass http://businessNodes;
+                  #proxy_redirect off;
+                }
+                location /license {
+                  proxy_set_header Host $host;
+                  proxy_set_header X-Real-IP $remote_addr;
+                  proxy_set_header X-Forwarded-Host $host;
+                  proxy_set_header X-Forwarded-Server $host;
+                  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                  proxy_set_header X-Forwarded-Proto $scheme;
+                  proxy_pass http://businessNodes;
+                  #proxy_redirect off;
+                }
+
+}
+

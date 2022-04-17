@@ -1,0 +1,46 @@
+useradd  -M -s /sbin/nologin mysql
+mkdir -p /usr/local/data/{mysql,log}
+
+chown -R mysql: /usr/local/mariadb/ && chown -R mysql: /usr/local/data/
+
+
+[mysqld]
+symbolic-links=0
+
+datadir=/usr/local/data/mysql/
+socket=/usr/local/mariadb/mariadb.sock
+
+[mysqld_safe]
+
+log-error=/usr/local/data/log/mariadb.log
+pid-file=/usr/local/data/mysql/mariadb.pid
+!includedir /etc/my.cnf.d
+
+
+
+cp /usr/local/mariadb/support-files/mysql.server  /etc/init.d/mysqld
+vim /etc/init.d/mysqld
+
+basedir=/usr/local/mariadb/
+datadir=/usr/local/data/mysql/
+
+
+/usr/local/mariadb/scripts/mysql_install_db  --datadir=/usr/local/data/mysql/ --basedir=/usr/local/mariadb/ --user=mysql --defaults-file=/etc/my.cnf
+
+ln -sf /usr/local/mariadb/bin/mysql /usr/bin/
+echo "export PATH=$PATH:/usr/local/mariadb/bin" >> /etc/profile
+source /etc/profile
+
+./mysqld status 
+./mysqld stop
+启动前，注意权限 chown
+
+ln -sf /usr/local/mariadb/mariadb.sock /tmp/mysql.sock
+
+
+
+
+mysqladmin -uroot password "sipingsoft";    修改root密码
+grant all privileges on *.* to 'root'@'%' identified by 'sipingsoft';
+flush privileges;
+select user,host,password from mysql.user;

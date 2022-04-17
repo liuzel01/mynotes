@@ -924,6 +924,18 @@ gathering = explicit
 
 ## ansible的日常维护使用
 
+1. 检查yml 文件语法
+   ansible-playbook qqq.yml --syntax-check
+   ansible test_var -a 'tail -n 3 /etc/shadow'
+   tags 模块：
+      ansible-playbook qqq.yml --tags="only"
+      只执行某一个task或多个task
+   
+   当有使用always 当tags的task时，无论执行哪一个tags时，定义有always的tags的都会执行
+
+2. 使用变量来执行剧本，
+   ansible-playbook qqq.yml -e "user=sipingsoft123"
+   
 ##### 利用ssh-agent提升ansible管控的安全性
 
 - 可参考，[使用ssh和ssh-agent实现无密码登陆远程server](http://yysfire.github.io/linux/using-ssh-agent-with-ssh.html)，  

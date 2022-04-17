@@ -1,0 +1,93 @@
+192.168.10.28
+	siping123QWER
+
+kibana密码： 
+http://192.168.10.28:5601/app/home#/
+elastic    siping123QWER
+
+修改es密码：
+curl -H "Content-Type:application/json" -XPOST -u elastic 'http://192.168.10.52:9200/_xpack/security/user/elastic/_password' -d '{ "password" : "siping123QWER" }'
+http://192.168.10.28:9200/
+kibana    siping123QWER
+
+192.168.10.52
+	siping123QWER
+
+117.176.204.127
+
+curl -H "Content-Type:application/json" -XPOST -u elastic 'http://192.168.71.21:9200/_xpack/security/user/elastic/_password' -d '{ "password" : "siping123QWER" }'
+
+
+http://192.168.10.28:9100/?auth_user=elastic&auth_password=siping123QWER
+192.168.10.28:9200   elastic  siping123QWER
+192.168.10.28:5601   elastic  siping123QWER
+测试
+http://117.176.204.127:9100/?auth_user=elastic&auth_password=siping123QWER
+http://117.176.204.127:5601/login?next=%2F
+正式
+http://117.176.204.127:9101/?auth_user=elastic&auth_password=siping123QWER
+http://117.176.204.127:5602/app/home#/
+
+
+http://192.168.10.42:9100/?auth_user=elastic&auth_password=siping123QWER
+192.168.10.42:9200    elastic    siping123QWER
+192.168.10.42:5601    elastic    siping123QWER 
+
+参考手册
+	xpack配置TLS 和身份验证
+		https://www.shuzhiduo.com/A/VGzlwalYdb/		
+	https://elasticsearch.cn/question/11517
+	elasticsearch-head 部署参考，对应端口9100
+		https://github.com/mobz/elasticsearch-head
+		但是npm install 过程中，会报错，提示下载文件不成功，需要将文件，手动放置到对应的目录下， phantomjs-2.1.1-linux-x86_64.tar.bz2
+		
+安装包路径，
+	服务器： 192.168.10.27
+	/usr/src/elasticsearch-head-5.0.0.tar.gz
+	/usr/src/elasticsearch-7.10.1-linux-x86_64.tar.gz
+	/usr/src/kibana-7.10.1-linux-x86_64.tar.gz
+
+FAQ: 
+useradd es 
+usermod -g root es 
+！！！！启动elastic-head  (要先启动，在启动elasticsearch)
+npm run start &
+
+1.1 建议检查文件 /etc/security/limits.conf 是否满足启动条件
+	* soft nofile 65536
+	* hard nofile 65536
+	* soft nproc 4096
+	* hard nproc 4096
+	不需要重启系统，当前用户注销、重新登录即可
+
+2. elasticsearch.yml 添加以下配置
+	xpack.security.enabled: true
+	xpack.security.transport.ssl.enabled: true
+	xpack.security.transport.ssl.verification_mode: certificate
+	xpack.security.transport.ssl.keystore.path: elastic-certificates.p12
+	xpack.security.transport.ssl.truststore.path: elastic-certificates.p12
+
+	http.cors.enabled: true
+	http.cors.allow-origin: "*"
+	http.cors.allow-headers: Authorization,X-Requested-With,Content-Length,Content-Type
+
+	cluster.name: es-sp
+	node.name: "es-node1"
+	cluster.initial_master_nodes: [ "es-node1" ]
+	path.data: /home/es/elasticsearch-7.10.1/data
+	path.logs: /home/es/elasticsearch-7.10.1/logs
+
+	discovery.zen.minimum_master_nodes: 1
+	network.host: 0.0.0.0
+	启动后，查看日志：
+		tail -f /home/es/elasticsearch-7.10.1/logs/es-sp.log
+3. kibana.yml 添加配置
+	server.port: 5601
+	server.host: "0.0.0.0"
+	elasticsearch.hosts: [ "http://192.168.10.28:9200/" ]
+	elasticsearch.requestTimeout: 90000
+	elasticsearch.username: "elastic"
+	elasticsearch.password: "siping123QWER"
+	i18n.locale: "zh-CN"
+	启动后，查看日志：
+		tail -f /home/es/kibana-7.10.1-linux-x86_64/start.out
