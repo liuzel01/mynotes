@@ -1,0 +1,91 @@
+/home/moni
+├── alertmanager
+│   ├── alertmanager.yml
+│   ├── db
+│   │   ├── nflog
+│   │   └── silences
+│   └── templates
+├── blackbox-exporter
+│   └── config
+│       └── blackbox.yml
+├── grafana-storage
+│   ├── csv
+│   ├── grafana.db
+│   ├── plugins
+│   └── png
+└── prometheus
+    ├── db
+    │   ├── 01FBJGQTZDJ39M7EJX4R5YBTKK
+    │   │   ├── chunks
+    │   │   │   └── 000001
+    │   │   ├── index
+    │   │   ├── meta.json
+    │   │   └── tombstones
+    │   ├── 01FBRGYKW9W7VV9YZACV5MS2CG
+    │   │   ├── chunks
+    │   │   │   └── 000001
+    │   │   ├── index
+    │   │   ├── meta.json
+    │   │   └── tombstones
+    │   ├── 01FBT10NRA219Y2RVXAJSE4XGD
+    │   │   ├── chunks
+    │   │   │   └── 000001
+    │   │   ├── index
+    │   │   ├── meta.json
+    │   │   └── tombstones
+    │   ├── 01FBT7WD0AYF9WHN094SEE3NBN
+    │   │   ├── chunks
+    │   │   │   └── 000001
+    │   │   ├── index
+    │   │   ├── meta.json
+    │   │   └── tombstones
+    │   ├── 01FBT7WFNTYDV0YTP32K9EPH0S
+    │   │   ├── chunks
+    │   │   │   └── 000001
+    │   │   ├── index
+    │   │   ├── meta.json
+    │   │   └── tombstones
+    │   ├── 01FBTER48CGVMP0JGCE34102TK
+    │   │   ├── chunks
+    │   │   │   └── 000001
+    │   │   ├── index
+    │   │   ├── meta.json
+    │   │   └── tombstones
+    │   ├── 01FBTNKVGEP02DM3TR3DC5ZACJ
+    │   │   ├── chunks
+    │   │   │   └── 000001
+    │   │   ├── index
+    │   │   ├── meta.json
+    │   │   └── tombstones
+    │   ├── chunks_head
+    │   │   ├── 000057
+    │   │   ├── 000058
+    │   │   ├── 000059
+    │   │   ├── 000060
+    │   │   ├── 000061
+    │   │   └── 000062
+    │   ├── lock
+    │   ├── queries.active
+    │   └── wal
+    │       ├── 00000073
+    │       ├── 00000074
+    │       ├── 00000075
+    │       ├── 00000076
+    │       ├── 00000077
+    │       ├── 00000078
+    │       ├── 00000079
+    │       └── checkpoint.00000072
+    │           └── 00000000
+    └── prometheus
+        ├── prometheus.yml
+        ├── rules
+        │   ├── docker_monitor.yml
+        │   ├── node_alerts.yml.bak
+        │   └── node.yml
+        └── sd_files
+            ├── siping_intranet.yml
+            ├── xz_server_host_主机存活.yml
+            ├── xz_server_port_端口存活.yml
+            └── xz_web_检测网站.yml
+
+31 directories, 57 files

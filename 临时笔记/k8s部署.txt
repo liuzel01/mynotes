@@ -6,12 +6,10 @@ yum install kubelet kubeadm kubectl
 docker pull registry.cn-hangzhou.aliyuncs.com/google_containers/kube-apiserver-amd64:v1.23.0
 docker pull registry.cn-hangzhou.aliyuncs.com/google_containers/kube-controller-manager-amd64:v1.23.0
 docker pull registry.cn-hangzhou.aliyuncs.com/google_containers/kube-scheduler-amd64:v1.23.0
-docker pull registry.cn-hangzhou.aliyuncs.com/google_containers/kube-proxy-amd64:v1.23.0
-docker pull registry.cn-hangzhou.aliyuncs.com/google_containers/pause:3.6
 docker pull registry.cn-hangzhou.aliyuncs.com/google_containers/etcd:3.5.1-0
-docker pull registry.cn-hangzhou.aliyuncs.com/google_containers/coredns:1.8.6
-
-docker pull registry.cn-hangzhou.aliyuncs.com/google_containers/coredns:1.8.6
+docker pull registry.cn-hangzhou.aliyuncs.com/google_containers/kube-proxy-amd64:v1.23.0        node也需要
+docker pull registry.cn-hangzhou.aliyuncs.com/google_containers/pause:3.6                       node也需要
+docker pull registry.cn-hangzhou.aliyuncs.com/google_containers/coredns:1.8.6                   node也需要
 
 docker tag registry.cn-hangzhou.aliyuncs.com/google_containers/kube-scheduler-amd64:v1.20.0 k8s.gcr.io/kube-scheduler:v1.20.0
 docker tag registry.cn-hangzhou.aliyuncs.com/google_containers/kube-controller-manager-amd64:v1.20.0 k8s.gcr.io/kube-controller-manager:v1.20.0
@@ -21,7 +19,7 @@ docker tag registry.cn-hangzhou.aliyuncs.com/google_containers/pause:3.6 k8s.gcr
 docker tag registry.cn-hangzhou.aliyuncs.com/google_containers/etcd:3.5.1-0 k8s.gcr.io/etcd:3.5.1-0
 docker tag registry.cn-hangzhou.aliyuncs.com/google_containers/coredns:1.8.6 k8s.gcr.io/coredns/coredns:v1.8.6
 
-生成了如下指令：（给master节点添加更多worker节点）
+生成了如下指令：（给master节点添加更多worker节点）（不是这一个token了）
 	kubeadm join 192.168.10.103:6443 --token i606d6.bt8ufy1h93wwztvw \
 	--discovery-token-ca-cert-hash sha256:49bfd4ed43ce1646a08e9e77ac25774faa22e295e9cd3655216f52994071ad54
 
@@ -30,7 +28,7 @@ kubectl  describe node pptclient01		查看该节点下node的详细信息， 用
 kubectl get pods -n kube-system			检查该节点上各个k8s系统pod的状态
 接着，部署网络插件
 	首先，从github下载镜像，并导入到docker，docker load < flanneld-v0.17.0-amd64.docker	（否则，，weave-net会一直pending）
-	kubectl apply -f https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')
+	kubectl apply -f https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')     可将文件先下载下来
 
 worker 节点：
     需要pull pause， coredns镜像
@@ -52,7 +50,13 @@ master 上执行： 手工添加worker节点的ROLES 信息
 	再次 get nodes 就能看到正常显示
 
 worker上执行，部署可视化插件
-	kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.3/aio/deploy/recommended.yaml
+	kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.3/aio/deploy/recommended.yaml      版本不对，所以ui展示上会有错
+        yaml文件下载地址，https://raw.githubusercontent.com/kubernetes/dashboard/v2.5.1/aio/deploy/recommended.yaml
+    docker pull kubernetesui/dashboard:v2.5.1
+    docker pull kubernetesui/metrics-scraper:v1.0.7
+    kubectl get deploy --all-namespaces
+        kubectl get services --all-namespaces
+
 	kubectl get pods -n kubernetes-dashboard		查看dashboard对应的pod运行状态
 	kubectl get services -A		查看所有服务
 	kubectl describe -n kubernetes-dashboard service kubernetes-dashboard		查看某一个service 的端口等信息
@@ -63,8 +67,11 @@ worker上执行，部署可视化插件
 	kubectl apply -f dashboard-clusterRoleBingding.yaml		创建cluster role
 	获取bearer token
 		kubectl -n kubernetes-dashboard describe secret $(kubectl -n kubernetes-dashboard get secret | grep admin-user | awk '{print $1}')
+            kubectl  -n kube-system get secret -n kube-system -o name  | grep namespace
+            kubectl -n kube-system describe secret/namespace-controller-token-97r9l | grep token        注意如果token不对，看到的也不一样了
 		token: eyJhbGciOiJSUzI1NiIsImtpZCI6ImdPSzhTU1VqbzEySHh0Tk94Z2xiRll4LW40R0FEbWI0b0tKOXRNZnZvazgifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJrdWJlcm5ldGVzLWRhc2hib2FyZCIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJhZG1pbi11c2VyLXRva2VuLXBodnNyIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQubmFtZSI6ImFkbWluLXVzZXIiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC51aWQiOiI3NTdkMWJhYS0yYjMwLTRhMmMtODJlMy05NjhmYTc1YzA3N2UiLCJzdWIiOiJzeXN0ZW06c2VydmljZWFjY291bnQ6a3ViZXJuZXRlcy1kYXNoYm9hcmQ6YWRtaW4tdXNlciJ9.YjKl1EmzW_gmupk0fmeFDKePPwQIRZ5ld9r6SHBe9J4d4PTO34dUoYOOjleuxN-8XeTwznR-l9W1ihZX4JkczZXkxcGJozFVKGceIccuJF2GDhDKCF0snysxxtmuSGx-YSAvXjKl1sze-Dv1h_HNTvcP4RPBFhteeuzsx4-ub69GynYfd7Oy7-A36F6IqxgfWhHM-giCLwdHcIHFqyo9zR2jQyifqE3nFFJ9GA0ot47K7mXe0vMoW5Rp-Z3Zg2HTQa9aLnVtiCbK_IhZj1nA4VwAU-x4H9XGoJwOtkAblDKyTJMK27jh2hRJim6Gm-MZWfDbGAenIQfkP1f1TuknJQ
-	
+        kubectl logs -f kubernetes-dashboard-5bd89d988-jgs6s -n kubernetes-dashboard        查看dashboard的pod 日志
+
 	查看svc 名称，		kubectl get svc -n kubernetes-dashboard
 	修改ingress配置后，不需启动proxy。可直接通过下面地址访问
 		https://192.168.10.27:30000/
@@ -72,10 +79,11 @@ worker上执行，部署可视化插件
 	kubectl describe node pptclient01 | grep -i taints		通过打上污点，NoSchedule 意味着所有pod不能在此节点上运行
 		kubectl taint nodes --all node-role.kubernetes.io/master-		表示移除所有以该键为键的taint
 
-	防止过期，需要重新生成token
-    kubeadm join 192.168.10.103:6443 --token ldj4bj.dnd70qfyvpoo4cgd --discovery-token-ca-cert-hash sha256:49bfd4ed43ce1646a08e9e77ac25774faa22e295e9cd3655216f52994071ad54
+	防止过期，需要重新生成token（也可生成永不过期的）
+        kubeadm token create --print-join-command
+        kubeadm join 192.168.10.103:6443 --token ldj4bj.dnd70qfyvpoo4cgd --discovery-token-ca-cert-hash sha256:49bfd4ed43ce1646a08e9e77ac25774faa22e295e9cd3655216f52994071ad54
 
-    systemctl daemon-reload ;systemctl restart docker ;systemctl restart kubelet.service		重启集群
+    systemctl daemon-reload ;systemctl restart docker ;systemctl restart kubelet.service		重启集群。 在升级kubeadm版本后，运行此命令可完成升级
     kubectl get namespaces      查看所有ns
         kubectl create namespace prod       创建命名空间
         kubectl apply -f ./nginx-rc.yaml        创建nginx服务pod
@@ -97,7 +105,9 @@ worker上执行，部署可视化插件
         kubectl rollout pause deployment test-k8s  resume 暂停、恢复
         kubectl get deployment test-k8s -o yaml >> app2.yaml        输出到一个文件
         kubectl delete all --all        删除全部资源
-
+        kubectl delete pod --all -n prod  --grace-period=0 --force      强制删除 prod 命名空间下的所有pod
+        kubectl delete ns kubernetes-dashboard --force --grace-period=0
+    kubectl  describe pod kube-proxy-z8cdm  -n kube-system      查看某个命名空间的某个pod，
 
     kubectl get all  -n prod
         kubectl rollout restart deployment test-k8s     重新部署下
@@ -106,6 +116,16 @@ worker上执行，部署可视化插件
     node节点： mkdir -p ~/.kube 
         cp admin.conf ~/.kube/config 
     journalctl -f -u kubelet        查看日志
+
+    kubectx kubens 管理、切换集群和命名空间
+    kubectl  replace --force -f nginx_new.yml        镜像有更改，强行替换旧的pods，进行升级、更新（单一pod）
+        灰度发布，
+
+    测试k8s集群：
+        部署nginx进行测试
+        kubectl create deployment nginx --image=nginx
+        kubectl expose deployment nginx --port=80 --type=NodePort
+        kubectl get svc 
 
 2. service 特性：
     1. 通过label关联对应的pod
@@ -119,16 +139,79 @@ worker上执行，部署可视化插件
 
 3. StatefuSet
     用来管理有状态的应用，例如数据库
+    service 的cluster-ip 是空的，pod名字也是固定的
+    pod创建和销毁是有序的，创建时顺序，销毁时逆序
+    pod重建不会改变名字，除了ip，所以不要用ip直连
+
+    kubectl apply -f ./mongo.yml
+    kubectl get svc
+    kubectl get statefulset
+    kubectl describe statefulset        查看具体信息
+    kubectl apply -f ./mongo.yml        扩充到10个，重新部署
+    kubectl get pods -owide                  再减少成3个，销毁的时候逆序的
+        kubectl get pods -A -owide | grep mongo
+        kubectl run mongodb-client --rm --tty -i --restart='Never' --image docker.io/bitnami/mongodb:4.4.10-debian-10-r20 --command -- bash     临时启动容器来连接
+            mongo --host mongodb-0.mongodb 通过hostname+服务名，访问不同的pod
+
+4. 数据持久化
+    1. 本地磁盘。       可以挂载某个节点上的目录，但这需要限定pod在这个节点上运行（不推荐了。不适用多节点集群）
+    2. 云存储。     不限定节点，不受集群影响，安全稳定。需要云服务商提供
+    3. NFS。        不限定节点，不受集群影响
+
+    kubectl exec -it mongodb-client -- bash
+    mongo --host mongodb-0.mongodb      连接进入数据库，新增一条数据进行测试
+    kubectl rollout restart statefulset  mongodb        重启pod-mongodb 进行测试，成功
+    kubectl delete statefulset mongodb      将mongodb-0删除，
+        kubectl apply -f ./mongo.yaml       重新部署，测试数据是否在
+
+5. rc 功能
+    kubectl scale rc nginxrc --replicas=2    手动扩容、缩容（自愈）
+    kubectl create -f 
+    kubectl replace -f 
+    kubectl get rc 
+    kubectl scale rc RCNAME --replicas=2
+    kubectl rolling-update OLDRCNAME -f NEWRCFILE --update-period=5s
+    kubectl rolling-update OLDRCNAME NEWRCNAME --rollback 
+6. deployment 滚动升级
+    kubectl set image deployment/nginx nginx=10.0.0.11:5000/oldguo/nginx:v1
+    kubectl rollout undo deployment/nginx 
+
+7. pod的自动伸缩, HPA，根据业务压力自动创建pod数目
+    kubectl autoscale deployment nginx --min=2 --max=6 --cpu-percent=80     cpu使用率到80，最小数目2个最多6个
+    kuebctl get horizontalpodautoscalers 
+    kubectl edit horizontalpodautoscalers nginx         在线修改配置
+
+8. 
+    kubectl  create -f k8s_nginx_svc.yml
+PV和PVC的应用（共享类存储）
+    kubectl create -f nfs-pvc-mysql.yml
+    kubectl create -f nfs-pvc-wp.yml
+    kubectl get pvc
+
+以上，可以成为无状态的服务。其余需要持久化的应用、存储，则需要另外的
 
 
+==========
+1. 实践--搭建站点，wordpress
+    
+    kubectl get svc | grep mysql        查看mysql连接地址，
 
 FAQ: 
     将主节点的admin.conf scp 到从节点的配置目录下，解决kubectl 无法运行的问题
+    2. 搭建gitlab，无法用ip访问仓库地址，
+        编辑配置文件，vim gitlab.rb
+        external_url 'http://192.168.10.27:8000'
+        nginx['listen_port'] = 80
+    3. node节点在加入master时，一直提示，
+        [kubelet-check] The HTTP call equal to 'curl -sSL http://localhost:10248/healthz' failed with error: Get "http://localhost:10248/healthz": dial tcp [::1]:10248: connect: connection refused
+    之前我的Docker是用yum安装的，docker的cgroup驱动程序默认设置为systemd。默认情况下Kubernetes cgroup为system，我们需要更改Docker cgroup驱动，
+
+
 检查yaml语法：
 	http://www.yamllint.com/
 
 参考：1. 使用kubeadm安装部署k8s， https://article.itxueyuan.com/vr0G9
     centos7 部署k8s集群， https://luckymrwang.github.io/2021/04/25/CentOS7-%E9%83%A8%E7%BD%B2K8S%E9%9B%86%E7%BE%A4/
-
-
-    
+    文档，https://k8s.easydoc.net/docs/dRiQjyTY/28366845/6GiNOzyZ/mJvk9q5z
+    k8s+gitlab+jenkins: https://www.openjq.com/thread-28323-1-1.html
+    k8s集群部署gitlab， https://blog.accepted.fun/2021/12/18/Kubernetes%E9%9B%86%E7%BE%A4%E9%83%A8%E7%BD%B2gitlab/

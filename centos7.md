@@ -1991,7 +1991,7 @@ cat /etc/fstab
 
   sed -n '1,10000' nohup.log  从第N行截取到M行
 
-  split -d -l 500 nohup.log nohup --verbose 
+  split -d -l 500 nohup.log nohup --verbose
 
   split -d -b 50m nohup-license.log  nohup. --verbose  每个文件50M，输出文件名 nohup.0{1..n}
 
