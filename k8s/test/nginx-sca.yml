@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: nginx
+  name: nginx
+  namespace: app
+spec:
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+# 因为镜像地址是本地的，所以其他节点访问不到，需要指定节点
+      nodeName: pptclient02
+      containers:
+      - 
+        image: nginx_v21_l01:v1
+        imagePullPolicy: IfNotPresent
+        name: nginx
