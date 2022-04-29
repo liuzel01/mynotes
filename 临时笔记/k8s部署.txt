@@ -55,11 +55,11 @@ worker上执行，部署可视化插件
     docker pull kubernetesui/dashboard:v2.5.1
     docker pull kubernetesui/metrics-scraper:v1.0.7
     kubectl get deploy --all-namespaces
-        kubectl get services --all-namespaces
+        kubectl get svc --all-namespaces
 
 	kubectl get pods -n kubernetes-dashboard		查看dashboard对应的pod运行状态
-	kubectl get services -A		查看所有服务
-	kubectl describe -n kubernetes-dashboard service kubernetes-dashboard		查看某一个service 的端口等信息
+	kubectl get svc -A		查看所有服务
+	kubectl describe svc kubernetes-dashboard -n kubernetes-dashboard       查看某一个service 的端口等信息
 	kubectl port-forward -n kubernetes-dashboard service/kubernetes-dashboard 8080:443 --address='0.0.0.0'
 	kubectl proxy 
 	通过访问执行上一条命令的服务器ip，如下 https://192.168.10.27:8443/#/login
@@ -67,7 +67,7 @@ worker上执行，部署可视化插件
 	kubectl apply -f dashboard-clusterRoleBingding.yaml		创建cluster role
 	获取bearer token
 		kubectl -n kubernetes-dashboard describe secret $(kubectl -n kubernetes-dashboard get secret | grep admin-user | awk '{print $1}')
-            kubectl  -n kube-system get secret -n kube-system -o name  | grep namespace
+            $(kubectl  -n kube-system get secret -n kube-system -o name  | grep namespace)
             kubectl -n kube-system describe secret/namespace-controller-token-97r9l | grep token        注意如果token不对，看到的也不一样了
 		token: eyJhbGciOiJSUzI1NiIsImtpZCI6ImdPSzhTU1VqbzEySHh0Tk94Z2xiRll4LW40R0FEbWI0b0tKOXRNZnZvazgifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJrdWJlcm5ldGVzLWRhc2hib2FyZCIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJhZG1pbi11c2VyLXRva2VuLXBodnNyIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQubmFtZSI6ImFkbWluLXVzZXIiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC51aWQiOiI3NTdkMWJhYS0yYjMwLTRhMmMtODJlMy05NjhmYTc1YzA3N2UiLCJzdWIiOiJzeXN0ZW06c2VydmljZWFjY291bnQ6a3ViZXJuZXRlcy1kYXNoYm9hcmQ6YWRtaW4tdXNlciJ9.YjKl1EmzW_gmupk0fmeFDKePPwQIRZ5ld9r6SHBe9J4d4PTO34dUoYOOjleuxN-8XeTwznR-l9W1ihZX4JkczZXkxcGJozFVKGceIccuJF2GDhDKCF0snysxxtmuSGx-YSAvXjKl1sze-Dv1h_HNTvcP4RPBFhteeuzsx4-ub69GynYfd7Oy7-A36F6IqxgfWhHM-giCLwdHcIHFqyo9zR2jQyifqE3nFFJ9GA0ot47K7mXe0vMoW5Rp-Z3Zg2HTQa9aLnVtiCbK_IhZj1nA4VwAU-x4H9XGoJwOtkAblDKyTJMK27jh2hRJim6Gm-MZWfDbGAenIQfkP1f1TuknJQ
         kubectl logs -f kubernetes-dashboard-5bd89d988-jgs6s -n kubernetes-dashboard        查看dashboard的pod 日志
@@ -84,14 +84,14 @@ worker上执行，部署可视化插件
         kubeadm join 192.168.10.103:6443 --token ldj4bj.dnd70qfyvpoo4cgd --discovery-token-ca-cert-hash sha256:49bfd4ed43ce1646a08e9e77ac25774faa22e295e9cd3655216f52994071ad54
 
     systemctl daemon-reload ;systemctl restart docker ;systemctl restart kubelet.service		重启集群。 在升级kubeadm版本后，运行此命令可完成升级
-    kubectl get namespaces      查看所有ns
+    kubectl get ns      查看ns
         kubectl create namespace prod       创建命名空间
         kubectl apply -f ./nginx-rc.yaml        创建nginx服务pod
         kubectl get pods -n prod        查看该命名空间下所有的pods
         kubectl get pods -n prod -owide  查看详细信息  IP
-        kubectl logs -n prod web-5d8c97697b-slmjh  -f       查看pods 日志
+        kubectl logs -f web-5d8c97697b-slmjh -n prod       查看pods 日志
         kubectl exec -it test-k8s -- /bin/bash      进入容器
-    kubectl get deployment  -n prod  -owide        删除pod
+    kubectl get deploy  -n prod  -owide        查看pod
 
         kubectl apply -f app.yaml
         kubectl get deployment -n prod
@@ -107,14 +107,15 @@ worker上执行，部署可视化插件
         kubectl delete all --all        删除全部资源
         kubectl delete pod --all -n prod  --grace-period=0 --force      强制删除 prod 命名空间下的所有pod
         kubectl delete ns kubernetes-dashboard --force --grace-period=0
+    只删除pod，而pod控制器还在，相当于重启该pod
     kubectl  describe pod kube-proxy-z8cdm  -n kube-system      查看某个命名空间的某个pod，
 
     kubectl get all  -n prod
         kubectl rollout restart deployment test-k8s     重新部署下
         kubectl set image deployment test-k8s test-k8s=ccr.ccs.tencentyun.com/xxxxx --record 给容器重新指定镜像
 
-    node节点： mkdir -p ~/.kube 
-        cp admin.conf ~/.kube/config 
+    node节点： mkdir -p ~/.kube
+        cp admin.conf ~/.kube/config
     journalctl -f -u kubelet        查看日志
 
     kubectx kubens 管理、切换集群和命名空间
@@ -125,7 +126,7 @@ worker上执行，部署可视化插件
         部署nginx进行测试
         kubectl create deployment nginx --image=nginx
         kubectl expose deployment nginx --port=80 --type=NodePort
-        kubectl get svc 
+        kubectl get svc
 
 2. service 特性：
     1. 通过label关联对应的pod
@@ -177,7 +178,8 @@ worker上执行，部署可视化插件
     kubectl rollout undo deployment/nginx 
 
 7. pod的自动伸缩, HPA，根据业务压力自动创建pod数目
-    kubectl autoscale deployment nginx --min=2 --max=6 --cpu-percent=80     cpu使用率到80，最小数目2个最多6个
+    kubectl apply -f ./nginx-sca.yml
+    kubectl autoscale deploy nginx --min=2 --max=6 --cpu-percent=80    cpu使用率到80，最小数目2个最多6个
     kuebctl get horizontalpodautoscalers 
     kubectl edit horizontalpodautoscalers nginx         在线修改配置
 
