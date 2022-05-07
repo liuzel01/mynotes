@@ -2435,7 +2435,7 @@ passwd.txt
 alias cd='cdls'
 cdls() {
      \cd $1 &&\
-         ls
+         ls -la
 }
 ```
 
@@ -2501,6 +2501,7 @@ esac
 - 有时候，linux上的sh 脚本无法执行，原因可能是脚本内容是用dos 模式编辑的，
 
   `sed -i "s/\r//" jdkInstall.sh` 可以运行了
+  或者，vim 进入文件，修改文件的格式:set ff=unix
 
 - 查看、更改文件的格式，vim jdkInstall.sh
 
