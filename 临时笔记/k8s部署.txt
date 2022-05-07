@@ -50,6 +50,7 @@ master 上执行： 手工添加worker节点的ROLES 信息
 	再次 get nodes 就能看到正常显示
 
 worker上执行，部署可视化插件
+    1. 当然， 也可以使用第三方的，kuboard，https://kuboard.cn/install/v3/install-in-k8s.html#%E5%9C%A8-k8s-%E4%B8%AD%E5%AE%89%E8%A3%85-kuboard-v3
 	kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.3/aio/deploy/recommended.yaml      版本不对，所以ui展示上会有错
         yaml文件下载地址，https://raw.githubusercontent.com/kubernetes/dashboard/v2.5.1/aio/deploy/recommended.yaml
     docker pull kubernetesui/dashboard:v2.5.1
