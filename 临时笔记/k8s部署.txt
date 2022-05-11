@@ -51,6 +51,7 @@ master 上执行： 手工添加worker节点的ROLES 信息
 
 worker上执行，部署可视化插件
     1. 当然， 也可以使用第三方的，kuboard，https://kuboard.cn/install/v3/install-in-k8s.html#%E5%9C%A8-k8s-%E4%B8%AD%E5%AE%89%E8%A3%85-kuboard-v3
+        watch kubectl get pod -nkuboard -owide      查看 kuboard的pod是否运行起来了
 	kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.3/aio/deploy/recommended.yaml      版本不对，所以ui展示上会有错
         yaml文件下载地址，https://raw.githubusercontent.com/kubernetes/dashboard/v2.5.1/aio/deploy/recommended.yaml
     docker pull kubernetesui/dashboard:v2.5.1
@@ -198,6 +199,17 @@ PV和PVC的应用（共享类存储）
 1. 实践--搭建站点，wordpress
     
     kubectl get svc | grep mysql        查看mysql连接地址，
+2. 通过将不同环境放到不同ns中，方便区分
+    kubectl run nginx --image=192.168.10.106:90/k8s/nginx:1.9.1-lzl -n test-lzl     创建ns test-lzl 后，运行nginx 容器组
+    kubectl describe pod nginx -ntest-lzl
+
+    通过deployment（工作负载）来管理pod 
+    kubectl create deployment deploy-nginx --image=192.168.10.106:90/k8s/nginx:1.9.1-lzl -n test-lzl
+    kubectl get deploy -owide
+    通过创建service来映射端口，
+    kubectl expose deployment nginx-deployment --port=8888 --target-port=80 -ntest-lzl --type=NodePort    将nginx-deployment 的80端口映射出来8888 可供访问（但并没有对外暴露）
+    kubectl get svc -n test-lzl
+        8888:30969/TCP  这样，就是能够外部宿主机ip+30969 可以访问
 
 FAQ: 
     将主节点的admin.conf scp 到从节点的配置目录下，解决kubectl 无法运行的问题
