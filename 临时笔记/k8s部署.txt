@@ -194,6 +194,26 @@ PV和PVC的应用（共享类存储）
 
 以上，可以成为无状态的服务。其余需要持久化的应用、存储，则需要另外的
 
+9. helm
+    添加一个存储库
+        [root@pptclient01]~# helm repo add incubator https://aliacs-app-catalog.oss-cn-hangzhou.aliyuncs.com/charts-incubator/
+        NAME     	URL                                                                      
+        apphub   	https://apphub.aliyuncs.com                                              
+        incubator	https://aliacs-app-catalog.oss-cn-hangzhou.aliyuncs.com/charts-incubator/
+        aliyun   	https://kubernetes.oss-cn-hangzhou.aliyuncs.com/charts
+    查看当前添加过的存储库
+        [root@pptclient01]~# helm repo list 
+    搜索名为mysql 的repo
+        [root@pptclient01]~# helm search repo mysql
+    移除某个repo
+        [root@pptclient01]~# helm repo remove aliyun
+    2. 基础使用， chart install; chart upgrade; chart rollback
+        helm show values apphub/mariadb     查看该仓库的详细信息
+        [root@pptclient01]~# helm install db-l01 apphub/mariadb
+        
+
+
+
 
 ==========
 1. 实践--搭建站点，wordpress
