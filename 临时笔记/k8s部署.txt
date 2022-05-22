@@ -25,7 +25,8 @@ docker tag registry.cn-hangzhou.aliyuncs.com/google_containers/coredns:1.8.6 k8s
 
 kubectl  get nodes
 kubectl  describe node pptclient01		查看该节点下node的详细信息， 用来排查问题
-kubectl get pods -n kube-system			检查该节点上各个k8s系统pod的状态
+kubectl get pods -nkube-system			检查该节点上各个k8s系统pod的状态
+    kubectl get pod,svc -owide -nkube-system
 接着，部署网络插件
 	首先，从github下载镜像，并导入到docker，docker load < flanneld-v0.17.0-amd64.docker	（否则，，weave-net会一直pending）
 	kubectl apply -f https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')     可将文件先下载下来
@@ -77,9 +78,11 @@ worker上执行，部署可视化插件
 	查看svc 名称，		kubectl get svc -n kubernetes-dashboard
 	修改ingress配置后，不需启动proxy。可直接通过下面地址访问
 		https://192.168.10.27:30000/
+    剔除计算节点： 
 	kubectl edit services -n kubernetes-dashboard kubernetes-dashboard
 	kubectl describe node pptclient01 | grep -i taints		通过打上污点，NoSchedule 意味着所有pod不能在此节点上运行
 		kubectl taint nodes --all node-role.kubernetes.io/master-		表示移除所有以该键为键的taint
+    kubectl cordon pptclient02      使节点pptclient02 不可调度， uncordon 可调度
 
 	防止过期，需要重新生成token（也可生成永不过期的）
         kubeadm token create --print-join-command
@@ -100,11 +103,16 @@ worker上执行，部署可视化插件
         kubectl get pods -A -owide   查看所有的pods
         kubectl get pods --all-namespaces -owide
     kubectl port-forward $pod_name 8080:8081        将8081 映射出来，访问8080
-    kubectl rollout history deployment test-k8s     查看历史版本
+
+    应用发布回滚，
+    kubectl rollout history deployment test-k8s     查看发布过的历史版本
         kubectl rollout undo deployment test-k8s        回退到上一个版本
         kubectl rollout undo deployment test-k8s --to-revision=1 回退到版本1
-        kubectl delete deployment web  -n prod       将deployment 删除
-        kubectl rollout pause deployment test-k8s  resume 暂停、恢复
+        kubectl delete deploy web  -n prod       将deployment 删除
+        kubectl rollout pause deployment test-k8s       暂停、恢复是 resume
+        kubectl rollout restart deployment test-k8s     重新部署下
+        kubectl set image deployment test-k8s nginx=zxczxc:v2.1 --record        将此条指令记录到发布记录中
+
         kubectl get deployment test-k8s -o yaml >> app2.yaml        输出到一个文件
         kubectl delete all --all        删除全部资源
         kubectl delete pod --all -n prod  --grace-period=0 --force      强制删除 prod 命名空间下的所有pod
@@ -112,13 +120,12 @@ worker上执行，部署可视化插件
     只删除pod，而pod控制器还在，相当于重启该pod
     kubectl  describe pod kube-proxy-z8cdm  -n kube-system      查看某个命名空间的某个pod，
 
-    kubectl get all  -n prod
-        kubectl rollout restart deployment test-k8s     重新部署下
-        kubectl set image deployment test-k8s test-k8s=ccr.ccs.tencentyun.com/xxxxx --record 给容器重新指定镜像
 
     node节点： mkdir -p ~/.kube
         cp admin.conf ~/.kube/config
     journalctl -f -u kubelet        查看日志
+    kubectl get endpoints -A        查看服务相关联的pod
+
 
     kubectx kubens 管理、切换集群和命名空间
     kubectl  replace --force -f nginx_new.yml        镜像有更改，强行替换旧的pods，进行升级、更新（单一pod）
@@ -175,8 +182,10 @@ worker上执行，部署可视化插件
     kubectl scale rc RCNAME --replicas=2
     kubectl rolling-update OLDRCNAME -f NEWRCFILE --update-period=5s
     kubectl rolling-update OLDRCNAME NEWRCNAME --rollback 
-6. deployment 滚动升级
-    kubectl set image deployment/nginx nginx=10.0.0.11:5000/oldguo/nginx:v1
+
+6. deployment 滚动升级（这是他默认的应用升级方式）
+    kubectl set image deployment/nginx nginx=10.0.0.11:5000/oldguo/nginx:v2.1
+        或者在配置里更新相关配置， kubectl apply -f xxx.yml 
     kubectl rollout undo deployment/nginx 
 
 7. pod的自动伸缩, HPA，根据业务压力自动创建pod数目

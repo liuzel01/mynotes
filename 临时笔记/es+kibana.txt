@@ -91,3 +91,6 @@ npm run start &
 	i18n.locale: "zh-CN"
 	启动后，查看日志：
 		tail -f /home/es/kibana-7.10.1-linux-x86_64/start.out
+
+logstash
+    1. 命令行启动， bin/logstash -e "input { stdin {} } output { stdout {} }"
