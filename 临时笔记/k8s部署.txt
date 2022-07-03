@@ -26,7 +26,7 @@ docker tag registry.cn-hangzhou.aliyuncs.com/google_containers/coredns:1.8.6 k8s
 kubectl  get nodes
 kubectl  describe node pptclient01		查看该节点下node的详细信息， 用来排查问题
 kubectl get pods -nkube-system			检查该节点上各个k8s系统pod的状态
-    kubectl get pod,svc -owide -nkube-system
+    kubectl get pod,deploy,svc -owide
 接着，部署网络插件
 	首先，从github下载镜像，并导入到docker，docker load < flanneld-v0.17.0-amd64.docker	（否则，，weave-net会一直pending）
 	kubectl apply -f https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')     可将文件先下载下来
@@ -125,9 +125,15 @@ worker上执行，部署可视化插件
         cp admin.conf ~/.kube/config
     journalctl -f -u kubelet        查看日志
     kubectl get endpoints -A        查看服务相关联的pod
+        kubectl get ep
+        kubectl get ep -w           实时看到增减pod的情况
 
 
     kubectx kubens 管理、切换集群和命名空间
+    mv kubens /usr/bin/kubes
+    kubes           查看当前使用的命名空间
+
+
     kubectl  replace --force -f nginx_new.yml        镜像有更改，强行替换旧的pods，进行升级、更新（单一pod）
         灰度发布，
 
@@ -146,6 +152,7 @@ worker上执行，部署可视化插件
         kubectl get svc 
         kubectl describe vsc test-k8s 
         kubectl exec -it $pod_name -- bash      进入pod，进行内部访问  curl http://test-k8s:8080
+        三种常用类型： ClusterIP(集群内部), NodePort（对外暴露）, LoadBalancer（对外暴露，公有云）
 
 3. StatefuSet
     用来管理有状态的应用，例如数据库
@@ -239,6 +246,19 @@ PV和PVC的应用（共享类存储）
     kubectl expose deployment nginx-deployment --port=8888 --target-port=80 -ntest-lzl --type=NodePort    将nginx-deployment 的80端口映射出来8888 可供访问（但并没有对外暴露）
     kubectl get svc -n test-lzl
         8888:30969/TCP  这样，就是能够外部宿主机ip+30969 可以访问
+
+3. 创建ssl证书，
+    root@pptclient01]~/k8s/test/ingress/https# openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048 -keyout tls.key -out tls.crt -subj "/CN=nginxsvc/O=nginxsvc"
+    [root@pptclient01]~/k8s/test/ingress/https# kubectl create secret tls tls-secret --key tls.key --cert tls.crt 
+
+    [root@pptclient01]~/k8s/test/configmap/env# kubectl get cm -owide       查看configmap
+    kubectl create configmap redis-config  --from-file=redis.properties     创建configmap
+    kubectl describe cm redis-config
+
+
+Helm 使用
+
+
 
 FAQ: 
     将主节点的admin.conf scp 到从节点的配置目录下，解决kubectl 无法运行的问题
