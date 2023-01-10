@@ -62,9 +62,9 @@
    2. partprobe使生效
    3. partx -s /dev/vda  查看分区情况
 3. pvcreate， 创建pv physical volume
-   1. `pvcreate /dev/sdb` 
+   1. `pvcreate /dev/sdb1`
    2.  `pvs`  
-   3. `vgextend centos /dev/sdb`
+   3. `vgextend centos /dev/sdb1`
 4. 将新创建的pv，添加到vg内；lvcreate  创建lv logical volume
    1. **如若没有，需要创建centos-data**
       1. `mkfs.ext4 /dev/centos_data/newvdb`          注意格式化，否则挂载不上，提示mount: /dev/mapper/centos_home-newvdb 写保护，将以只读方式挂载、、mount: 未知的文件系统类型“(null)”
@@ -114,9 +114,9 @@ Disk identifier: 0x7b35c36f
 
 
 
-# git:chestnut:  
+# git:chestnut:
 
-##  常用操作
+## 常用操作
 
 - `git status `  用于显示，工作目录和暂存区的状态。
 
@@ -190,7 +190,7 @@ Disk identifier: 0x7b35c36f
 1. 回溯之后，我想前进到最近的版本应如何？，`git reset --hard + 版本号`  来作，太艹了:joy:  反复横跳
 2. `git reflog`  ，可以帮你找到你的版本号，防止弄丢了，然后又可以 `git reset `  来回穿梭了
 
-######  版本控制
+###### 版本控制
 
 - 版本控制，revision control 是一种在开发的过程中，用于管理我们对文件/目录或是工程等内容的修改历史，方便查看更改历史记录，备份以便恢复以前的版本，的软件工程技术
 - 简单说，就是用于管理，多人协同开发项目的技术
@@ -256,7 +256,7 @@ Disk identifier: 0x7b35c36f
 
 - 参考链接，[git笔记](https://juejin.cn/post/6844903877138087950#heading-4)， 
 
-##  使用原则
+## 使用原则
 
 1. 每次commit只做一件事。 linux中心原则是，所有更改都必须分解为小步骤进行。针对某一项单一任务的更改
 
@@ -826,7 +826,7 @@ pipelining = True
 
 - 少了一个PUT脚本和SFTP脚本去远端server的流程
 
-##### ~~开启accelerate模式~~  
+##### ~~开启accelerate模式~~
 
 - 和SSH Multiplexing功能类似，accelerate 是使用python在远端server 运行一个守护进程，然后ansible通过这个守护进程监听的端口进行通信
 - redhat官方目前不赞成使用accelerate模式，后面的版本中可能要被删除。:seedling:  
@@ -916,7 +916,7 @@ gathering = explicit
 
 ###### json文件缓存facts信息
 
-###### redis缓存facts信息 
+###### redis缓存facts信息
 
 ###### memcache缓存facts信息
 
@@ -1383,7 +1383,7 @@ bing meiy shenm cuo ,zhishi ba ziji de weizhi baif de taizheng le ,zhengde wo ye
 
 
 
-# 技巧技巧 :medal_sports:  
+# 技巧技巧 :medal_sports:
 
 ## PC和手机快速文件传输
 
